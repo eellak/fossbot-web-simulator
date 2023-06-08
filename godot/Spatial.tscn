@@ -62,7 +62,7 @@ transform = Transform( 1, 0, 1.16415e-10, 0, 1, 0, -1.16415e-10, 0, 1, 0, 0, 0 )
 shape = SubResource( 4 )
 
 [node name="caster-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 1.86265e-09, 0, 1, 0, -1.86265e-09, 0, 1, 0.001, -0.237, 0.85 )
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.001, -0.237, 0.85 )
 use_as_steering = true
 wheel_radius = 0.2
 suspension_travel = 0.25
@@ -75,8 +75,8 @@ transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0
 mesh = SubResource( 9 )
 material/0 = SubResource( 7 )
 
-[node name="back-left-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 0, -0.85 )
+[node name="front-right-wheel" type="VehicleWheel" parent="fossbot"]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.9, 0, -0.85 )
 use_as_traction = true
 wheel_radius = 0.4
 suspension_travel = 0.25
@@ -84,13 +84,13 @@ suspension_stiffness = 50.0
 damping_compression = 1.9
 damping_relaxation = 2.0
 
-[node name="MeshInstance" type="MeshInstance" parent="fossbot/back-left-wheel"]
+[node name="MeshInstance" type="MeshInstance" parent="fossbot/front-right-wheel"]
 transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
 mesh = SubResource( 6 )
 material/0 = SubResource( 7 )
 
-[node name="back-right-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9, 0, -0.85 )
+[node name="front-left-wheel" type="VehicleWheel" parent="fossbot"]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -0.9, 0, -0.85 )
 use_as_traction = true
 wheel_radius = 0.4
 suspension_travel = 0.25
@@ -98,12 +98,12 @@ suspension_stiffness = 50.0
 damping_compression = 1.9
 damping_relaxation = 2.0
 
-[node name="MeshInstance" type="MeshInstance" parent="fossbot/back-right-wheel"]
+[node name="MeshInstance" type="MeshInstance" parent="fossbot/front-left-wheel"]
 transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
 mesh = SubResource( 6 )
 material/0 = SubResource( 7 )
 
 [node name="Camera" type="Camera" parent="fossbot"]
-transform = Transform( -0.9998, -0.0200002, 0, 0.000501909, -0.0250902, 0.999685, -0.0199939, 0.999486, 0.0250952, -0.0115578, 3.70562, -0.027037 )
+transform = Transform( 1, 0, 0, 0, 0.0250952, 0.999685, 0, -0.999686, 0.0250952, -0.0115578, 3.70562, -0.027037 )
 visible = false
 fov = 129.375
