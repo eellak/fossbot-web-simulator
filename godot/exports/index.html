@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Example</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div>
+		<select name="categories" id="messageInput" size="1">
+			<option value="move_forward">move_forward</option>
+			<option value="move_backward">move_backward</option>
+			<option value="rotate_clockwise">rotate_clockwise</option>
+			<option value="rotate_counterclockwise">rotate_counterclockwise</option>
+		</select>
+		<input type="number" id="rightVel" min="0" max="100" placeholder="Right Velocity">
+		<input type="number" id="leftVel" min="0" max="100" placeholder="Left Velocity">
+        <button id="sendButton">Send</button>
+        <button id="stopButton">Stop</button>
+		<button id="clearButton">Clear</button>
+    </div>
+	<div><strong>Server Response:</strong></div>
+    <div id="textDiv"></div>
+    <script src="index.js"></script>
+    <script>
+		const GODOT_CONFIG = {"args":[],"canvasResizePolicy":1,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":37536,"index.wasm":17867504},"focusCanvas":true,"gdnativeLibs":[]};
+		var engine = new Engine(GODOT_CONFIG);
+        engine.startGame();
+
+        var sendButton = document.getElementById("sendButton");
+        var stopButton = document.getElementById("stopButton");
+		var clearButton = document.getElementById("clearButton");
+        var messageInput = document.getElementById("messageInput");
+        var rightVel = document.getElementById("rightVel");
+        var leftVel = document.getElementById("leftVel");
+		var textDiv = document.getElementById("textDiv");
+
+        var ws = new WebSocket("ws://localhost:5000");
+
+        sendButton.addEventListener("click", function() {
+			var message = {
+				func: messageInput.value,
+				vel_right: rightVel.value,
+				vel_left: leftVel.value
+			};
+			ws.send(JSON.stringify(message));
+        });
+
+        ws.addEventListener("message", function(event) {
+            var response = event.data;
+            textDiv.innerHTML += response + "<br>";
+        });
+
+        stopButton.addEventListener("click", function() {
+			var message = {
+				func: "stop",
+				vel_right: "0",
+				vel_left: "0"
+			};
+			ws.send(JSON.stringify(message));
+        });
+
+        clearButton.addEventListener("click", function() {
+            textDiv.innerHTML = "";
+        });
+    </script>
+</body>
+</html>
