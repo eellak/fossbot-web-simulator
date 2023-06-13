@@ -2,7 +2,7 @@ extends VehicleBody
 
 var vel_right = 0
 var vel_left = 0
-var prev_mass = mass
+var stop = false
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -55,7 +55,8 @@ func send(msg):
 
 func _physics_process(delta):
 	client.poll()	# used for websockets
-	move(vel_right, vel_left)
+	if !stop:
+		move(vel_right, vel_left)
 	## input func returns -1 and 1
 	## steer = lerp(steer, Input.get_axis("right", "left") * 0.4, 5 * delta)
 	## steering = steer
@@ -77,11 +78,22 @@ func move(right_vel, left_vel):
 	rpm = abs($"front-left-wheel".get_rpm())
 	$"front-left-wheel".engine_force = (left_vel/100) * max_torque * (1 - rpm / max_rpm)
 
+var prev_mass = mass
+var prev_mode = mode
+
 func stop():
 	prev_mass = mass
+	prev_mode = get_mode()
 	print("stop")
-	mass = 10000
+	$"front-right-wheel".engine_force = 0
+	$"front-left-wheel".engine_force = 0
+	brake = 1000
+	mass = 2000
+	# stop = true
+	mode = MODE_STATIC
 
 func resume():
 	mass = prev_mass
-	pass
+	mode = prev_mode
+	brake = 0
+	stop = false

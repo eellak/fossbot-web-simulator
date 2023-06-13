@@ -16,7 +16,10 @@ async def server(ws, path):
         msg_dict = json.loads(msg)  # Parse JSON string into Python dictionary
 
         data = {"func": msg_dict["func"], "vel_right": float(msg_dict["vel_right"]), "vel_left": float(msg_dict["vel_left"])}
-
+        if data["vel_right"] > 100:
+            data["vel_right"] = 100
+        if data["vel_left"] > 100:
+            data["vel_left"] = 100
         # if msg_dict["func"] == 'move_forward':
         #     data = {"msg":"","x": 0, "z": 0, "p":1}
         # elif msg_dict["func"] == 'move_backward':
