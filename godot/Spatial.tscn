@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://car.gd" type="Script" id=1]
 [ext_resource path="res://square.jpg" type="Texture" id=2]
@@ -36,21 +36,40 @@ bottom_radius = 0.4
 height = 0.3
 radial_segments = 12
 
+[sub_resource type="CylinderMesh" id=11]
+top_radius = 5.0
+bottom_radius = 0.0
+height = 7.0
+radial_segments = 32
+
+[sub_resource type="ConvexPolygonShape" id=12]
+points = PoolVector3Array( 4.30252, 2.53948, 0.115669, -0.699977, 3.13137, -4.66773, -0.346886, 2.87896, -4.52223, -3.82644, 3.32882, 2.98923, -0.115517, -3.27129, 0.115517, 2.66171, 3.36847, 4.11338, -4.11339, 3.36847, -2.66172, 3.25237, 3.48377, -3.75296, -0.724197, 3.36082, 4.82924, -4.82924, 3.36082, 0.724197, 4.41537, 3.32301, 2.02823, 0.115517, -3.27129, -0.115517, 4.41535, 3.323, -2.02822, -2.66171, 3.36847, -4.11338, 3.25237, 3.48377, 3.75296, 1.32079, 3.34166, -4.68154, -2.66172, 3.36847, 4.11339, 0.724197, 3.36082, 4.82924, -4.82924, 3.36082, -0.724197, -0.115517, -3.27129, -0.115517, 0.115517, -3.27129, 0.115517, 4.83034, 3.36225, -0.723416, -4.41452, 3.32171, 2.02784, -1.6881, 3.35617, -4.5809, 2.66172, 3.36847, -4.11339, 4.11492, 3.3704, 2.66176, 4.11491, 3.37039, -2.66175, 4.83034, 3.36225, 0.723416, -1.6881, 3.35617, 4.5809, -3.20299, 2.84086, -3.20209, -4.01221, 2.61737, -1.71837, 1.71897, 2.61691, 4.01152, 0.724197, 3.36082, -4.82924, -3.20299, 2.84086, 3.20209, -4.11338, 3.36847, 2.66171, -4.30252, 2.53948, 0.115669, 0.115648, 2.53838, 4.30173, 1.71897, 2.61692, -4.01153, 3.20225, 2.8402, -3.20225, 3.20225, 2.8402, 3.20225, 4.68294, 3.34333, -1.32025, 4.68294, 3.34332, 1.32025, -4.68282, 3.34325, 1.32048, -0.814091, -2.34434, -0.115648, 1.3208, 3.34166, 4.68154, 0.114923, -3.13864, -0.229845, -4.68282, 3.34325, -1.32048, -0.114923, -3.13864, 0.229845, 0.230676, -3.13763, -0.114886, 0.230676, -3.13763, 0.114886, 0.115648, 2.53837, -4.30173, -0.114923, -3.13864, -0.229845, 0.114923, -3.13864, 0.229845, -0.230676, -3.13763, 0.114886, -1.71897, 2.61692, 4.01153, -1.71897, 2.61691, -4.01152, -1.03801, 2.98041, 4.49896, -1.03801, 2.98041, -4.49897, -0.724197, 3.36082, -4.82924, -2.98923, 3.32882, -3.82644, -0.115627, 0.0963667, 2.55745, -0.814091, -2.34434, 0.115648, 3.13888, 0.910383, -0.115648, -0.230676, -3.13763, -0.114886 )
+
+[sub_resource type="CubeMesh" id=13]
+
+[sub_resource type="ConcavePolygonShape" id=14]
+data = PoolVector3Array( -1, 1, 1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, -1, 1, -1, -1, 1, 1, -1, -1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, 1, 1, 1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, -1, -1 )
+
 [node name="Spatial" type="Spatial"]
 
-[node name="ground" type="MeshInstance" parent="."]
+[node name="Floor" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.473451, 0 )
 mesh = SubResource( 1 )
 material/0 = SubResource( 8 )
 
-[node name="StaticBody" type="StaticBody" parent="ground"]
+[node name="Floor" type="StaticBody" parent="Floor"]
 
-[node name="CollisionShape" type="CollisionShape" parent="ground/StaticBody"]
+[node name="CollisionShape" type="CollisionShape" parent="Floor/Floor"]
 shape = SubResource( 10 )
 
 [node name="fossbot" type="VehicleBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.575766, 0 )
 script = ExtResource( 1 )
+
+[node name="Camera" type="Camera" parent="fossbot"]
+transform = Transform( 1, 0, 0, 0, 0.0250952, 0.999685, 0, -0.999685, 0.0250952, -0.0115578, 3.70562, -0.027037 )
+visible = false
+fov = 129.375
 
 [node name="car-body" type="MeshInstance" parent="fossbot"]
 transform = Transform( 1, 0, 2.32831e-10, 0, 1, 0, -2.32831e-10, 0, 1, 0, 0, 0 )
@@ -103,7 +122,32 @@ transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0
 mesh = SubResource( 6 )
 material/0 = SubResource( 7 )
 
-[node name="Camera" type="Camera" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 0.0250952, 0.999685, 0, -0.999686, 0.0250952, -0.0115578, 3.70562, -0.027037 )
+[node name="ultrasonic" type="Area" parent="fossbot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.361853, -4.78154 )
+
+[node name="MeshInstance" type="MeshInstance" parent="fossbot/ultrasonic"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )
 visible = false
-fov = 129.375
+mesh = SubResource( 11 )
+
+[node name="CollisionShape" type="CollisionShape" parent="fossbot/ultrasonic"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )
+shape = SubResource( 12 )
+
+[node name="obstacle" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.05796, 1.1594, -6.40437 )
+mesh = SubResource( 13 )
+
+[node name="StaticBody" type="StaticBody" parent="obstacle"]
+
+[node name="CollisionShape" type="CollisionShape" parent="obstacle/StaticBody"]
+shape = SubResource( 14 )
+
+[node name="obstacle2" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.09015, 1.35106, -5.30216 )
+mesh = SubResource( 13 )
+
+[node name="StaticBody" type="StaticBody" parent="obstacle2"]
+
+[node name="CollisionShape" type="CollisionShape" parent="obstacle2/StaticBody"]
+shape = SubResource( 14 )

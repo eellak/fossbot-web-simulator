@@ -2,6 +2,8 @@ extends VehicleBody
 
 var vel_right = 0
 var vel_left = 0
+var floor_name = "Floor"
+var ultrasonic_tradeoff = 2.7	# change it according to the position of ultrasonic in comparison to the player.
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -67,6 +69,15 @@ func _physics_process(delta):
 	## var angle = get_rotation().y # gets rad rotation
 	## get_rotation_degrees().y -> gets rotation in degrees.
 
+	print(get_ultrasonic(true))
+
+	#if $ultrasonic.is_colliding():
+	#	var origin = $ultrasonic.global_transform.origin
+	#	var collision_point = $ultrasonic.get_collision_point()
+	#	var distance = origin.distance_to(collision_point)
+	#	print(distance)
+
+
 func move(right_vel, left_vel):
 	# var steer = 0
 	var max_torque = 100	# change this if needed
@@ -83,3 +94,23 @@ func stop():
 
 func resume():	# call this immediately after stop()
 	mode = prev_mode
+
+
+func get_ultrasonic(calc_distance):
+	# If cal_distance == false, just returns if ultrasonic has detected a static body.
+	# If cal_distance == true, returns the distance of the nearest obstacle.
+	# Parameters: calc_distance = boolean.
+	var list_detect = $ultrasonic.get_overlapping_bodies()
+	# iterate over the list of overlapping bodies
+	var min_d = 10000
+	for body in list_detect:
+		if body.get_name() != floor_name:
+			if !calc_distance:
+				return true #if no calc_distance, just returns if the object is colliding with static.
+			var player_position = self.global_transform.origin
+			var body_position = body.global_transform.origin
+			var distance = player_position.distance_to(body_position) - ultrasonic_tradeoff
+			# print("Distance to ", body.get_name(), " is ", distance)
+			if distance < min_d:
+				min_d = distance
+	return min_d
