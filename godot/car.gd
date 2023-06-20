@@ -4,6 +4,7 @@ var vel_right = 0
 var vel_left = 0
 var floor_name = "Floor"
 var ultrasonic_tradeoff = 2.7	# change it according to the position of ultrasonic in comparison to the player.
+
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -69,13 +70,19 @@ func _physics_process(delta):
 	## var angle = get_rotation().y # gets rad rotation
 	## get_rotation_degrees().y -> gets rotation in degrees.
 
-	print(get_ultrasonic(true))
+	# run ultrasonic:
+	# print(get_ultrasonic(true))
+	# INITIALIZATION OF SENSORS (IMPORTANT) ======================================
+	var middle_sensor = $MiddleContainer/Viewport/MiddleSensor
+	var left_sensor = $LeftContainer/Viewport/LeftSensor
+	var right_sensor = $RightContainer/Viewport/RightSensor
+	set_ground_sensor_pos(middle_sensor, 0, -1.45, -90)
+	set_ground_sensor_pos(right_sensor, 0.4, -1.45, -90)
+	set_ground_sensor_pos(left_sensor, -0.4, -1.45, -90)
+	# ============================================================================
+	print(get_darkness_percent(middle_sensor))
 
-	#if $ultrasonic.is_colliding():
-	#	var origin = $ultrasonic.global_transform.origin
-	#	var collision_point = $ultrasonic.get_collision_point()
-	#	var distance = origin.distance_to(collision_point)
-	#	print(distance)
+
 
 
 func move(right_vel, left_vel):
@@ -114,3 +121,40 @@ func get_ultrasonic(calc_distance):
 			if distance < min_d:
 				min_d = distance
 	return min_d
+
+func get_darkness_percent(camera: Camera):
+	# returns the percent value of dark color of input ground sensor.
+	var dark_threshold = 0.5
+	var texture = camera.get_viewport().get_texture()
+	var image: Image = texture.get_data()
+	image.resize(64,64)
+	image.lock()
+	var total_grayscale = 0
+
+	for y in range(image.get_height()):
+		for x in range(image.get_width()):
+			var c = image.get_pixel(x, y)
+			var grayscale = c.gray()
+			total_grayscale += grayscale
+
+	return total_grayscale / (64 * 64)
+
+func is_dark(camera: Camera):
+	# returns true if input ground sensor is above dark color.
+	var dark_threshold = 0.5
+	if get_darkness_percent(camera) < dark_threshold:
+		return true
+	else:
+		return false
+
+func set_ground_sensor_pos(sensor: Camera, offset_x, offset_z, offset_deg_x):
+	# Used to update the input ground sensor position when the bot moves (recommended to be used in _physics_process).
+	# Parameters: 
+	#   sensor: the ground sensor to be moved (path).
+	#	offset_x: the x position offset (position difference of main vehicle body, to wanted x position of ground sensor).
+	#	offset_x: the z position offset (position difference of main vehicle body, to wanted z position of ground sensor).
+	# 	offset_deg_x: the rotation offset in x axis (rotation difference of main vehicle body, to wanted x position of ground sensor).
+	sensor.global_translation.z = self.global_transform.origin.z + offset_z
+	sensor.global_translation.x = self.global_transform.origin.x + offset_x
+	sensor.rotation = self.rotation
+	sensor.rotation.x = offset_deg_x
