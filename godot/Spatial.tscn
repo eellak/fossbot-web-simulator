@@ -136,10 +136,10 @@ shape = SubResource( 12 )
 
 [node name="MiddleContainer" type="ViewportContainer" parent="fossbot"]
 show_behind_parent = true
-margin_left = 6.0
-margin_top = -83.0
-margin_right = 70.0
-margin_bottom = -19.0
+margin_left = 131.0
+margin_top = -97.0
+margin_right = 195.0
+margin_bottom = -33.0
 stretch = true
 
 [node name="Viewport" type="Viewport" parent="fossbot/MiddleContainer"]
@@ -155,10 +155,10 @@ size = 0.075
 
 [node name="RightContainer" type="ViewportContainer" parent="fossbot"]
 show_behind_parent = true
-margin_left = 131.0
-margin_top = -85.0
-margin_right = 195.0
-margin_bottom = -21.0
+margin_left = 213.0
+margin_top = -98.0
+margin_right = 277.0
+margin_bottom = -34.0
 stretch = true
 
 [node name="Viewport" type="Viewport" parent="fossbot/RightContainer"]
@@ -174,10 +174,10 @@ size = 0.075
 
 [node name="LeftContainer" type="ViewportContainer" parent="fossbot"]
 show_behind_parent = true
-margin_left = 66.0
-margin_top = -84.0
-margin_right = 130.0
-margin_bottom = -20.0
+margin_left = 49.0
+margin_top = -97.0
+margin_right = 113.0
+margin_bottom = -33.0
 stretch = true
 
 [node name="Viewport" type="Viewport" parent="fossbot/LeftContainer"]

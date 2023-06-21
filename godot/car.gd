@@ -4,11 +4,17 @@ var vel_right = 0
 var vel_left = 0
 var floor_name = "Floor"
 var ultrasonic_tradeoff = 2.7	# change it according to the position of ultrasonic in comparison to the player.
-
+var middle_sensor = "MiddleContainer/Viewport/MiddleSensor"		# path to ground sensors (change it if needed).
+var left_sensor = "LeftContainer/Viewport/LeftSensor"
+var right_sensor = "RightContainer/Viewport/RightSensor"
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
+
 func _ready():
+	middle_sensor = get_node(middle_sensor)
+	left_sensor = get_node(left_sensor)
+	right_sensor = get_node(right_sensor)
 	client.connect("data_received", self, "data_received")
 	var err = client.connect_to_url(url)
 	if err != OK:
@@ -58,6 +64,8 @@ func send(msg):
 func _physics_process(delta):
 	client.poll()	# used for websockets
 	move(vel_right, vel_left)
+
+	# PROXEIRO ====================================================
 	## input func returns -1 and 1
 	## steer = lerp(steer, Input.get_axis("right", "left") * 0.4, 5 * delta)
 	## steering = steer
@@ -69,20 +77,15 @@ func _physics_process(delta):
 	## print(get_rotation_degrees())
 	## var angle = get_rotation().y # gets rad rotation
 	## get_rotation_degrees().y -> gets rotation in degrees.
+	# =================================================================
 
 	# run ultrasonic:
 	# print(get_ultrasonic(true))
-	# INITIALIZATION OF SENSORS (IMPORTANT) ======================================
-	var middle_sensor = $MiddleContainer/Viewport/MiddleSensor
-	var left_sensor = $LeftContainer/Viewport/LeftSensor
-	var right_sensor = $RightContainer/Viewport/RightSensor
-	set_ground_sensor_pos(middle_sensor, 0, -1.45, -90)
-	set_ground_sensor_pos(right_sensor, 0.4, -1.45, -90)
-	set_ground_sensor_pos(left_sensor, -0.4, -1.45, -90)
+
+	# UPDATE OF SENSORS POSITION (VERY IMPORTANT TO BE HERE) ======================================
+	update_all_ground_sensors()
 	# ============================================================================
 	print(get_darkness_percent(middle_sensor))
-
-
 
 
 func move(right_vel, left_vel):
@@ -96,10 +99,12 @@ func move(right_vel, left_vel):
 
 var prev_mode = mode
 func stop():
+	# Stops the vehicle (to un-stop, call resume() method).
 	prev_mode = mode
 	mode = MODE_STATIC
 
-func resume():	# call this immediately after stop()
+func resume():
+	# Call this immediately after stop().
 	mode = prev_mode
 
 
@@ -158,3 +163,10 @@ func set_ground_sensor_pos(sensor: Camera, offset_x, offset_z, offset_deg_x):
 	sensor.global_translation.x = self.global_transform.origin.x + offset_x
 	sensor.rotation = self.rotation
 	sensor.rotation.x = offset_deg_x
+
+func update_all_ground_sensors():
+	# Updates all ground sensors position when the bot moves (MUST be to be used in _physics_process).
+	# change offsets if needed -> see set_ground_sensor_pos documentation to understand what values to put.
+	set_ground_sensor_pos(middle_sensor, 0, -1.45, -90)
+	set_ground_sensor_pos(right_sensor, 0.4, -1.45, -90)
+	set_ground_sensor_pos(left_sensor, -0.4, -1.45, -90)
