@@ -29,19 +29,25 @@ func data_received():
 	var d = parsedJson.get_result()
 	# print("Got data from server: " + pkt.get_string_from_utf8())
 	# changes player's velocity accordind to input:
-	vel_right = d["vel_right"]
-	vel_left = d["vel_left"]
 	var req_func = d["func"]
 	if req_func == "move_forward":
+		vel_right = d["vel_right"]
+		vel_left = d["vel_left"]
 		vel_right = abs(vel_right)
 		vel_left = abs(vel_left)
 	elif req_func == "move_backward":
+		vel_right = d["vel_right"]
+		vel_left = d["vel_left"]
 		vel_right = -abs(vel_right)
 		vel_left = -abs(vel_left)
 	elif req_func == "rotate_clockwise":
+		vel_right = d["vel_right"]
+		vel_left = d["vel_left"]
 		vel_right = -abs(vel_right)
 		vel_left = abs(vel_left)
 	elif req_func == "rotate_counterclockwise":
+		vel_right = d["vel_right"]
+		vel_left = d["vel_left"]
 		vel_right = abs(vel_right)
 		vel_left = -abs(vel_left)
 	elif req_func == "get_position":
@@ -50,6 +56,8 @@ func data_received():
 		var pos_z = self.global_transform.origin.z
 		var msg = "Player position = x: " + str(pos_x) + ", z: " + str(pos_z)
 		send(msg)	# sends data back to server
+	elif req_func == "rgb_set_color":
+		change_rgb(d["color"])
 	elif req_func == "stop":	# stops
 		stop()
 		vel_right = 0
@@ -85,7 +93,7 @@ func _physics_process(delta):
 	# UPDATE OF SENSORS POSITION (VERY IMPORTANT TO BE HERE) ======================================
 	update_all_ground_sensors()
 	# ============================================================================
-	print(get_darkness_percent(middle_sensor))
+	# print(get_darkness_percent(middle_sensor))
 
 
 func move(right_vel, left_vel):
@@ -139,7 +147,7 @@ func get_darkness_percent(camera: Camera):
 	for y in range(image.get_height()):
 		for x in range(image.get_width()):
 			var c = image.get_pixel(x, y)
-			var grayscale = c.gray()
+			var grayscale = c.v
 			total_grayscale += grayscale
 
 	return total_grayscale / (64 * 64)
@@ -170,3 +178,25 @@ func update_all_ground_sensors():
 	set_ground_sensor_pos(middle_sensor, 0, -1.45, -90)
 	set_ground_sensor_pos(right_sensor, 0.4, -1.45, -90)
 	set_ground_sensor_pos(left_sensor, -0.4, -1.45, -90)
+
+func change_rgb(color):
+	var material = $led.get_surface_material(0)
+	if color == 'red':
+		material.albedo_color = Color(1, 0, 0)
+	elif color == 'green':
+		material.albedo_color = Color(0, 1, 0)
+	elif color == 'blue':
+		material.albedo_color = Color(0, 0, 1)
+	elif color == 'white':
+		material.albedo_color = Color(1, 1, 1)
+	elif color == 'yellow':
+		material.albedo_color = Color(1, 1, 0)
+	elif color == 'cyan':
+		material.albedo_color = Color(0, 1, 1)
+	elif color == 'violet':
+		material.albedo_color = Color(1, 0, 1)
+	elif color == 'closed':
+		material.albedo_color = Color(0, 0, 0)
+	else:
+		print('Uknown color!')
+	$led.set_surface_material(0, material)
