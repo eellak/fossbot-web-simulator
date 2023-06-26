@@ -15,7 +15,7 @@ async def server(ws, path):
 
         msg_dict = json.loads(msg)  # Parse JSON string into Python dictionary
 
-        data = {"func": msg_dict["func"], "vel_right": float(msg_dict["vel_right"]), "vel_left": float(msg_dict["vel_left"]), "color": msg_dict["color"]}
+        data = {"func": msg_dict["func"], "vel_right": float(msg_dict["vel_right"]), "vel_left": float(msg_dict["vel_left"]), "degree": float(msg_dict["degree"]), "color": msg_dict["color"]}
         if data["vel_right"] > 100:
             data["vel_right"] = 100
         if data["vel_left"] > 100:

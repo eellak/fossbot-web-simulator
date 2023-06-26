@@ -7,6 +7,10 @@ var ultrasonic_tradeoff = 2.7	# change it according to the position of ultrasoni
 var middle_sensor = "MiddleContainer/Viewport/MiddleSensor"		# path to ground sensors (change it if needed).
 var left_sensor = "LeftContainer/Viewport/LeftSensor"
 var right_sensor = "RightContainer/Viewport/RightSensor"
+# rotation related:
+var radians = 0
+var target_ros = 0
+var dir_id = -1
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -24,6 +28,7 @@ func _ready():
 
 func data_received():
 	resume()
+	radians = 0
 	var pkt = client.get_peer(1).get_packet()
 	var parsedJson: JSONParseResult = JSON.parse(pkt.get_string_from_ascii())
 	var d = parsedJson.get_result()
@@ -48,6 +53,20 @@ func data_received():
 	elif req_func == "rotate_counterclockwise":
 		vel_right = d["vel_right"]
 		vel_left = d["vel_left"]
+		vel_right = abs(vel_right)
+		vel_left = -abs(vel_left)
+	elif req_func == "rotate_clockwise_deg":
+		vel_right = d["vel_right"]
+		vel_left = d["vel_left"]
+		dir_id = 1
+		target_ros = d["degree"]
+		vel_right = -abs(vel_right)
+		vel_left = abs(vel_left)
+	elif req_func == "rotate_counterclockwise_deg":
+		vel_right = d["vel_right"]
+		vel_left = d["vel_left"]
+		dir_id = 0
+		target_ros = d["degree"]
 		vel_right = abs(vel_right)
 		vel_left = -abs(vel_left)
 	elif req_func == "get_position":
@@ -89,6 +108,9 @@ func _physics_process(delta):
 
 	# run ultrasonic:
 	# print(get_ultrasonic(true))
+
+	if target_ros > 0:
+		rotate_degrees(target_ros, dir_id)
 
 	# UPDATE OF SENSORS POSITION (VERY IMPORTANT TO BE HERE) ======================================
 	update_all_ground_sensors()
@@ -200,3 +222,37 @@ func change_rgb(color):
 	else:
 		print('Uknown color!')
 	$led.set_surface_material(0, material)
+
+func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
+	# Rotates (slowly) the robot (USE IT IN PHYSICS_PROCESS)
+	# Param: degr: the degrees to rotate it
+	#		 dir_id: the direction to rotate it:
+	#			counterclockwise: dir_id == 0	(left)
+	#			clockwise: dir_id == 1	(right)
+	# 		 rythm=0.01: the step for each rotation (decrease it for slower rotation)
+
+	# TODO: block all incoming functions.
+	if !dir_id:
+		if radians < deg2rad(abs(degr)):
+			radians += rythm
+			rotate_object_local(Vector3(0, 1, 0), rythm)
+			transform = transform.orthonormalized()
+		else:
+			print(rotation_degrees.y)
+			rotation_degrees.y = int(rotation_degrees.y)
+			stop()
+			print(rotation_degrees.y)
+			target_ros = 0
+			dir_id = -1
+	else:
+		if radians > -deg2rad(abs(degr)):
+			radians -= rythm
+			rotate_object_local(Vector3(0, 1, 0), -rythm)
+			transform = transform.orthonormalized()
+		else:
+			print(rotation_degrees.y)
+			rotation_degrees.y = int(rotation_degrees.y)
+			stop()
+			print(rotation_degrees.y)
+			target_ros = 0
+			dir_id = -1
