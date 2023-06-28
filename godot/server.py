@@ -11,15 +11,21 @@ async def server(ws, path):
         # print(path)
         if not isinstance(msg, str):    # godot sends a text here
             msg = msg.decode("utf-8")
-        print(f"Msg from client: {msg}")
+            data = {"func": msg}
+        else:   # browser sends this:
+            print(f"Msg from client: {msg}")
 
-        msg_dict = json.loads(msg)  # Parse JSON string into Python dictionary
+            msg_dict = json.loads(msg)  # Parse JSON string into Python dictionary
 
-        data = {"func": msg_dict["func"], "vel_right": float(msg_dict["vel_right"]), "vel_left": float(msg_dict["vel_left"]), "degree": float(msg_dict["degree"]), "color": msg_dict["color"]}
-        if data["vel_right"] > 100:
-            data["vel_right"] = 100
-        if data["vel_left"] > 100:
-            data["vel_left"] = 100
+            data = {
+                "func": msg_dict["func"], "vel_right": float(msg_dict["vel_right"]), 
+                "vel_left": float(msg_dict["vel_left"]), "degree": float(msg_dict["degree"]), 
+                "color": msg_dict["color"], "axis":msg_dict["axis"]
+            }
+            if data["vel_right"] > 100:
+                data["vel_right"] = 100
+            if data["vel_left"] > 100:
+                data["vel_left"] = 100
         # if msg_dict["func"] == 'move_forward':
         #     data = {"msg":"","x": 0, "z": 0, "p":1}
         # elif msg_dict["func"] == 'move_backward':

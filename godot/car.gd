@@ -3,7 +3,8 @@ extends VehicleBody
 var vel_right = 0
 var vel_left = 0
 var floor_name = "Floor"
-var ultrasonic_tradeoff = 2.7	# change it according to the position of ultrasonic in comparison to the player.
+var ultrasonic_tradeoff = 2.7	# change it according to the position of ultrasonic in comparison to the player
+# Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
 var middle_sensor = "MiddleContainer/Viewport/MiddleSensor"		# path to ground sensors (change it if needed).
 var left_sensor = "LeftContainer/Viewport/LeftSensor"
 var right_sensor = "RightContainer/Viewport/RightSensor"
@@ -11,6 +12,10 @@ var right_sensor = "RightContainer/Viewport/RightSensor"
 var radians = 0
 var target_ros = 0
 var dir_id = -1
+
+# acceleration - gyroscope related:
+var accelerometer = Vector3(0, 0, 0)
+var gyroscope = Vector3(0, 0, 0)
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -27,7 +32,7 @@ func _ready():
 
 
 func data_received():
-	resume()
+	# BLOCK HERE FOR ROTATION TARGET DEGREES (before radians = 0).
 	radians = 0
 	var pkt = client.get_peer(1).get_packet()
 	var parsedJson: JSONParseResult = JSON.parse(pkt.get_string_from_ascii())
@@ -36,26 +41,31 @@ func data_received():
 	# changes player's velocity accordind to input:
 	var req_func = d["func"]
 	if req_func == "move_forward":
+		resume()
 		vel_right = d["vel_right"]
 		vel_left = d["vel_left"]
 		vel_right = abs(vel_right)
 		vel_left = abs(vel_left)
 	elif req_func == "move_backward":
+		resume()
 		vel_right = d["vel_right"]
 		vel_left = d["vel_left"]
 		vel_right = -abs(vel_right)
 		vel_left = -abs(vel_left)
 	elif req_func == "rotate_clockwise":
+		resume()
 		vel_right = d["vel_right"]
 		vel_left = d["vel_left"]
 		vel_right = -abs(vel_right)
 		vel_left = abs(vel_left)
 	elif req_func == "rotate_counterclockwise":
+		resume()
 		vel_right = d["vel_right"]
 		vel_left = d["vel_left"]
 		vel_right = abs(vel_right)
 		vel_left = -abs(vel_left)
 	elif req_func == "rotate_clockwise_deg":
+		resume()
 		vel_right = d["vel_right"]
 		vel_left = d["vel_left"]
 		dir_id = 1
@@ -63,6 +73,7 @@ func data_received():
 		vel_right = -abs(vel_right)
 		vel_left = abs(vel_left)
 	elif req_func == "rotate_counterclockwise_deg":
+		resume()
 		vel_right = d["vel_right"]
 		vel_left = d["vel_left"]
 		dir_id = 0
@@ -77,6 +88,10 @@ func data_received():
 		send(msg)	# sends data back to server
 	elif req_func == "rgb_set_color":
 		change_rgb(d["color"])
+	elif req_func == "get_acceleration":
+		send_axis_vector(accelerometer, d["axis"])
+	elif req_func == "get_gyroscope":
+		send_axis_vector(gyroscope, d["axis"])
 	elif req_func == "stop":	# stops
 		stop()
 		vel_right = 0
@@ -87,6 +102,16 @@ func send(msg):
 
 # =======================================================================
 
+func send_axis_vector(in_vector, axis: String):
+	if axis == "x":
+		send(in_vector.x)
+	elif axis == "z":
+		send(in_vector.z)
+	elif axis == "y":
+		send(in_vector.y)
+	else:
+		print("Unknown Axis!")
+		send("0")
 
 func _physics_process(delta):
 	client.poll()	# used for websockets
@@ -112,8 +137,10 @@ func _physics_process(delta):
 	if target_ros > 0:
 		rotate_degrees(target_ros, dir_id)
 
-	# UPDATE OF SENSORS POSITION (VERY IMPORTANT TO BE HERE) ======================================
+	# UPDATE OF COMPONENTS (VERY IMPORTANT TO BE HERE) ======================================
 	update_all_ground_sensors()
+	# updates values of accelerometer and gyro:
+	update_accel_gyro(delta)
 	# ============================================================================
 	# print(get_darkness_percent(middle_sensor))
 
@@ -126,6 +153,19 @@ func move(right_vel, left_vel):
 	$"front-right-wheel".engine_force = (right_vel/100) * max_torque * (1 - rpm / max_rpm)
 	rpm = abs($"front-left-wheel".get_rpm())
 	$"front-left-wheel".engine_force = (left_vel/100) * max_torque * (1 - rpm / max_rpm)
+
+var v0
+var r0
+func update_accel_gyro(delta):
+	# source: https://godotengine.org/qa/69346/how-to-get-rigidbody2d-linear-acceleration
+	# Calculates acceleration and gyroscope (USE it in physics process).
+	if v0 and r0:
+		accelerometer  = (linear_velocity  - v0) / delta
+		gyroscope = (angular_velocity - r0) / delta
+	v0 = linear_velocity
+	r0 = angular_velocity
+	#print(accelerometer.z)
+	#print(gyroscope)
 
 var prev_mode = mode
 func stop():
@@ -159,7 +199,6 @@ func get_ultrasonic(calc_distance):
 
 func get_darkness_percent(camera: Camera):
 	# returns the percent value of dark color of input ground sensor.
-	var dark_threshold = 0.5
 	var texture = camera.get_viewport().get_texture()
 	var image: Image = texture.get_data()
 	image.resize(64,64)
@@ -231,15 +270,14 @@ func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
 	#			clockwise: dir_id == 1	(right)
 	# 		 rythm=0.01: the step for each rotation (decrease it for slower rotation)
 
-	# TODO: block all incoming functions.
+	# TODO: block all incoming functions & when stop -> rotate player exactly to desired degree.
 	if !dir_id:
 		if radians < deg2rad(abs(degr)):
 			radians += rythm
 			rotate_object_local(Vector3(0, 1, 0), rythm)
 			transform = transform.orthonormalized()
 		else:
-			print(rotation_degrees.y)
-			rotation_degrees.y = int(rotation_degrees.y)
+			#rotation_degrees.y = int(rotation_degrees.y)
 			stop()
 			print(rotation_degrees.y)
 			target_ros = 0
@@ -250,9 +288,10 @@ func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
 			rotate_object_local(Vector3(0, 1, 0), -rythm)
 			transform = transform.orthonormalized()
 		else:
-			print(rotation_degrees.y)
-			rotation_degrees.y = int(rotation_degrees.y)
+			#print(rad2deg(radians))
+			#rotation_degrees.y = int(rotation_degrees.y)
 			stop()
 			print(rotation_degrees.y)
+			#print(rotation_degrees.y)
 			target_ros = 0
 			dir_id = -1
