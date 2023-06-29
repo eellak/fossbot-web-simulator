@@ -42,50 +42,39 @@ func data_received():
 	var req_func = d["func"]
 	if req_func == "move_forward":
 		resume()
-		vel_right = d["vel_right"]
-		vel_left = d["vel_left"]
-		vel_right = abs(vel_right)
-		vel_left = abs(vel_left)
+		# Pattern here: velocity = (-) abs(in_velocity)
+		vel_right = abs(d["vel_right"])
+		vel_left = abs(d["vel_left"])
 	elif req_func == "move_backward":
 		resume()
-		vel_right = d["vel_right"]
-		vel_left = d["vel_left"]
-		vel_right = -abs(vel_right)
-		vel_left = -abs(vel_left)
+		vel_right = -abs(d["vel_right"])
+		vel_left = -abs(d["vel_left"])
 	elif req_func == "rotate_clockwise":
 		resume()
-		vel_right = d["vel_right"]
-		vel_left = d["vel_left"]
-		vel_right = -abs(vel_right)
-		vel_left = abs(vel_left)
+		vel_right = -abs(d["vel_right"])
+		vel_left = abs(d["vel_left"])
 	elif req_func == "rotate_counterclockwise":
 		resume()
-		vel_right = d["vel_right"]
-		vel_left = d["vel_left"]
-		vel_right = abs(vel_right)
-		vel_left = -abs(vel_left)
+		vel_right = abs(d["vel_right"])
+		vel_left = -abs(d["vel_left"])
 	elif req_func == "rotate_clockwise_deg":
 		resume()
-		vel_right = d["vel_right"]
-		vel_left = d["vel_left"]
 		dir_id = 1
 		target_ros = d["degree"]
-		vel_right = -abs(vel_right)
-		vel_left = abs(vel_left)
+		#vel_right = -abs(d["vel_right"])
+		#vel_left = abs(d["vel_left"])
 	elif req_func == "rotate_counterclockwise_deg":
 		resume()
-		vel_right = d["vel_right"]
-		vel_left = d["vel_left"]
 		dir_id = 0
 		target_ros = d["degree"]
-		vel_right = abs(vel_right)
-		vel_left = -abs(vel_left)
-	elif req_func == "get_position":
-		print("Position requested.")
-		var pos_x = self.global_transform.origin.x
-		var pos_z = self.global_transform.origin.z
-		var msg = "Player position = x: " + str(pos_x) + ", z: " + str(pos_z)
-		send(msg)	# sends data back to server
+		#vel_right = abs(d["vel_right"])
+		#vel_left = -abs(d["vel_left"])
+	#elif req_func == "get_position":
+	#	print("Position requested.")
+	#	var pos_x = self.global_transform.origin.x
+	#	var pos_z = self.global_transform.origin.z
+	#	var msg = "Player position = x: " + str(pos_x) + ", z: " + str(pos_z)
+	#	send(msg)	# sends data back to server
 	elif req_func == "rgb_set_color":
 		change_rgb(d["color"])
 	elif req_func == "get_acceleration":
