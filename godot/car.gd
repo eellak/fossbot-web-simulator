@@ -16,6 +16,11 @@ var dir_id = -1
 # acceleration - gyroscope related:
 var accelerometer = Vector3(0, 0, 0)
 var gyroscope = Vector3(0, 0, 0)
+
+# player distance related:
+var init_player_pos
+var target_distance = 0
+var sum_distance = 0
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -32,8 +37,9 @@ func _ready():
 
 
 func data_received():
-	# BLOCK HERE FOR ROTATION TARGET DEGREES (before radians = 0).
+	# BLOCK HERE FOR ROTATION TARGET DEGREES & TARGET DISTANCE (before radians = 0).
 	radians = 0
+	init_player_pos = self.global_transform.origin
 	var pkt = client.get_peer(1).get_packet()
 	var parsedJson: JSONParseResult = JSON.parse(pkt.get_string_from_ascii())
 	var d = parsedJson.get_result()
@@ -41,7 +47,7 @@ func data_received():
 	# changes player's velocity accordind to input:
 	var req_func = d["func"]
 	if req_func == "move_forward":
-		resume()
+		resume()	# ALWAYS add resume() when function is movement related!
 		# Pattern here: velocity = (-) abs(in_velocity)
 		vel_right = abs(d["vel_right"])
 		vel_left = abs(d["vel_left"])
@@ -75,6 +81,18 @@ func data_received():
 	#	var pos_z = self.global_transform.origin.z
 	#	var msg = "Player position = x: " + str(pos_x) + ", z: " + str(pos_z)
 	#	send(msg)	# sends data back to server
+	elif req_func == "move_forward_distance":
+		resume()
+		init_player_pos = self.global_transform.origin
+		target_distance = abs(d["tar_dist"])
+		vel_right = abs(d["vel_right"])
+		vel_left = abs(d["vel_left"])
+	elif req_func == "move_reverse_distance":
+		resume()
+		init_player_pos = self.global_transform.origin
+		target_distance = abs(d["tar_dist"])
+		vel_right = -abs(d["vel_right"])
+		vel_left = -abs(d["vel_left"])
 	elif req_func == "rgb_set_color":
 		change_rgb(d["color"])
 	elif req_func == "get_acceleration":
@@ -125,6 +143,9 @@ func _physics_process(delta):
 
 	if target_ros > 0:
 		rotate_degrees(target_ros, dir_id)
+
+	if target_distance > 0:
+		count_distance()
 
 	# UPDATE OF COMPONENTS (VERY IMPORTANT TO BE HERE) ======================================
 	update_all_ground_sensors()
@@ -284,3 +305,15 @@ func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
 			#print(rotation_degrees.y)
 			target_ros = 0
 			dir_id = -1
+
+func count_distance():
+	# Counts distance until the target distance. If player reaches it -> stops
+	# more here: https://www.youtube.com/watch?v=zFrKeEPmk2Q
+	if sum_distance < target_distance:
+		sum_distance += init_player_pos.distance_to(self.global_transform.origin)
+		init_player_pos = self.global_transform.origin
+		print(sum_distance)
+	else:
+		stop()
+		sum_distance = 0
+		target_distance = 0

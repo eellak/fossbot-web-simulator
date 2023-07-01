@@ -204,7 +204,7 @@ mesh = SubResource( 15 )
 material/0 = SubResource( 16 )
 
 [node name="obstacle" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.05796, 1.1594, -6.40437 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.05796, 1.1594, -9.65655 )
 mesh = SubResource( 13 )
 
 [node name="StaticBody" type="StaticBody" parent="obstacle"]
@@ -213,7 +213,7 @@ mesh = SubResource( 13 )
 shape = SubResource( 14 )
 
 [node name="obstacle2" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.09015, 1.35106, -5.30216 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.09015, 1.35106, -9.98437 )
 mesh = SubResource( 13 )
 
 [node name="StaticBody" type="StaticBody" parent="obstacle2"]

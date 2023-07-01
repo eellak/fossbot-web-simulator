@@ -20,7 +20,7 @@ async def server(ws, path):
             data = {
                 "func": msg_dict["func"], "vel_right": float(msg_dict["vel_right"]), 
                 "vel_left": float(msg_dict["vel_left"]), "degree": float(msg_dict["degree"]), 
-                "color": msg_dict["color"], "axis":msg_dict["axis"]
+                "color": msg_dict["color"], "axis":msg_dict["axis"], "tar_dist":float(msg_dict["tar_dist"])
             }
             if data["vel_right"] > 100:
                 data["vel_right"] = 100
