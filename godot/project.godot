@@ -14,6 +14,10 @@ config/name="Fossbot_Car2"
 run/main_scene="res://Spatial.tscn"
 config/icon="res://icon.png"
 
+[global]
+
+antialising=false
+
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true
@@ -47,4 +51,8 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
+quality/filters/sharpen_intensity=0.5
+quality/filters/anisotropic_filter_level=16
+quality/subsurface_scattering/quality=2
+quality/voxel_cone_tracing/high_quality=true
 environment/default_environment="res://default_env.tres"
