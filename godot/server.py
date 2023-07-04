@@ -11,7 +11,7 @@ async def server(ws, path):
         # print(path)
         if not isinstance(msg, str):    # godot sends a text here
             msg = msg.decode("utf-8")
-            data = {"func": msg}
+            data = {"func": "", "return":msg}
         else:   # browser sends this:
             print(f"Msg from client: {msg}")
 

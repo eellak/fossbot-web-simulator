@@ -17,6 +17,7 @@ config/icon="res://icon.png"
 [global]
 
 antialising=false
+gl_max_samples=false
 
 [gui]
 

@@ -2,7 +2,7 @@ extends VehicleBody
 
 var vel_right = 0
 var vel_left = 0
-var floor_name = "Floor"
+var obstacle_name = "obstacle"
 var ultrasonic_tradeoff = 2.7	# change it according to the position of ultrasonic in comparison to the player
 # Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
 var middle_sensor = "MiddleContainer/Viewport/MiddleSensor"		# path to ground sensors (change it if needed).
@@ -51,7 +51,7 @@ func data_received():
 		# Pattern here: velocity = (-) abs(in_velocity)
 		vel_right = abs(d["vel_right"])
 		vel_left = abs(d["vel_left"])
-	elif req_func == "move_backward":
+	elif req_func == "move_reverse":
 		resume()
 		vel_right = -abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
@@ -75,6 +75,10 @@ func data_received():
 		target_ros = d["degree"]
 		#vel_right = abs(d["vel_right"])
 		#vel_left = -abs(d["vel_left"])
+	elif req_func == "check_for_obstacle":
+		send(get_ultrasonic(false))
+	elif req_func == "get_distance":
+		send(get_ultrasonic(true))
 	#elif req_func == "get_position":
 	#	print("Position requested.")
 	#	var pos_x = self.global_transform.origin.x
@@ -196,7 +200,7 @@ func get_ultrasonic(calc_distance):
 	# iterate over the list of overlapping bodies
 	var min_d = 10000
 	for body in list_detect:
-		if body.get_name() != floor_name:
+		if body.get_name() == obstacle_name:
 			if !calc_distance:
 				return true #if no calc_distance, just returns if the object is colliding with static.
 			var player_position = self.global_transform.origin
@@ -205,6 +209,8 @@ func get_ultrasonic(calc_distance):
 			# print("Distance to ", body.get_name(), " is ", distance)
 			if distance < min_d:
 				min_d = distance
+	if min_d == 10000 and !calc_distance:
+		return false 	# no obstacle has been detected.
 	return min_d
 
 func get_darkness_percent(camera: Camera):
