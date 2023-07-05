@@ -12,6 +12,7 @@ var right_sensor = "RightContainer/Viewport/RightSensor"
 var radians = 0
 var target_ros = 0
 var dir_id = -1
+var final_rot_pos = 0
 
 # acceleration - gyroscope related:
 var accelerometer = Vector3(0, 0, 0)
@@ -65,14 +66,18 @@ func data_received():
 		vel_left = -abs(d["vel_left"])
 	elif req_func == "rotate_clockwise_deg":
 		resume()
+		var init_rot = rotation_degrees.y
 		dir_id = 1
 		target_ros = d["degree"]
+		final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
 		#vel_right = -abs(d["vel_right"])
 		#vel_left = abs(d["vel_left"])
 	elif req_func == "rotate_counterclockwise_deg":
 		resume()
+		var init_rot = rotation_degrees.y
 		dir_id = 0
 		target_ros = d["degree"]
+		final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
 		#vel_right = abs(d["vel_right"])
 		#vel_left = -abs(d["vel_left"])
 	elif req_func == "check_for_obstacle":
@@ -168,14 +173,14 @@ func move(right_vel, left_vel):
 	rpm = abs($"front-left-wheel".get_rpm())
 	$"front-left-wheel".engine_force = (left_vel/100) * max_torque * (1 - rpm / max_rpm)
 
-var v0
-var r0
+var v0 = Vector3(0,0,0)
+var r0 = Vector3(0,0,0)
 func update_accel_gyro(delta):
 	# source: https://godotengine.org/qa/69346/how-to-get-rigidbody2d-linear-acceleration
 	# Calculates acceleration and gyroscope (USE it in physics process).
-	if v0 and r0:
-		accelerometer  = (linear_velocity  - v0) / delta
-		gyroscope = (angular_velocity - r0) / delta
+	#if v0 and r0:
+	accelerometer  = (linear_velocity  - v0) / delta
+	gyroscope = (angular_velocity - r0) / delta
 	v0 = linear_velocity
 	r0 = angular_velocity
 	#print(accelerometer.z)
@@ -294,8 +299,10 @@ func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
 			transform = transform.orthonormalized()
 		else:
 			#rotation_degrees.y = int(rotation_degrees.y)
-			stop()
 			print(rotation_degrees.y)
+			print(final_rot_pos)
+			stop()
+			rotation_degrees.y = final_rot_pos # sets either way to final position -> reduces float mistakes.
 			target_ros = 0
 			dir_id = -1
 	else:
@@ -306,11 +313,33 @@ func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
 		else:
 			#print(rad2deg(radians))
 			#rotation_degrees.y = int(rotation_degrees.y)
-			stop()
 			print(rotation_degrees.y)
-			#print(rotation_degrees.y)
+			print(final_rot_pos)
+			stop()
+			rotation_degrees.y = final_rot_pos
 			target_ros = 0
 			dir_id = -1
+
+func calc_final_rot(initial_rot: float, degrees_to_rotate: float, dir_id: int) -> float:
+	# Calculates the final rotation position (call it before rotation to calculate final position of rotation).
+	# Parameters: initial_rot: the initial position of player.
+	#			  degrees_to_rotate: the target degrees to rotate.
+	#			  dir_id: the direction id (1 == clockwise and 0 == counterclockwise).
+	# Returns: the final rotation position of input rotation.
+	var direction = 1
+	if dir_id:	# clockwise rotation
+		direction = -1
+	# if dir_id == 0 (counterclockwise), the direction is 1.
+	# Ensure initial_position is in the range [-180, 180)
+	var normalized_position = fmod((initial_rot + 180), 360) - 180
+	# Calculate final position
+	var final_position = fmod((normalized_position + direction * degrees_to_rotate), 360)
+	# Map final position to range [-180, 180)
+	if final_position >= 180:
+		final_position -= 360
+	elif final_position < -180:
+		final_position += 360
+	return round(final_position)
 
 func count_distance():
 	# Counts distance until the target distance. If player reaches it -> stops
