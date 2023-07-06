@@ -22,6 +22,12 @@ var gyroscope = Vector3(0, 0, 0)
 var init_player_pos
 var target_distance = 0
 var sum_distance = 0
+
+# ground sensor id:
+var middle_sensor_id = 1
+var right_sensor_id = 2
+var left_sensor_id = 3
+
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -84,6 +90,10 @@ func data_received():
 		send(get_ultrasonic(false))
 	elif req_func == "get_distance":
 		send(get_ultrasonic(true))
+	elif req_func == "get_floor_sensor":
+		send(get_floor_sensor(d["sensor_id"]))
+	elif req_func == "check_on_line":
+		send(check_on_line(d["sensor_id"], d["dark_value"]/100))
 	#elif req_func == "get_position":
 	#	print("Position requested.")
 	#	var pos_x = self.global_transform.origin.x
@@ -146,9 +156,6 @@ func _physics_process(delta):
 	## var angle = get_rotation().y # gets rad rotation
 	## get_rotation_degrees().y -> gets rotation in degrees.
 	# =================================================================
-
-	# run ultrasonic:
-	# print(get_ultrasonic(true))
 
 	if target_ros > 0:
 		rotate_degrees(target_ros, dir_id)
@@ -229,17 +236,39 @@ func get_darkness_percent(camera: Camera):
 	for y in range(image.get_height()):
 		for x in range(image.get_width()):
 			var c = image.get_pixel(x, y)
+			# var grayscale = c.gray() -> deprecated
 			var grayscale = c.v
 			total_grayscale += grayscale
 
 	return total_grayscale / (64 * 64)
 
-func is_dark(camera: Camera):
+func is_dark(camera: Camera, dark_threshold: float = 0.5):
 	# returns true if input ground sensor is above dark color.
-	var dark_threshold = 0.5
-	if get_darkness_percent(camera) < dark_threshold:
+	if get_darkness_percent(camera) <= dark_threshold:
 		return true
 	else:
+		return false
+
+func get_floor_sensor(sensor_id: int):
+	if sensor_id == middle_sensor_id:
+		return get_darkness_percent(middle_sensor)
+	elif sensor_id == left_sensor_id:
+		return get_darkness_percent(left_sensor)
+	elif sensor_id == right_sensor_id:
+		return get_darkness_percent(right_sensor)
+	else:
+		print('Requested sensor is out of bounds.')
+		return 0.0
+
+func check_on_line(sensor_id: int, dark_value: float):
+	if sensor_id == middle_sensor_id:
+		return is_dark(middle_sensor, dark_value)
+	elif sensor_id == right_sensor_id:
+		return is_dark(right_sensor, dark_value)
+	elif sensor_id == left_sensor_id:
+		return is_dark(left_sensor, dark_value)
+	else:
+		print('Requested sensor is out of bounds.')
 		return false
 
 func set_ground_sensor_pos(sensor: Camera, offset_x, offset_z, offset_deg_x):

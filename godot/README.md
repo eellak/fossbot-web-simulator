@@ -22,3 +22,4 @@ Go to http://localhost:8000/ (the default port of "python -m http.server") and t
 * All obstacles (static bodies) that should be detected from ultrasonic sensor shall be renamed "obstacle".
 * The velocities of the motors are not taken into consideration in rotation of x degrees (currently).
 * Final rotation position is rounded (currently) in godot.
+* Ground Sensor id are "hardcoded" in godot and set according to the yaml file of fossbot simulation in vrep.
