@@ -70,7 +70,7 @@ material/0 = SubResource( 8 )
 shape = SubResource( 10 )
 
 [node name="fossbot" type="VehicleBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.576, 10.7208 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.576, 0 )
 script = ExtResource( 1 )
 
 [node name="Camera" type="Camera" parent="fossbot"]
@@ -143,10 +143,10 @@ shape = SubResource( 12 )
 
 [node name="MiddleContainer" type="ViewportContainer" parent="fossbot"]
 show_behind_parent = true
-margin_left = 131.0
-margin_top = -97.0
-margin_right = 195.0
-margin_bottom = -33.0
+margin_left = 127.0
+margin_top = -106.0
+margin_right = 191.0
+margin_bottom = -42.0
 stretch = true
 
 [node name="Viewport" type="Viewport" parent="fossbot/MiddleContainer"]
@@ -160,12 +160,30 @@ projection = 1
 fov = 33.4
 size = 0.075
 
+[node name="LightContainer" type="ViewportContainer" parent="fossbot"]
+show_behind_parent = true
+margin_left = 332.0
+margin_top = -102.0
+margin_right = 396.0
+margin_bottom = -38.0
+stretch = true
+
+[node name="Viewport" type="Viewport" parent="fossbot/LightContainer"]
+size = Vector2( 64, 64 )
+handle_input_locally = false
+render_target_update_mode = 3
+
+[node name="LightSensor" type="Camera" parent="fossbot/LightContainer/Viewport"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.6, -1.6 )
+fov = 33.4
+size = 0.075
+
 [node name="RightContainer" type="ViewportContainer" parent="fossbot"]
 show_behind_parent = true
-margin_left = 213.0
-margin_top = -98.0
-margin_right = 277.0
-margin_bottom = -34.0
+margin_left = 229.0
+margin_top = -106.0
+margin_right = 293.0
+margin_bottom = -42.0
 stretch = true
 
 [node name="Viewport" type="Viewport" parent="fossbot/RightContainer"]
@@ -181,10 +199,10 @@ size = 0.075
 
 [node name="LeftContainer" type="ViewportContainer" parent="fossbot"]
 show_behind_parent = true
-margin_left = 49.0
-margin_top = -97.0
-margin_right = 113.0
-margin_bottom = -33.0
+margin_left = 33.0
+margin_top = -104.0
+margin_right = 97.0
+margin_bottom = -40.0
 stretch = true
 
 [node name="Viewport" type="Viewport" parent="fossbot/LeftContainer"]

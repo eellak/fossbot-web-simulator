@@ -8,6 +8,7 @@ var ultrasonic_tradeoff = 2.7	# change it according to the position of ultrasoni
 var middle_sensor = "MiddleContainer/Viewport/MiddleSensor"		# path to ground sensors (change it if needed).
 var left_sensor = "LeftContainer/Viewport/LeftSensor"
 var right_sensor = "RightContainer/Viewport/RightSensor"
+var light_sensor = "LightContainer/Viewport/LightSensor"	# path to light sensor (change it if needed).
 # rotation related:
 var radians = 0
 var target_ros = 0
@@ -36,6 +37,7 @@ func _ready():
 	middle_sensor = get_node(middle_sensor)
 	left_sensor = get_node(left_sensor)
 	right_sensor = get_node(right_sensor)
+	light_sensor = get_node(light_sensor)
 	client.connect("data_received", self, "data_received")
 	var err = client.connect_to_url(url)
 	if err != OK:
@@ -94,6 +96,10 @@ func data_received():
 		send(get_floor_sensor(d["sensor_id"]))
 	elif req_func == "check_on_line":
 		send(check_on_line(d["sensor_id"], d["dark_value"]/100))
+	elif req_func == "get_light_sensor":
+		send(get_light_sensor())
+	elif req_func == "check_for_dark":
+		send(check_for_dark(d["light_val"]))
 	#elif req_func == "get_position":
 	#	print("Position requested.")
 	#	var pos_x = self.global_transform.origin.x
@@ -164,7 +170,7 @@ func _physics_process(delta):
 		count_distance()
 
 	# UPDATE OF COMPONENTS (VERY IMPORTANT TO BE HERE) ======================================
-	update_all_ground_sensors()
+	update_all_camera_sensors()
 	# updates values of accelerometer and gyro:
 	update_accel_gyro(delta)
 	# ============================================================================
@@ -249,6 +255,20 @@ func is_dark(camera: Camera, dark_threshold: float = 0.5):
 	else:
 		return false
 
+func get_light_sensor():
+	# Returns the light sensor value (in range [0, 1024] like the previous simulator).
+	# transform the percentage [0, 1] to [0, 1024] value just like old simulator.
+	return get_darkness_percent(light_sensor) * 1024
+
+func check_for_dark(light_val):
+	# Returns true, if light_sensor is below light_val (aka it is dark).
+	var gray_color = light_val / 1024	# converts gray to [0, 1] range.
+	var val = get_darkness_percent(light_sensor)
+	# grey == 50%, white == 100%, black <= 10%
+	if val < gray_color:
+		return true
+	return false
+
 func get_floor_sensor(sensor_id: int):
 	if sensor_id == middle_sensor_id:
 		return get_darkness_percent(middle_sensor)
@@ -271,24 +291,32 @@ func check_on_line(sensor_id: int, dark_value: float):
 		print('Requested sensor is out of bounds.')
 		return false
 
-func set_ground_sensor_pos(sensor: Camera, offset_x, offset_z, offset_deg_x):
-	# Used to update the input ground sensor position when the bot moves (recommended to be used in _physics_process).
+func set_camera_sensor_pos(sensor: Camera, offset_x, offset_z, offset_deg_x):
+	# Used to update the input camera sensor (ground + light) position when the bot moves (recommended to be used in _physics_process).
 	# Parameters: 
-	#   sensor: the ground sensor to be moved (path).
-	#	offset_x: the x position offset (position difference of main vehicle body, to wanted x position of ground sensor).
-	#	offset_x: the z position offset (position difference of main vehicle body, to wanted z position of ground sensor).
-	# 	offset_deg_x: the rotation offset in x axis (rotation difference of main vehicle body, to wanted x position of ground sensor).
-	sensor.global_translation.z = self.global_transform.origin.z + offset_z
-	sensor.global_translation.x = self.global_transform.origin.x + offset_x
+	#   sensor: the camera sensor to be moved (path).
+	#	offset_x: the x position offset (position difference of main vehicle body, to wanted x position of camera sensor).
+	#	offset_x: the z position offset (position difference of main vehicle body, to wanted z position of camera sensor).
+	# 	offset_deg_x: the rotation offset in x axis (rotation difference of main vehicle body, to wanted x position of camera sensor).
+	# tip for setting offsets: move player to 0,0,0 (transform) and put the sensors in the right place -> their transform and rotation value is the offset
+	if abs(rotation_degrees.y) <= 90:
+		sensor.global_translation.z = self.global_transform.origin.z - abs(offset_z)
+		sensor.global_translation.x = self.global_transform.origin.x - abs(offset_x)
+	else:
+		sensor.global_translation.z = self.global_transform.origin.z + abs(offset_z)
+		sensor.global_translation.x = self.global_transform.origin.x + abs(offset_x)
+	#sensor.global_translation.z = self.global_transform.origin.z + offset_z
+	#sensor.global_translation.x = self.global_transform.origin.x + offset_x
 	sensor.rotation = self.rotation
 	sensor.rotation.x = offset_deg_x
 
-func update_all_ground_sensors():
-	# Updates all ground sensors position when the bot moves (MUST be to be used in _physics_process).
-	# change offsets if needed -> see set_ground_sensor_pos documentation to understand what values to put.
-	set_ground_sensor_pos(middle_sensor, 0, -1.45, -90)
-	set_ground_sensor_pos(right_sensor, 0.4, -1.45, -90)
-	set_ground_sensor_pos(left_sensor, -0.4, -1.45, -90)
+func update_all_camera_sensors():
+	# Updates all camera sensors (ground + light) position when the bot moves (MUST be to be used in _physics_process).
+	# change offsets if needed -> see set_camera_sensor_pos documentation to understand what values to put.
+	set_camera_sensor_pos(middle_sensor, 0, -1.45, -90)
+	set_camera_sensor_pos(right_sensor, 0.4, -1.45, -90)
+	set_camera_sensor_pos(left_sensor, -0.4, -1.45, -90)
+	set_camera_sensor_pos(light_sensor, 0.45, -1.6, 0)
 
 func change_rgb(color):
 	var material = $led.get_surface_material(0)
