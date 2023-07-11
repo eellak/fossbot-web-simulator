@@ -29,6 +29,9 @@ var middle_sensor_id = 1
 var right_sensor_id = 2
 var left_sensor_id = 3
 
+var make_noise = false
+var time_on = false
+var time = 0
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -100,6 +103,10 @@ func data_received():
 		send(get_light_sensor())
 	elif req_func == "check_for_dark":
 		send(check_for_dark(d["light_val"]))
+	elif req_func == "get_noise_detection":
+		send(make_noise)
+	elif req_func == "get_elapsed":
+		send(time)
 	#elif req_func == "get_position":
 	#	print("Position requested.")
 	#	var pos_x = self.global_transform.origin.x
@@ -175,6 +182,8 @@ func _physics_process(delta):
 	update_accel_gyro(delta)
 	# ============================================================================
 	# print(get_darkness_percent(middle_sensor))
+	if time_on:
+		update_timer(delta)
 
 
 func move(right_vel, left_vel):
@@ -411,3 +420,32 @@ func count_distance():
 		stop()
 		sum_distance = 0
 		target_distance = 0
+
+
+func make_noise_btn():
+	make_noise = !make_noise
+	if make_noise:
+		$noise_btn.text = "Stop Noise"
+	else:
+		$noise_btn.text = "Make Noise"
+
+func update_timer(delta):
+	# updates the timer (use it in physics process).
+	time += delta
+	var mils = fmod(time,1)*1000
+	var secs = fmod(time,60)
+	var mins = fmod(time, 60*60) / 60
+	var hr = fmod(fmod(time,3600 * 60) / 3600,24)
+	
+	var time_passed = "%02d : %02d : %02d : %03d" % [hr,mins,secs,mils]
+	$timer_label.text = time_passed# + " : " + var2str(time)
+
+func _on_timer_btn_pressed():
+	if !time_on:
+		time = 0
+		time_on = true
+		$timer_btn.text = "Stop Timer"
+	else:
+		time_on = false
+		$timer_btn.text = "Start Timer"
+

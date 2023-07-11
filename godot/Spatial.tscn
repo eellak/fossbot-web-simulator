@@ -221,6 +221,31 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.376398, 0, -1.5535 )
 mesh = SubResource( 15 )
 material/0 = SubResource( 16 )
 
+[node name="noise_btn" type="Button" parent="fossbot"]
+margin_left = 18.0
+margin_top = 16.0
+margin_right = 105.0
+margin_bottom = 51.0
+text = "Make Noise"
+icon_align = 1
+
+[node name="timer_btn" type="Button" parent="fossbot"]
+margin_left = 917.0
+margin_top = 11.0
+margin_right = 1007.0
+margin_bottom = 41.0
+text = "Start Timer"
+
+[node name="timer_label" type="Label" parent="fossbot"]
+margin_left = 795.0
+margin_top = 17.0
+margin_right = 903.0
+margin_bottom = 38.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_colors/font_outline_modulate = Color( 1, 1, 1, 1 )
+text = "00 : 00 : 00 : 000"
+align = 1
+
 [node name="obstacle" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.05796, 1.1594, -9.65655 )
 mesh = SubResource( 13 )
@@ -238,3 +263,6 @@ mesh = SubResource( 13 )
 
 [node name="CollisionShape" type="CollisionShape" parent="obstacle2/obstacle"]
 shape = SubResource( 14 )
+
+[connection signal="pressed" from="fossbot/noise_btn" to="fossbot" method="make_noise_btn"]
+[connection signal="pressed" from="fossbot/timer_btn" to="fossbot" method="_on_timer_btn_pressed"]
