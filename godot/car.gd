@@ -81,16 +81,16 @@ func data_received():
 		dir_id = 1
 		target_ros = d["degree"]
 		final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
-		#vel_right = -abs(d["vel_right"])
-		#vel_left = abs(d["vel_left"])
+		vel_right = -abs(d["vel_right"])
+		vel_left = abs(d["vel_left"])
 	elif req_func == "rotate_counterclockwise_deg":
 		resume()
 		var init_rot = rotation_degrees.y
 		dir_id = 0
 		target_ros = d["degree"]
 		final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
-		#vel_right = abs(d["vel_right"])
-		#vel_left = -abs(d["vel_left"])
+		vel_right = abs(d["vel_right"])
+		vel_left = -abs(d["vel_left"])
 	elif req_func == "check_for_obstacle":
 		send(get_ultrasonic(false))
 	elif req_func == "get_distance":
@@ -135,6 +135,12 @@ func data_received():
 		stop()
 		vel_right = 0
 		vel_left = 0
+	elif req_func == "exit":
+		stop()
+		vel_right = 0
+		vel_left = 0
+		exit()
+
 
 func send(msg):
 	client.get_peer(1).put_packet(JSON.print(msg).to_utf8())
@@ -449,3 +455,6 @@ func _on_timer_btn_pressed():
 		time_on = false
 		$timer_btn.text = "Start Timer"
 
+func exit():
+	# The simulator exits the connection of the websocket.
+	client.disconnect_from_host(1000, "User disconnected.")
