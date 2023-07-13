@@ -32,6 +32,8 @@ var left_sensor_id = 3
 var make_noise = false
 var time_on = false
 var time = 0
+
+var block = false
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -50,9 +52,12 @@ func _ready():
 
 func data_received():
 	# BLOCK HERE FOR ROTATION TARGET DEGREES & TARGET DISTANCE (before radians = 0).
+	var pkt = client.get_peer(1).get_packet()
+	if block:
+		print("Blocking Function is executed.")
+		return
 	radians = 0
 	init_player_pos = self.global_transform.origin
-	var pkt = client.get_peer(1).get_packet()
 	var parsedJson: JSONParseResult = JSON.parse(pkt.get_string_from_ascii())
 	var d = parsedJson.get_result()
 	# print("Got data from server: " + pkt.get_string_from_utf8())
@@ -107,6 +112,13 @@ func data_received():
 		send(make_noise)
 	elif req_func == "get_elapsed":
 		send(time)
+	elif req_func == "stop_timer":
+		time_on = false
+		send("Timer Stopped.")
+	elif req_func == "start_timer":
+		time = 0
+		time_on = true
+		send("Timer Started.")
 	#elif req_func == "get_position":
 	#	print("Position requested.")
 	#	var pos_x = self.global_transform.origin.x
@@ -191,7 +203,6 @@ func _physics_process(delta):
 	if time_on:
 		update_timer(delta)
 
-
 func move(right_vel, left_vel):
 	# var steer = 0
 	var max_torque = 100	# change this if needed
@@ -223,7 +234,6 @@ func stop():
 func resume():
 	# Call this immediately after stop().
 	mode = prev_mode
-
 
 func get_ultrasonic(calc_distance):
 	# If cal_distance == false, just returns if ultrasonic has detected a static body.
@@ -285,6 +295,7 @@ func check_for_dark(light_val):
 	return false
 
 func get_floor_sensor(sensor_id: int):
+	# Returns the reading of input ground sensor.
 	if sensor_id == middle_sensor_id:
 		return get_darkness_percent(middle_sensor)
 	elif sensor_id == left_sensor_id:
@@ -296,6 +307,7 @@ func get_floor_sensor(sensor_id: int):
 		return 0.0
 
 func check_on_line(sensor_id: int, dark_value: float):
+	# Returns True, if input ground sensor is on black line.
 	if sensor_id == middle_sensor_id:
 		return is_dark(middle_sensor, dark_value)
 	elif sensor_id == right_sensor_id:
@@ -336,6 +348,7 @@ func update_all_camera_sensors():
 	set_camera_sensor_pos(light_sensor, 0.45, -1.6, 0, 0)
 
 func change_rgb(color):
+	# Changes the color to input color string.
 	var material = $led.get_surface_material(0)
 	if color == 'red':
 		material.albedo_color = Color(1, 0, 0)
@@ -365,7 +378,7 @@ func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
 	#			clockwise: dir_id == 1	(right)
 	# 		 rythm=0.01: the step for each rotation (decrease it for slower rotation)
 
-	# TODO: block all incoming functions & when stop -> rotate player exactly to desired degree.
+	block = true
 	if !dir_id:
 		if radians < deg2rad(abs(degr)):
 			radians += rythm
@@ -379,6 +392,7 @@ func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
 			rotation_degrees.y = final_rot_pos # sets either way to final position -> reduces float mistakes.
 			target_ros = 0
 			dir_id = -1
+			block = false
 	else:
 		if radians > -deg2rad(abs(degr)):
 			radians -= rythm
@@ -393,6 +407,7 @@ func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
 			rotation_degrees.y = final_rot_pos
 			target_ros = 0
 			dir_id = -1
+			block = false
 
 func calc_final_rot(initial_rot: float, degrees_to_rotate: float, dir_id: int) -> float:
 	# Calculates the final rotation position (call it before rotation to calculate final position of rotation).
@@ -418,6 +433,7 @@ func calc_final_rot(initial_rot: float, degrees_to_rotate: float, dir_id: int) -
 func count_distance():
 	# Counts distance until the target distance. If player reaches it -> stops
 	# more here: https://www.youtube.com/watch?v=zFrKeEPmk2Q
+	block = true
 	if sum_distance < target_distance:
 		sum_distance += init_player_pos.distance_to(self.global_transform.origin)
 		init_player_pos = self.global_transform.origin
@@ -426,7 +442,7 @@ func count_distance():
 		stop()
 		sum_distance = 0
 		target_distance = 0
-
+		block = false
 
 func make_noise_btn():
 	make_noise = !make_noise
@@ -445,15 +461,6 @@ func update_timer(delta):
 	
 	var time_passed = "%02d : %02d : %02d : %03d" % [hr,mins,secs,mils]
 	$timer_label.text = time_passed# + " : " + var2str(time)
-
-func _on_timer_btn_pressed():
-	if !time_on:
-		time = 0
-		time_on = true
-		$timer_btn.text = "Stop Timer"
-	else:
-		time_on = false
-		$timer_btn.text = "Start Timer"
 
 func exit():
 	# The simulator exits the connection of the websocket.

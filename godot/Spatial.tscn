@@ -229,17 +229,10 @@ margin_bottom = 51.0
 text = "Make Noise"
 icon_align = 1
 
-[node name="timer_btn" type="Button" parent="fossbot"]
-margin_left = 917.0
-margin_top = 11.0
-margin_right = 1007.0
-margin_bottom = 41.0
-text = "Start Timer"
-
 [node name="timer_label" type="Label" parent="fossbot"]
-margin_left = 795.0
+margin_left = 898.0
 margin_top = 17.0
-margin_right = 903.0
+margin_right = 1006.0
 margin_bottom = 38.0
 custom_colors/font_color = Color( 0, 0, 0, 1 )
 custom_colors/font_outline_modulate = Color( 1, 1, 1, 1 )
@@ -265,4 +258,3 @@ mesh = SubResource( 13 )
 shape = SubResource( 14 )
 
 [connection signal="pressed" from="fossbot/noise_btn" to="fossbot" method="make_noise_btn"]
-[connection signal="pressed" from="fossbot/timer_btn" to="fossbot" method="_on_timer_btn_pressed"]
