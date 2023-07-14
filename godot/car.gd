@@ -34,6 +34,8 @@ var time_on = false
 var time = 0
 
 var block = false
+var wait_time = -1
+
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 var url = "ws://localhost:5000"
@@ -55,6 +57,9 @@ func data_received():
 	var pkt = client.get_peer(1).get_packet()
 	if block:
 		print("Blocking Function is executed.")
+		return
+	if wait_time > 0:
+		print("%d seconds left." % wait_time)
 		return
 	radians = 0
 	init_player_pos = self.global_transform.origin
@@ -119,6 +124,11 @@ func data_received():
 		time = 0
 		time_on = true
 		send("Timer Started.")
+	elif req_func == "wait":
+		stop()
+		wait_time = d["wait_time"]
+		var message = "Waiting for %d seconds." % wait_time
+		send(message)
 	#elif req_func == "get_position":
 	#	print("Position requested.")
 	#	var pos_x = self.global_transform.origin.x
@@ -172,6 +182,11 @@ func send_axis_vector(in_vector, axis: String):
 
 func _physics_process(delta):
 	client.poll()	# used for websockets
+	if wait_time > 0:
+		# does not do anything for wait_time seconds.
+		wait_time -= delta
+	else:
+		wait_time = -1
 	move(vel_right, vel_left)
 
 	# PROXEIRO ====================================================
@@ -225,15 +240,13 @@ func update_accel_gyro(delta):
 	#print(accelerometer.z)
 	#print(gyroscope)
 
-var prev_mode = mode
 func stop():
 	# Stops the vehicle (to un-stop, call resume() method).
-	prev_mode = mode
 	mode = MODE_STATIC
 
 func resume():
 	# Call this immediately after stop().
-	mode = prev_mode
+	mode = MODE_RIGID
 
 func get_ultrasonic(calc_distance):
 	# If cal_distance == false, just returns if ultrasonic has detected a static body.

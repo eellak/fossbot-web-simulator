@@ -24,3 +24,4 @@ Go to http://localhost:8000/ (the default port of "python -m http.server") and t
 * Final rotation position is rounded (currently) in godot.
 * Ground Sensor id are "hardcoded" in godot and set according to the yaml file of fossbot simulation in vrep.
 * Camera sensors (ground + light) positions and rotations should be changed inside of godot (so they update with robot).
+* Wait time (that you send in godot) should be in seconds.
