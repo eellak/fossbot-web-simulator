@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/geia.mp3-855b9b2f747dded6efe67189a6396567.mp3str"
+
+[deps]
+
+source_file="res://soundfx/geia.mp3"
+dest_files=[ "res://.import/geia.mp3-855b9b2f747dded6efe67189a6396567.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

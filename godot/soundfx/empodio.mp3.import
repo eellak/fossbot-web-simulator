@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/empodio.mp3-1b561f94b5ab0d699c60e88e0ae5ca0f.mp3str"
+
+[deps]
+
+source_file="res://soundfx/empodio.mp3"
+dest_files=[ "res://.import/empodio.mp3-1b561f94b5ab0d699c60e88e0ae5ca0f.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

@@ -143,7 +143,8 @@
             <option value="get_light_sensor">get_light_sensor</option>
             <option value="check_for_dark">check_for_dark</option>
             <option value="get_noise_detection">get_noise_detection</option>
-            <option value="start_timer">start_timer</option>
+            <option value="play_sound">play_sound</option>
+			<option value="start_timer">start_timer</option>
 			<option value="get_elapsed">get_elapsed</option>
             <option value="stop_timer">stop_timer</option>
             <option value="wait">wait</option>
@@ -159,6 +160,7 @@
         <input type="text" id="axis" value="x" placeholder="Axis">
 		<input type="number" id="tarDist" min="0" value="15" placeholder="Target Distance"><br>
 		<input type="number" id="waitTime" min="0" value="3" placeholder="Wait time">
+        <input type="text" id="soundPath" value="res://soundfx/startup.mp3" placeholder="Sound Path">
 		<button id="sendButton">Send</button>
         <button id="stopButton">Stop</button>
 		<button id="clearButton">Clear</button>
@@ -201,6 +203,7 @@
 		var darkValue = document.getElementById("darkValue")
 		var lightValue = document.getElementById("lightValue")
 		var waitTime = document.getElementById("waitTime")
+		var soundPath = document.getElementById("soundPath")
 
         var ws = new WebSocket("ws://localhost:5000");
 
@@ -216,7 +219,8 @@
 				sensorId: sensorId.value,
 				darkValue: darkValue.value,
 				lightValue: lightValue.value,
-				waitTime: waitTime.value
+				waitTime: waitTime.value,
+				soundPath: soundPath.value
 			};
 			ws.send(JSON.stringify(message));
         });
@@ -238,7 +242,8 @@
 				sensorId: "0",
 				darkValue: "0",
 				lightValue: "0",
-				waitTime: "-1"
+				waitTime: "-1",
+				soundPath: ""
 			};
 			ws.send(JSON.stringify(message));
         });

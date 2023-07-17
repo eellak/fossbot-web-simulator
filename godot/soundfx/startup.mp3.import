@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/startup.mp3-fe03c22d0ae0407af914a309863cb5f1.mp3str"
+
+[deps]
+
+source_file="res://soundfx/startup.mp3"
+dest_files=[ "res://.import/startup.mp3-fe03c22d0ae0407af914a309863cb5f1.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

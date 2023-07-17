@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/mpravo.mp3-a7e86e570c8424ce6a404ce3b4a80923.mp3str"
+
+[deps]
+
+source_file="res://soundfx/mpravo.mp3"
+dest_files=[ "res://.import/mpravo.mp3-a7e86e570c8424ce6a404ce3b4a80923.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

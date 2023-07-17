@@ -35,9 +35,12 @@ var time = 0
 
 var block = false
 var wait_time = -1
-
+var music = null
+var prev_music_pos = -1
+var curr_music_pos = 0
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
+
 var url = "ws://localhost:5000"
 
 func _ready():
@@ -129,6 +132,14 @@ func data_received():
 		wait_time = d["wait_time"]
 		var message = "Waiting for %d seconds." % wait_time
 		send(message)
+	elif req_func == "play_sound":
+		if music == null:
+			var sound_path = d["sound_path"]
+			music = AudioStreamPlayer.new()
+			music.autoplay = false
+			music.stream = load(sound_path)
+			add_child(music)
+			music.play()
 	#elif req_func == "get_position":
 	#	print("Position requested.")
 	#	var pos_x = self.global_transform.origin.x
@@ -163,7 +174,6 @@ func data_received():
 		vel_left = 0
 		exit()
 
-
 func send(msg):
 	client.get_peer(1).put_packet(JSON.print(msg).to_utf8())
 
@@ -182,11 +192,23 @@ func send_axis_vector(in_vector, axis: String):
 
 func _physics_process(delta):
 	client.poll()	# used for websockets
+
+	if music:	# this is for stop looping the music.
+		curr_music_pos = music.get_playback_position()
+		if curr_music_pos < prev_music_pos:
+			music.stop()
+			music = null
+			prev_music_pos = -1
+			curr_music_pos = 0
+			print("Sound ended.")
+		prev_music_pos = curr_music_pos
+	
 	if wait_time > 0:
 		# does not do anything for wait_time seconds.
 		wait_time -= delta
 	else:
 		wait_time = -1
+
 	move(vel_right, vel_left)
 
 	# PROXEIRO ====================================================

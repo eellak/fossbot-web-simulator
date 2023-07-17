@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/kalhmera.mp3-31d620b8b447091009748fb894cb0647.mp3str"
+
+[deps]
+
+source_file="res://soundfx/kalhmera.mp3"
+dest_files=[ "res://.import/kalhmera.mp3-31d620b8b447091009748fb894cb0647.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

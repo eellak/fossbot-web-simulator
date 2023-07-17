@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/proccesing.mp3-1ba7078f8beb86c3912d1dec401001dc.mp3str"
+
+[deps]
+
+source_file="res://soundfx/proccesing.mp3"
+dest_files=[ "res://.import/proccesing.mp3-1ba7078f8beb86c3912d1dec401001dc.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0
