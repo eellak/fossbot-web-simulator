@@ -127,11 +127,13 @@
 		<select name="categories" id="messageInput" size="1">
 			<option value="move_forward">move_forward</option>
 			<option value="move_reverse">move_reverse</option>
+			<option value="just_rotate">just_rotate</option>
 			<option value="rotate_clockwise">rotate_clockwise</option>
 			<option value="rotate_counterclockwise">rotate_counterclockwise</option>
 			<option value="rotate_clockwise_deg">rotate_clockwise_deg</option>
 			<option value="rotate_counterclockwise_deg">rotate_counterclockwise_deg</option>
-            <option value="rgb_set_color">rgb_set_color</option>
+			<option value="rotate_90">rotate_90</option>
+			<option value="rgb_set_color">rgb_set_color</option>
             <option value="get_acceleration">get_acceleration</option>
             <option value="get_gyroscope">get_gyroscope</option>
             <option value="move_forward_distance">move_forward_distance</option>
@@ -153,6 +155,7 @@
 		<input type="number" id="rightVel" min="0" max="100" value="100" placeholder="Right Velocity">
 		<input type="number" id="leftVel" min="0" max="100" value="100" placeholder="Left Velocity">
 		<input type="number" id="degree" min="0" max="90" value="90" placeholder="Target degree">
+		<input type="number" id="dirId" min="0" max="1" value="1" placeholder="Direction Id">		
 		<input type="number" id="sensorId" min="1" max="3" value="1" placeholder="Sensor Id">
 		<input type="number" id="darkValue" min="0" max="100" value="50" placeholder="Dark Value">
 		<input type="number" id="lightValue" min="0" max="1024" value="700" placeholder="Light Value">
@@ -204,6 +207,7 @@
 		var lightValue = document.getElementById("lightValue")
 		var waitTime = document.getElementById("waitTime")
 		var soundPath = document.getElementById("soundPath")
+		var dirId = document.getElementById("dirId")
 
         var ws = new WebSocket("ws://localhost:5000");
 
@@ -220,7 +224,8 @@
 				darkValue: darkValue.value,
 				lightValue: lightValue.value,
 				waitTime: waitTime.value,
-				soundPath: soundPath.value
+				soundPath: soundPath.value,
+				dirId: dirId.value
 			};
 			ws.send(JSON.stringify(message));
         });
@@ -243,7 +248,8 @@
 				darkValue: "0",
 				lightValue: "0",
 				waitTime: "-1",
-				soundPath: ""
+				soundPath: "",
+				dirId: "0"
 			};
 			ws.send(JSON.stringify(message));
         });

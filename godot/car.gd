@@ -89,21 +89,26 @@ func data_received():
 		vel_right = abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
 	elif req_func == "rotate_clockwise_deg":
-		resume()
-		var init_rot = rotation_degrees.y
 		dir_id = 1
-		target_ros = d["degree"]
-		final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
-		vel_right = -abs(d["vel_right"])
-		vel_left = abs(d["vel_left"])
+		rotate_90(dir_id, d)
 	elif req_func == "rotate_counterclockwise_deg":
-		resume()
-		var init_rot = rotation_degrees.y
 		dir_id = 0
-		target_ros = d["degree"]
-		final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
-		vel_right = abs(d["vel_right"])
-		vel_left = -abs(d["vel_left"])
+		rotate_90(dir_id, d)
+	elif req_func == "just_rotate":
+		var tmp_dir_id = d["dir_id"]
+		if tmp_dir_id != 0 and tmp_dir_id != 1:
+			print('Requested direction is out of bounds.')
+			return
+		dir_id = tmp_dir_id
+		d["degree"] = 1
+		rotate_90(dir_id, d)
+	elif req_func == "rotate_90":
+		var tmp_dir_id = d["dir_id"]
+		if tmp_dir_id != 0 and tmp_dir_id != 1:
+			print('Requested direction is out of bounds.')
+			return
+		dir_id = tmp_dir_id
+		rotate_90(dir_id, d)
 	elif req_func == "check_for_obstacle":
 		send(get_ultrasonic(false))
 	elif req_func == "get_distance":
@@ -140,12 +145,6 @@ func data_received():
 			music.stream = load(sound_path)
 			add_child(music)
 			music.play()
-	#elif req_func == "get_position":
-	#	print("Position requested.")
-	#	var pos_x = self.global_transform.origin.x
-	#	var pos_z = self.global_transform.origin.z
-	#	var msg = "Player position = x: " + str(pos_x) + ", z: " + str(pos_z)
-	#	send(msg)	# sends data back to server
 	elif req_func == "move_forward_distance":
 		resume()
 		init_player_pos = self.global_transform.origin
@@ -170,6 +169,7 @@ func data_received():
 		vel_left = 0
 	elif req_func == "exit":
 		stop()
+		change_rgb('closed')
 		vel_right = 0
 		vel_left = 0
 		exit()
@@ -500,3 +500,15 @@ func update_timer(delta):
 func exit():
 	# The simulator exits the connection of the websocket.
 	client.disconnect_from_host(1000, "User disconnected.")
+
+func rotate_90(dir_id: int, d):
+	resume()
+	var init_rot = rotation_degrees.y
+	target_ros = d["degree"]
+	final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
+	if dir_id == 1:
+		vel_right = -abs(d["vel_right"])
+		vel_left = abs(d["vel_left"])
+	elif dir_id == 0:
+		vel_right = abs(d["vel_right"])
+		vel_left = -abs(d["vel_left"])
