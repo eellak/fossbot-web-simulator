@@ -38,6 +38,8 @@ var wait_time = -1
 var music = null
 var prev_music_pos = -1
 var curr_music_pos = 0
+
+var move_dir = "forward"
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 
@@ -72,14 +74,39 @@ func data_received():
 	# changes player's velocity accordind to input:
 	var req_func = d["func"]
 	if req_func == "move_forward":
-		resume()	# ALWAYS add resume() when function is movement related!
-		# Pattern here: velocity = (-) abs(in_velocity)
-		vel_right = abs(d["vel_right"])
-		vel_left = abs(d["vel_left"])
+		move_dir = "forward"
+		just_move(d, move_dir)
 	elif req_func == "move_reverse":
-		resume()
-		vel_right = -abs(d["vel_right"])
-		vel_left = -abs(d["vel_left"])
+		move_dir = "reverse"
+		just_move(d, move_dir)
+	elif req_func == "just_move":
+		var tmp_move_dir = d["direction"]
+		if tmp_move_dir != "forward" and tmp_move_dir != "reverse":
+			print("Motor accepts only forward and reverse values.")
+			return
+		move_dir = tmp_move_dir
+		just_move(d, move_dir)
+	elif req_func == "move_distance":
+		var tmp_move_dir = d["direction"]
+		if tmp_move_dir != "forward" and tmp_move_dir != "reverse":
+			print("Motor accepts only forward and reverse values.")
+			return
+		move_dir = tmp_move_dir
+		move_distance(d, move_dir)
+	elif req_func == "move_forward_distance":
+		move_dir = "forward"
+		move_distance(d, move_dir)
+	elif req_func == "move_reverse_distance":
+		move_dir = "reverse"
+		move_distance(d, move_dir)
+	elif req_func == "move_forward_default":
+		move_dir = "forward"
+		d["tar_dist"] = d["def_dist"]
+		move_distance(d, move_dir)
+	elif req_func == "move_reverse_default":
+		move_dir = "reverse"
+		d["tar_dist"] = d["def_dist"]
+		move_distance(d, move_dir)
 	elif req_func == "rotate_clockwise":
 		resume()
 		vel_right = -abs(d["vel_right"])
@@ -145,18 +172,6 @@ func data_received():
 			music.stream = load(sound_path)
 			add_child(music)
 			music.play()
-	elif req_func == "move_forward_distance":
-		resume()
-		init_player_pos = self.global_transform.origin
-		target_distance = abs(d["tar_dist"])
-		vel_right = abs(d["vel_right"])
-		vel_left = abs(d["vel_left"])
-	elif req_func == "move_reverse_distance":
-		resume()
-		init_player_pos = self.global_transform.origin
-		target_distance = abs(d["tar_dist"])
-		vel_right = -abs(d["vel_right"])
-		vel_left = -abs(d["vel_left"])
 	elif req_func == "rgb_set_color":
 		change_rgb(d["color"])
 	elif req_func == "get_acceleration":
@@ -511,4 +526,25 @@ func rotate_90(dir_id: int, d):
 		vel_left = abs(d["vel_left"])
 	elif dir_id == 0:
 		vel_right = abs(d["vel_right"])
+		vel_left = -abs(d["vel_left"])
+
+func move_distance(d, direction="forward"):
+	resume()
+	init_player_pos = self.global_transform.origin
+	target_distance = abs(d["tar_dist"])
+	if direction == "forward":
+		vel_right = abs(d["vel_right"])
+		vel_left = abs(d["vel_left"])
+	elif direction == "reverse":
+		vel_right = -abs(d["vel_right"])
+		vel_left = -abs(d["vel_left"])
+
+func just_move(d, direction="forward"):
+	resume()	# ALWAYS add resume() when function is movement related!
+	# Pattern here: velocity = (-) abs(in_velocity)
+	if direction == "forward":
+		vel_right = abs(d["vel_right"])
+		vel_left = abs(d["vel_left"])
+	elif direction == "reverse":
+		vel_right = -abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
