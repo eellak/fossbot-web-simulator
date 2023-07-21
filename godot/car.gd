@@ -178,6 +178,10 @@ func data_received():
 		send_axis_vector(accelerometer, d["axis"])
 	elif req_func == "get_gyroscope":
 		send_axis_vector(gyroscope, d["axis"])
+	elif req_func == "reset_dir":
+		stop()
+		move_dir = "forward"
+		send(move_dir)
 	elif req_func == "stop":	# stops
 		stop()
 		vel_right = 0

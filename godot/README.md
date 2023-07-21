@@ -26,3 +26,4 @@ Go to http://localhost:8000/ (the default port of "python -m http.server") and t
 * Camera sensors (ground + light) positions and rotations should be changed inside of godot (so they update with robot).
 * Wait time (that you send in godot) should be in seconds.
 * For the soundfx to work, user has to click on the simulator gui (if use has chosen to play a soundfx).
+* Reset dir function stops the fossbot, and sets the direction to forward (currently).
