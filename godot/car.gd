@@ -40,6 +40,10 @@ var prev_music_pos = -1
 var curr_music_pos = 0
 
 var move_dir = "forward"
+
+var time_curr_ros = 0
+var time_target_ros = -1
+
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 
@@ -187,10 +191,6 @@ func data_received():
 		vel_right = 0
 		vel_left = 0
 	elif req_func == "exit":
-		stop()
-		change_rgb('closed')
-		vel_right = 0
-		vel_left = 0
 		exit()
 
 func send(msg):
@@ -230,6 +230,8 @@ func _physics_process(delta):
 
 	move(vel_right, vel_left)
 
+	#if abs(sum) >= 90:
+	#	stop()
 	# PROXEIRO ====================================================
 	## input func returns -1 and 1
 	## steer = lerp(steer, Input.get_axis("right", "left") * 0.4, 5 * delta)
@@ -245,7 +247,7 @@ func _physics_process(delta):
 	# =================================================================
 
 	if target_ros > 0:
-		rotate_degrees(target_ros, dir_id)
+		actual_rotate_90(delta, target_ros)
 
 	if target_distance > 0:
 		count_distance()
@@ -518,11 +520,17 @@ func update_timer(delta):
 
 func exit():
 	# The simulator exits the connection of the websocket.
+	stop()
+	change_rgb('closed')
+	vel_right = 0
+	vel_left = 0
 	client.disconnect_from_host(1000, "User disconnected.")
 
 func rotate_90(dir_id: int, d):
 	resume()
 	var init_rot = rotation_degrees.y
+	time_curr_ros = 0
+	time_target_ros = -1
 	target_ros = d["degree"]
 	final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
 	if dir_id == 1:
@@ -531,6 +539,22 @@ func rotate_90(dir_id: int, d):
 	elif dir_id == 0:
 		vel_right = abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
+
+
+func actual_rotate_90(delta, target_rot=90):
+	if angular_velocity.y != 0:
+		time_target_ros = deg2rad(target_rot)/abs(angular_velocity.y)	# calculates the time needed to rotate to target_rot position.
+		# print(time_target_ros)
+	time_curr_ros += delta
+	if time_target_ros >= 0 and time_curr_ros >= time_target_ros:
+		print(rotation_degrees.y)
+		print(final_rot_pos)
+		stop()
+		rotation_degrees.y = final_rot_pos
+		target_ros = -1
+		time_curr_ros = 0
+		time_target_ros = -1
+
 
 func move_distance(d, direction="forward"):
 	resume()
@@ -552,3 +576,4 @@ func just_move(d, direction="forward"):
 	elif direction == "reverse":
 		vel_right = -abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
+
