@@ -184,12 +184,9 @@ func data_received():
 		send_axis_vector(gyroscope, d["axis"])
 	elif req_func == "reset_dir":
 		stop()
-		move_dir = "forward"
 		send(move_dir)
 	elif req_func == "stop":	# stops
 		stop()
-		vel_right = 0
-		vel_left = 0
 	elif req_func == "exit":
 		exit()
 
@@ -286,6 +283,11 @@ func update_accel_gyro(delta):
 func stop():
 	# Stops the vehicle (to un-stop, call resume() method).
 	mode = MODE_STATIC
+	final_rot_pos = 400
+	vel_right = 0
+	vel_left = 0
+	target_ros = -1
+	move_dir = "forward"
 
 func resume():
 	# Call this immediately after stop().
@@ -426,45 +428,6 @@ func change_rgb(color):
 		print('Uknown color!')
 	$led.set_surface_material(0, material)
 
-func rotate_degrees(degr: float, dir_id: int, rythm=0.01):
-	# Rotates (slowly) the robot (USE IT IN PHYSICS_PROCESS)
-	# Param: degr: the degrees to rotate it
-	#		 dir_id: the direction to rotate it:
-	#			counterclockwise: dir_id == 0	(left)
-	#			clockwise: dir_id == 1	(right)
-	# 		 rythm=0.01: the step for each rotation (decrease it for slower rotation)
-
-	block = true
-	if !dir_id:
-		if radians < deg2rad(abs(degr)):
-			radians += rythm
-			rotate_object_local(Vector3(0, 1, 0), rythm)
-			transform = transform.orthonormalized()
-		else:
-			#rotation_degrees.y = int(rotation_degrees.y)
-			print(rotation_degrees.y)
-			print(final_rot_pos)
-			stop()
-			rotation_degrees.y = final_rot_pos # sets either way to final position -> reduces float mistakes.
-			target_ros = 0
-			dir_id = -1
-			block = false
-	else:
-		if radians > -deg2rad(abs(degr)):
-			radians -= rythm
-			rotate_object_local(Vector3(0, 1, 0), -rythm)
-			transform = transform.orthonormalized()
-		else:
-			#print(rad2deg(radians))
-			#rotation_degrees.y = int(rotation_degrees.y)
-			print(rotation_degrees.y)
-			print(final_rot_pos)
-			stop()
-			rotation_degrees.y = final_rot_pos
-			target_ros = 0
-			dir_id = -1
-			block = false
-
 func calc_final_rot(initial_rot: float, degrees_to_rotate: float, dir_id: int) -> float:
 	# Calculates the final rotation position (call it before rotation to calculate final position of rotation).
 	# Parameters: initial_rot: the initial position of player.
@@ -522,8 +485,6 @@ func exit():
 	# The simulator exits the connection of the websocket.
 	stop()
 	change_rgb('closed')
-	vel_right = 0
-	vel_left = 0
 	client.disconnect_from_host(1000, "User disconnected.")
 
 func rotate_90(dir_id: int, d):
@@ -541,7 +502,9 @@ func rotate_90(dir_id: int, d):
 		vel_left = -abs(d["vel_left"])
 
 
-func actual_rotate_90(delta, target_rot=90):
+func actual_rotate_90(delta, target_rot):
+	# Stops if fossbot has rotated to target degrees (USE it in physics_process).
+	# Param: delta: the delta time of physics process.
 	if angular_velocity.y != 0:
 		time_target_ros = deg2rad(target_rot)/abs(angular_velocity.y)	# calculates the time needed to rotate to target_rot position.
 		# print(time_target_ros)
@@ -550,7 +513,8 @@ func actual_rotate_90(delta, target_rot=90):
 		print(rotation_degrees.y)
 		print(final_rot_pos)
 		stop()
-		rotation_degrees.y = final_rot_pos
+		if final_rot_pos < 359:	# this means that stop function was called.
+			rotation_degrees.y = final_rot_pos
 		target_ros = -1
 		time_curr_ros = 0
 		time_target_ros = -1
