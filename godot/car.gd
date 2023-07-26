@@ -33,7 +33,6 @@ var make_noise = false
 var time_on = false
 var time = 0
 
-var block = false
 var wait_time = -1
 var music = null
 var prev_music_pos = -1
@@ -64,9 +63,8 @@ func _ready():
 func data_received():
 	# BLOCK HERE FOR ROTATION TARGET DEGREES & TARGET DISTANCE (before radians = 0).
 	var pkt = client.get_peer(1).get_packet()
-	if block:
-		print("Blocking Function is executed.")
-		return
+	sum_distance = 0
+	target_distance = -1
 	if wait_time > 0:
 		print("%d seconds left." % wait_time)
 		return
@@ -184,10 +182,19 @@ func data_received():
 		send_axis_vector(gyroscope, d["axis"])
 	elif req_func == "reset_dir":
 		stop()
+		move_dir = "forward"
 		send(move_dir)
 	elif req_func == "stop":	# stops
 		stop()
+		target_ros = -1
+		final_rot_pos = 400
+		vel_right = 0
+		vel_left = 0
 	elif req_func == "exit":
+		stop()
+		change_rgb('closed')
+		vel_right = 0
+		vel_left = 0
 		exit()
 
 func send(msg):
@@ -283,11 +290,7 @@ func update_accel_gyro(delta):
 func stop():
 	# Stops the vehicle (to un-stop, call resume() method).
 	mode = MODE_STATIC
-	final_rot_pos = 400
-	vel_right = 0
-	vel_left = 0
-	target_ros = -1
-	move_dir = "forward"
+
 
 func resume():
 	# Call this immediately after stop().
@@ -452,7 +455,6 @@ func calc_final_rot(initial_rot: float, degrees_to_rotate: float, dir_id: int) -
 func count_distance():
 	# Counts distance until the target distance. If player reaches it -> stops
 	# more here: https://www.youtube.com/watch?v=zFrKeEPmk2Q
-	block = true
 	if sum_distance < target_distance:
 		sum_distance += init_player_pos.distance_to(self.global_transform.origin)
 		init_player_pos = self.global_transform.origin
@@ -461,7 +463,6 @@ func count_distance():
 		stop()
 		sum_distance = 0
 		target_distance = 0
-		block = false
 
 func make_noise_btn():
 	make_noise = !make_noise
