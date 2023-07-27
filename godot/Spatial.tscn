@@ -1,7 +1,8 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://car.gd" type="Script" id=1]
 [ext_resource path="res://square.jpg" type="Texture" id=2]
+[ext_resource path="res://exports/fossbot.tres" type="ArrayMesh" id=3]
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 100, 1, 100 )
@@ -13,12 +14,6 @@ uv1_triplanar = true
 
 [sub_resource type="ConcavePolygonShape" id=10]
 data = PoolVector3Array( -50, 0.5, 50, 50, 0.5, 50, -50, -0.5, 50, 50, 0.5, 50, 50, -0.5, 50, -50, -0.5, 50, 50, 0.5, -50, -50, 0.5, -50, 50, -0.5, -50, -50, 0.5, -50, -50, -0.5, -50, 50, -0.5, -50, 50, 0.5, 50, 50, 0.5, -50, 50, -0.5, 50, 50, 0.5, -50, 50, -0.5, -50, 50, -0.5, 50, -50, 0.5, -50, -50, 0.5, 50, -50, -0.5, -50, -50, 0.5, 50, -50, -0.5, 50, -50, -0.5, -50, 50, 0.5, 50, -50, 0.5, 50, 50, 0.5, -50, -50, 0.5, 50, -50, 0.5, -50, 50, 0.5, -50, -50, -0.5, 50, 50, -0.5, 50, -50, -0.5, -50, 50, -0.5, 50, 50, -0.5, -50, -50, -0.5, -50 )
-
-[sub_resource type="CubeMesh" id=2]
-size = Vector3( 1.5, 0.5, 3 )
-
-[sub_resource type="SpatialMaterial" id=3]
-albedo_color = Color( 1, 0.00392157, 0.00392157, 1 )
 
 [sub_resource type="ConvexPolygonShape" id=4]
 points = PoolVector3Array( -0.7225, -0.25, -1.43083, 0.694167, 0.25, 1.37472, -0.694167, 0.25, 1.37472, 0.7225, -0.25, 1.43083, 0.694167, 0.25, -1.37472, -0.7225, -0.25, 1.43083, 0.7225, -0.25, -1.43083, -0.694167, 0.25, -1.37472 )
@@ -79,16 +74,15 @@ current = true
 fov = 129.375
 
 [node name="car-body" type="MeshInstance" parent="fossbot"]
-transform = Transform( 1, 0, 2.32831e-10, 0, 1, 0, -2.32831e-10, 0, 1, 0, 0, 0 )
-mesh = SubResource( 2 )
-material/0 = SubResource( 3 )
+transform = Transform( 0.012, 0, 0, 0, -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, -0.199097, -0.121167 )
+mesh = ExtResource( 3 )
 
 [node name="CollisionShape" type="CollisionShape" parent="fossbot"]
-transform = Transform( 1, 0, 1.16415e-10, 0, 1, 0, -1.16415e-10, 0, 1, 0, 0, 0 )
+transform = Transform( 1.5, 0, 8.14905e-11, 0, 1, 0, -1.74623e-10, 0, 0.7, 0, 0, -0.117159 )
 shape = SubResource( 4 )
 
 [node name="caster-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.001, -0.237, 0.85 )
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, -0.237, 0.77 )
 use_as_steering = true
 wheel_radius = 0.2
 suspension_travel = 0.25
@@ -98,11 +92,12 @@ damping_relaxation = 3.0
 
 [node name="MeshInstance" type="MeshInstance" parent="fossbot/caster-wheel"]
 transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
+visible = false
 mesh = SubResource( 9 )
 material/0 = SubResource( 7 )
 
 [node name="front-right-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.9, 0, -0.85 )
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.2, 0, -0.7 )
 use_as_traction = true
 wheel_radius = 0.4
 suspension_travel = 0.25
@@ -116,7 +111,7 @@ mesh = SubResource( 6 )
 material/0 = SubResource( 7 )
 
 [node name="front-left-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -0.9, 0, -0.85 )
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -1.2, 0, -0.7 )
 use_as_traction = true
 wheel_radius = 0.4
 suspension_travel = 0.25
@@ -240,7 +235,7 @@ text = "00 : 00 : 00 : 000"
 align = 1
 
 [node name="obstacle" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.05796, 1.1594, -9.65655 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.63589, 1.1594, -9.65655 )
 mesh = SubResource( 13 )
 
 [node name="obstacle" type="StaticBody" parent="obstacle"]
@@ -249,7 +244,7 @@ mesh = SubResource( 13 )
 shape = SubResource( 14 )
 
 [node name="obstacle2" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.09015, 1.35106, -9.98437 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -19.0483, 1.35106, -9.98437 )
 mesh = SubResource( 13 )
 
 [node name="obstacle" type="StaticBody" parent="obstacle2"]

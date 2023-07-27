@@ -15,6 +15,10 @@ var target_ros = 0
 var dir_id = -1
 var final_rot_pos = 0
 
+# time for rotation x degrees:
+var time_curr_ros = 0
+var time_target_ros = -1
+
 # acceleration - gyroscope related:
 var accelerometer = Vector3(0, 0, 0)
 var gyroscope = Vector3(0, 0, 0)
@@ -30,18 +34,21 @@ var right_sensor_id = 2
 var left_sensor_id = 3
 
 var make_noise = false
+# timer variables
 var time_on = false
 var time = 0
 
+# music (and its loop handling) related:
 var wait_time = -1
 var music = null
 var prev_music_pos = -1
 var curr_music_pos = 0
 
+# direction of motors
 var move_dir = "forward"
 
-var time_curr_ros = 0
-var time_target_ros = -1
+# Set this to false if not horizontal ground in scene (you can also do it from editor!)
+export(bool) var horizontal_ground = true
 
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
@@ -61,7 +68,7 @@ func _ready():
 
 
 func data_received():
-	# BLOCK HERE FOR ROTATION TARGET DEGREES & TARGET DISTANCE (before radians = 0).
+	# Handles all data received from server.
 	var pkt = client.get_peer(1).get_packet()
 	sum_distance = 0
 	target_distance = -1
@@ -73,7 +80,6 @@ func data_received():
 	var parsedJson: JSONParseResult = JSON.parse(pkt.get_string_from_ascii())
 	var d = parsedJson.get_result()
 	# print("Got data from server: " + pkt.get_string_from_utf8())
-	# changes player's velocity accordind to input:
 	var req_func = d["func"]
 	if req_func == "move_forward":
 		move_dir = "forward"
@@ -117,10 +123,10 @@ func data_received():
 		resume()
 		vel_right = abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
-	elif req_func == "rotate_clockwise_deg":
+	elif req_func == "rotate_clockwise_90":
 		dir_id = 1
 		rotate_90(dir_id, d)
-	elif req_func == "rotate_counterclockwise_deg":
+	elif req_func == "rotate_counterclockwise_90":
 		dir_id = 0
 		rotate_90(dir_id, d)
 	elif req_func == "just_rotate":
@@ -203,6 +209,7 @@ func send(msg):
 # =======================================================================
 
 func send_axis_vector(in_vector, axis: String):
+	# Sends the data of the requested axis (of input vector) back to server.
 	if axis == "x":
 		send(in_vector.x)
 	elif axis == "z":
@@ -232,24 +239,8 @@ func _physics_process(delta):
 	else:
 		wait_time = -1
 
-	move(vel_right, vel_left)
-
-	#if abs(sum) >= 90:
-	#	stop()
-	# PROXEIRO ====================================================
-	## input func returns -1 and 1
-	## steer = lerp(steer, Input.get_axis("right", "left") * 0.4, 5 * delta)
-	## steering = steer
-	## var acceleration = Input.get_axis("back", "forward")
-	#var accel_right = -1	# change this variable for different motor velocity
-	#var accel_left = -1 
-	#move(accel_right, accel_left)
-	## transform.origin.distance_to()
-	## print(get_rotation_degrees())
-	## var angle = get_rotation().y # gets rad rotation
-	## get_rotation_degrees().y -> gets rotation in degrees.
-	# =================================================================
-
+	move(100,100)
+	print(rotation.y)
 	if target_ros > 0:
 		actual_rotate_90(delta, target_ros)
 
@@ -266,7 +257,7 @@ func _physics_process(delta):
 		update_timer(delta)
 
 func move(right_vel, left_vel):
-	# var steer = 0
+	# Puts input right and left velocities to right and left motors.
 	var max_torque = 100	# change this if needed
 	var max_rpm = 100
 	var rpm = abs($"front-right-wheel".get_rpm())
@@ -279,7 +270,6 @@ var r0 = Vector3(0,0,0)
 func update_accel_gyro(delta):
 	# source: https://godotengine.org/qa/69346/how-to-get-rigidbody2d-linear-acceleration
 	# Calculates acceleration and gyroscope (USE it in physics process).
-	#if v0 and r0:
 	accelerometer  = (linear_velocity  - v0) / delta
 	gyroscope = (angular_velocity - r0) / delta
 	v0 = linear_velocity
@@ -290,7 +280,6 @@ func update_accel_gyro(delta):
 func stop():
 	# Stops the vehicle (to un-stop, call resume() method).
 	mode = MODE_STATIC
-
 
 func resume():
 	# Call this immediately after stop().
@@ -321,17 +310,15 @@ func get_darkness_percent(camera: Camera):
 	# returns the percent value of dark color of input ground sensor.
 	var texture = camera.get_viewport().get_texture()
 	var image: Image = texture.get_data()
-	image.resize(64,64)
+	image.resize(64, 64)	# resizes image to 64 by 64 for quicker analysis.
 	image.lock()
 	var total_grayscale = 0
-
 	for y in range(image.get_height()):
 		for x in range(image.get_width()):
 			var c = image.get_pixel(x, y)
 			# var grayscale = c.gray() -> deprecated
 			var grayscale = c.v
 			total_grayscale += grayscale
-
 	return total_grayscale / (64 * 64)
 
 func is_dark(camera: Camera, dark_threshold: float = 0.5):
@@ -465,6 +452,7 @@ func count_distance():
 		target_distance = 0
 
 func make_noise_btn():
+	# Function executed when pressing the 'make a noise button'.
 	make_noise = !make_noise
 	if make_noise:
 		$noise_btn.text = "Stop Noise"
@@ -472,7 +460,7 @@ func make_noise_btn():
 		$noise_btn.text = "Make Noise"
 
 func update_timer(delta):
-	# updates the timer (use it in physics process).
+	# Updates the timer (use it in physics process).
 	time += delta
 	var mils = fmod(time,1)*1000
 	var secs = fmod(time,60)
@@ -489,6 +477,9 @@ func exit():
 	client.disconnect_from_host(1000, "User disconnected.")
 
 func rotate_90(dir_id: int, d):
+	# Sets the necessary variables and functions for x degree rotation with dir_id rotation.
+	# Param: dir_id: the direction id of rotation: clockwise == 1, counterclockwise == 0.
+	#		 d: the initial dictionary (json) sent from the server.
 	resume()
 	var init_rot = rotation_degrees.y
 	time_curr_ros = 0
@@ -506,6 +497,7 @@ func rotate_90(dir_id: int, d):
 func actual_rotate_90(delta, target_rot):
 	# Stops if fossbot has rotated to target degrees (USE it in physics_process).
 	# Param: delta: the delta time of physics process.
+	#		 target_rot: the target degrees to be rotated.
 	if angular_velocity.y != 0:
 		time_target_ros = deg2rad(target_rot)/abs(angular_velocity.y)	# calculates the time needed to rotate to target_rot position.
 		# print(time_target_ros)
@@ -514,7 +506,7 @@ func actual_rotate_90(delta, target_rot):
 		print(rotation_degrees.y)
 		print(final_rot_pos)
 		stop()
-		if final_rot_pos < 359:	# this means that stop function was called.
+		if horizontal_ground and final_rot_pos < 359:	# this means that stop function was called.
 			rotation_degrees.y = final_rot_pos
 		target_ros = -1
 		time_curr_ros = 0
@@ -522,6 +514,9 @@ func actual_rotate_90(delta, target_rot):
 
 
 func move_distance(d, direction="forward"):
+	# Sets the necessaruy variables for moving a specific distance.
+	# Param: d: the initial dictionary (json) sent from the server.
+	#		 direction: string: the direction to be moved (default is 'forward').
 	resume()
 	init_player_pos = self.global_transform.origin
 	target_distance = abs(d["tar_dist"])
@@ -533,6 +528,9 @@ func move_distance(d, direction="forward"):
 		vel_left = -abs(d["vel_left"])
 
 func just_move(d, direction="forward"):
+	# Sets the necessaruy variables for moving forever towards input direction.
+	# Param: d: the initial dictionary (json) sent from the server.
+	#		 direction: string: the direction to be moved (default is 'forward').
 	resume()	# ALWAYS add resume() when function is movement related!
 	# Pattern here: velocity = (-) abs(in_velocity)
 	if direction == "forward":
