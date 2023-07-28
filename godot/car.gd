@@ -239,8 +239,8 @@ func _physics_process(delta):
 	else:
 		wait_time = -1
 
-	move(100,100)
-	print(rotation.y)
+	move(vel_right, vel_left)
+	# print(rotation.y)
 	if target_ros > 0:
 		actual_rotate_90(delta, target_ros)
 
@@ -261,9 +261,9 @@ func move(right_vel, left_vel):
 	var max_torque = 100	# change this if needed
 	var max_rpm = 100
 	var rpm = abs($"front-right-wheel".get_rpm())
-	$"front-right-wheel".engine_force = (right_vel/100) * max_torque * (1 - rpm / max_rpm)
+	$"front-right-wheel".engine_force = -(right_vel/100) * max_torque * (1 - rpm / max_rpm)
 	rpm = abs($"front-left-wheel".get_rpm())
-	$"front-left-wheel".engine_force = (left_vel/100) * max_torque * (1 - rpm / max_rpm)
+	$"front-left-wheel".engine_force = -(left_vel/100) * max_torque * (1 - rpm / max_rpm)
 
 var v0 = Vector3(0,0,0)
 var r0 = Vector3(0,0,0)

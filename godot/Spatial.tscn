@@ -2,7 +2,8 @@
 
 [ext_resource path="res://car.gd" type="Script" id=1]
 [ext_resource path="res://square.jpg" type="Texture" id=2]
-[ext_resource path="res://exports/fossbot.tres" type="ArrayMesh" id=3]
+[ext_resource path="res://assets/fossbot.tres" type="ArrayMesh" id=3]
+[ext_resource path="res://assets/wheel.tres" type="ArrayMesh" id=4]
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 100, 1, 100 )
@@ -22,14 +23,8 @@ points = PoolVector3Array( -0.7225, -0.25, -1.43083, 0.694167, 0.25, 1.37472, -0
 radius = 0.2
 height = 0.5
 
-[sub_resource type="SpatialMaterial" id=7]
-albedo_color = Color( 0.309804, 0.309804, 0.309804, 1 )
-
-[sub_resource type="CylinderMesh" id=6]
-top_radius = 0.4
-bottom_radius = 0.4
-height = 0.3
-radial_segments = 12
+[sub_resource type="SpatialMaterial" id=17]
+albedo_color = Color( 0.643137, 0.643137, 0.643137, 1 )
 
 [sub_resource type="CylinderMesh" id=11]
 top_radius = 5.0
@@ -65,11 +60,11 @@ material/0 = SubResource( 8 )
 shape = SubResource( 10 )
 
 [node name="fossbot" type="VehicleBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.576, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.448566, 0 )
 script = ExtResource( 1 )
 
 [node name="Camera" type="Camera" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, -0.0143636, 0.999897, 0, -0.999897, -0.0143636, 0, 4.437, -1.38479 )
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.0096755, 4.79012, -0.225427 )
 current = true
 fov = 129.375
 
@@ -81,8 +76,14 @@ mesh = ExtResource( 3 )
 transform = Transform( 1.5, 0, 8.14905e-11, 0, 1, 0, -1.74623e-10, 0, 0.7, 0, 0, -0.117159 )
 shape = SubResource( 4 )
 
+[node name="caste-wheel-skin" type="MeshInstance" parent="fossbot"]
+transform = Transform( 3.49691e-08, 0.7, -1.35896e-07, 0.8, -3.0598e-08, -5.22346e-22, -5.28019e-15, -1.05697e-07, -0.9, 0, -0.25, 0.531 )
+mesh = SubResource( 9 )
+skeleton = NodePath("../caster-wheel")
+material/0 = SubResource( 17 )
+
 [node name="caster-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, -0.237, 0.77 )
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, -0.237, 0.8 )
 use_as_steering = true
 wheel_radius = 0.2
 suspension_travel = 0.25
@@ -90,14 +91,8 @@ suspension_stiffness = 50.0
 damping_compression = 2.9
 damping_relaxation = 3.0
 
-[node name="MeshInstance" type="MeshInstance" parent="fossbot/caster-wheel"]
-transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
-visible = false
-mesh = SubResource( 9 )
-material/0 = SubResource( 7 )
-
 [node name="front-right-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.2, 0, -0.7 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22, 0, -0.7 )
 use_as_traction = true
 wheel_radius = 0.4
 suspension_travel = 0.25
@@ -105,13 +100,12 @@ suspension_stiffness = 50.0
 damping_compression = 1.9
 damping_relaxation = 2.0
 
-[node name="MeshInstance" type="MeshInstance" parent="fossbot/front-right-wheel"]
-transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
-mesh = SubResource( 6 )
-material/0 = SubResource( 7 )
+[node name="wheel-skin" type="MeshInstance" parent="fossbot/front-right-wheel"]
+transform = Transform( -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 0, 0, 0.012, -0.25, 0, 0 )
+mesh = ExtResource( 4 )
 
 [node name="front-left-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -1.2, 0, -0.7 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22, 0, -0.7 )
 use_as_traction = true
 wheel_radius = 0.4
 suspension_travel = 0.25
@@ -119,10 +113,10 @@ suspension_stiffness = 50.0
 damping_compression = 1.9
 damping_relaxation = 2.0
 
-[node name="MeshInstance" type="MeshInstance" parent="fossbot/front-left-wheel"]
-transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0 )
-mesh = SubResource( 6 )
-material/0 = SubResource( 7 )
+[node name="wheel-skin" type="MeshInstance" parent="fossbot/front-left-wheel"]
+transform = Transform( 5.24537e-10, 0.012, -1.04907e-09, 0.012, -5.24537e-10, 0, -4.58565e-17, -1.04907e-09, -0.012, 0.25, 0, 0 )
+mesh = ExtResource( 4 )
+skeleton = NodePath("../../front-right-wheel")
 
 [node name="ultrasonic" type="Area" parent="fossbot"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.361853, -4.78154 )
