@@ -3,12 +3,12 @@ extends VehicleBody
 var vel_right = 0
 var vel_left = 0
 var obstacle_name = "obstacle"
-var ultrasonic_tradeoff = 2.7	# change it according to the position of ultrasonic in comparison to the player
+var ultrasonic_tradeoff = 2.32	# change it according to the position of ultrasonic in comparison to the player
 # Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
-var middle_sensor = "MiddleContainer/Viewport/MiddleSensor"		# path to ground sensors (change it if needed).
-var left_sensor = "LeftContainer/Viewport/LeftSensor"
-var right_sensor = "RightContainer/Viewport/RightSensor"
-var light_sensor = "LightContainer/Viewport/LightSensor"	# path to light sensor (change it if needed).
+var middle_sensor = "MiddleSensor/MiddleContainer/Viewport/MiddleSensor"		# path to ground sensors (change it if needed).
+var left_sensor = "LeftSensor/LeftContainer/Viewport/LeftSensor"
+var right_sensor = "RightSensor/RightContainer/Viewport/RightSensor"
+var light_sensor = "LightSensor/LightContainer/Viewport/LightSensor"	# path to light sensor (change it if needed).
 # rotation related:
 var radians = 0
 var target_ros = 0
@@ -366,34 +366,28 @@ func check_on_line(sensor_id: int, dark_value: float):
 		print('Requested sensor is out of bounds.')
 		return false
 
-func set_camera_sensor_pos(sensor: Camera, offset_x, offset_z, offset_y, offset_deg_x):
+func set_camera_sensor_pos(sensor: Camera, offset_y, offset_deg_x):
 	# Used to update the input camera sensor (ground + light) position when the bot moves (recommended to be used in _physics_process).
 	# Parameters: 
 	#   sensor: the camera sensor to be moved (path).
-	#	offset_x: the x position offset (position difference of main vehicle body, to wanted x position of camera sensor).
-	#	offset_z: the z position offset (position difference of main vehicle body, to wanted z position of camera sensor).
-	#	offset_y: the y position offset (position difference of main vehicle body, to wanted y position of camera sensor).
-	# 	offset_deg_x: the rotation offset in x axis (rotation difference of main vehicle body, to wanted x position of camera sensor).
-	# tip for setting offsets: move player to 0,0,0 (transform) and put the sensors in the right place -> their transform and rotation value is the offset.
-	if abs(rotation_degrees.y) <= 90:
-		sensor.global_translation.z = self.global_transform.origin.z - abs(offset_z)
-		sensor.global_translation.x = self.global_transform.origin.x - abs(offset_x)
-	else:
-		sensor.global_translation.z = self.global_transform.origin.z + abs(offset_z)
-		sensor.global_translation.x = self.global_transform.origin.x + abs(offset_x)
-	#sensor.global_translation.z = self.global_transform.origin.z + offset_z
-	#sensor.global_translation.x = self.global_transform.origin.x + offset_x
-	sensor.global_translation.y = self.global_transform.origin.y + offset_y
+	#	offset_y: the y position offset (position difference of parent mesh of camera sensor, to wanted y position of camera sensor).
+	# 	offset_deg_x: the rotation offset in x axis (rotation difference of parent mesh of camera sensor, to wanted x position of camera sensor).
+
+	#print(sensor.get_parent().get_parent().get_parent().get_name())
+	var mesh_parent = sensor.get_parent().get_parent().get_parent()
+	sensor.global_translation = mesh_parent.global_translation
 	sensor.rotation = self.rotation
 	sensor.rotation.x = offset_deg_x
+	sensor.global_translation.y = mesh_parent.global_transform.origin.y + offset_y
+
 
 func update_all_camera_sensors():
 	# Updates all camera sensors (ground + light) position when the bot moves (MUST be to be used in _physics_process).
 	# change offsets if needed -> see set_camera_sensor_pos documentation to understand what values to put.
-	set_camera_sensor_pos(middle_sensor, 0, -1.45, -0.27, -90)
-	set_camera_sensor_pos(right_sensor, 0.4, -1.45, -0.27, -90)
-	set_camera_sensor_pos(left_sensor, -0.4, -1.45, -0.27, -90)
-	set_camera_sensor_pos(light_sensor, 0.45, -1.6, 0, 0)
+	set_camera_sensor_pos(middle_sensor, -0.05, -90)
+	set_camera_sensor_pos(right_sensor, -0.05, -90)
+	set_camera_sensor_pos(left_sensor,  -0.05, -90)
+	set_camera_sensor_pos(light_sensor, 0, 0)
 
 func change_rgb(color):
 	# Changes the color to input color string.

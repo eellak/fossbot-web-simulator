@@ -22,7 +22,7 @@ Go to http://localhost:8000/ (the default port of "python -m http.server") and t
 * All obstacles (static bodies) that should be detected from ultrasonic sensor shall be renamed "obstacle".
 * Final rotation position is rounded (currently) in godot if boolean linear_ground = true.
 * Ground Sensor id are "hardcoded" in godot and set according to the yaml file of fossbot simulation in vrep.
-* Camera sensors (ground + light) positions and rotations should be changed inside of godot (so they update with robot).
+* Camera sensors (ground + light) positions offsets and rotations should be changed inside of godot (so they update with robot).
 * Wait time (that you send in godot) should be in seconds.
 * For the soundfx to work, user has to click on the simulator gui (if use has chosen to play a soundfx).
 * Reset dir function stops the fossbot, and sets the direction to forward (currently).
