@@ -411,6 +411,7 @@ func change_rgb(color):
 	else:
 		print('Uknown color!')
 	$led.set_surface_material(0, material)
+	$led/ledlight.light_color = material.albedo_color
 
 func calc_final_rot(initial_rot: float, degrees_to_rotate: float, dir_id: int) -> float:
 	# Calculates the final rotation position (call it before rotation to calculate final position of rotation).
