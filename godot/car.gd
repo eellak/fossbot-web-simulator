@@ -246,7 +246,7 @@ func _physics_process(delta):
 
 	if target_distance > 0:
 		count_distance()
-
+	# print(get_ultrasonic(true))
 	# UPDATE OF COMPONENTS (VERY IMPORTANT TO BE HERE) ======================================
 	update_all_camera_sensors()
 	# updates values of accelerometer and gyro:
@@ -293,7 +293,7 @@ func get_ultrasonic(calc_distance):
 	# iterate over the list of overlapping bodies
 	var min_d = 10000
 	for body in list_detect:
-		if body.get_name() == obstacle_name:
+		if body.get_name().to_lower() == obstacle_name:
 			if !calc_distance:
 				return true #if no calc_distance, just returns if the object is colliding with static.
 			var player_position = self.global_transform.origin
