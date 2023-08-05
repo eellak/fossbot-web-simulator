@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://car.gd" type="Script" id=1]
 [ext_resource path="res://square.jpg" type="Texture" id=2]
@@ -61,6 +61,10 @@ background_mode = 2
 background_sky = SubResource( 25 )
 adjustment_enabled = true
 
+[sub_resource type="CylinderShape" id=27]
+height = 0.3
+radius = 1.4
+
 [sub_resource type="CubeMesh" id=13]
 
 [sub_resource type="ConcavePolygonShape" id=14]
@@ -89,7 +93,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.566675, 0 )
 script = ExtResource( 1 )
 
 [node name="Camera" type="Camera" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.00967548, 2.32969, -1.13417 )
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.00967548, 2.32969, -0.807518 )
 current = true
 fov = 129.375
 
@@ -305,6 +309,13 @@ margin_top = 13.0
 margin_right = 707.0
 margin_bottom = 29.0
 value = 50.0
+
+[node name="rotation_check" type="Area" parent="fossbot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.02779, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="fossbot/rotation_check"]
+transform = Transform( 1.2, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.496729, -0.206203 )
+shape = SubResource( 27 )
 
 [node name="obstacle" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.859271, 1.159, -6.10734 )

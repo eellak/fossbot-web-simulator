@@ -50,6 +50,8 @@ var move_dir = "forward"
 # Set this to false if not horizontal ground in scene (you can also do it from editor!)
 export(bool) var horizontal_ground = true
 
+var equal_rot_vel = false
+
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 
@@ -72,9 +74,6 @@ func data_received():
 	var pkt = client.get_peer(1).get_packet()
 	sum_distance = 0
 	target_distance = -1
-	if wait_time > 0:
-		print("%d seconds left." % wait_time)
-		return
 	radians = 0
 	init_player_pos = self.global_transform.origin
 	var parsedJson: JSONParseResult = JSON.parse(pkt.get_string_from_ascii())
@@ -235,6 +234,7 @@ func _physics_process(delta):
 	
 	if wait_time > 0:
 		# does not do anything for wait_time seconds.
+		print(wait_time)
 		wait_time -= delta
 	else:
 		wait_time = -1
@@ -242,7 +242,11 @@ func _physics_process(delta):
 	move(vel_right, vel_left)
 	# print(rotation.y)
 	if target_ros > 0:
-		actual_rotate_90(delta, target_ros)
+		if equal_rot_vel:
+			var r = 0.0038 * ((abs(vel_left) + abs(vel_right)) / 200)	# rythm for simulating rotation velocity.
+			rotate_degrees_transf(target_ros, dir_id, r)
+		else:
+			actual_rotate_90(delta, target_ros)	# rotates with time.
 
 	if target_distance > 0:
 		count_distance()
@@ -476,6 +480,13 @@ func rotate_90(dir_id: int, d):
 	# Param: dir_id: the direction id of rotation: clockwise == 1, counterclockwise == 0.
 	#		 d: the initial dictionary (json) sent from the server.
 	resume()
+	# gets the amount of bodies the above cylinder collides with (to see if it can rotate without limit).
+	var check_rot_coll = $rotation_check.get_overlapping_bodies().size()
+	print(check_rot_coll)
+	if horizontal_ground and check_rot_coll <= 0 and abs(d["vel_right"]) - abs(d["vel_left"]) <= 1:
+		equal_rot_vel = true	# this rotates with transform (accurate).
+	else:
+		equal_rot_vel = false	# this rotates with time.
 	var init_rot = rotation_degrees.y
 	time_curr_ros = 0
 	time_target_ros = -1
@@ -498,15 +509,57 @@ func actual_rotate_90(delta, target_rot):
 		# print(time_target_ros)
 	time_curr_ros += delta
 	if time_target_ros >= 0 and time_curr_ros >= time_target_ros:
+		var diff = 0
+		if vel_left + vel_right == 0:
+			diff = 1
+		else:
+			diff = abs(vel_left - vel_right) / ((vel_left + vel_right) / 2)	# calculates the percentage 'difference' of the 2 velocities.
+		var check_rot_coll = $rotation_check.get_overlapping_bodies().size()
 		print(rotation_degrees.y)
 		print(final_rot_pos)
 		stop()
-		if horizontal_ground and final_rot_pos < 359:	# this means that stop function was called.
+		# checks if stop function was called and either velocity is at 80% of the other (observation) or collision with object.
+		# if one of the above is true, it does not force-rotate to specific rotation.
+		if horizontal_ground and check_rot_coll <= 0 and diff >= 0.8 and final_rot_pos < 359:
 			rotation_degrees.y = final_rot_pos
 		target_ros = -1
 		time_curr_ros = 0
 		time_target_ros = -1
 
+func rotate_degrees_transf(degr: float, dir_id: int, rythm=0.01):
+	# Rotates (slowly) the robot (USE IT IN PHYSICS_PROCESS)
+	# Param: degr: the degrees to rotate it
+	#		 dir_id: the direction to rotate it:
+	#			counterclockwise: dir_id == 0	(left)
+	#			clockwise: dir_id == 1	(right)
+	# 		 rythm=0.01: the step for each rotation (decrease it for slower rotation)
+	if !dir_id:
+		if radians < deg2rad(abs(degr)):
+			radians += rythm
+			rotate_object_local(Vector3(0, 1, 0), rythm)
+			transform = transform.orthonormalized()
+		else:
+			#rotation_degrees.y = int(rotation_degrees.y)
+			print(rotation_degrees.y)
+			print(final_rot_pos)
+			stop()
+			rotation_degrees.y = final_rot_pos # sets either way to final position -> reduces float mistakes.
+			target_ros = 0
+			dir_id = -1
+	else:
+		if radians > -deg2rad(abs(degr)):
+			radians -= rythm
+			rotate_object_local(Vector3(0, 1, 0), -rythm)
+			transform = transform.orthonormalized()
+		else:
+			#print(rad2deg(radians))
+			#rotation_degrees.y = int(rotation_degrees.y)
+			print(rotation_degrees.y)
+			print(final_rot_pos)
+			stop()
+			rotation_degrees.y = final_rot_pos
+			target_ros = 0
+			dir_id = -1
 
 func move_distance(d, direction="forward"):
 	# Sets the necessaruy variables for moving a specific distance.
