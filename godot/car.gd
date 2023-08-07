@@ -483,7 +483,7 @@ func rotate_90(dir_id: int, d):
 	# gets the amount of bodies the above cylinder collides with (to see if it can rotate without limit).
 	var check_rot_coll = $rotation_check.get_overlapping_bodies().size()
 	print(check_rot_coll)
-	if horizontal_ground and check_rot_coll <= 0 and abs(d["vel_right"]) - abs(d["vel_left"]) <= 1:
+	if horizontal_ground and check_rot_coll <= 0 and abs(abs(d["vel_right"]) - abs(d["vel_left"])) <= 1:
 		equal_rot_vel = true	# this rotates with transform (accurate).
 	else:
 		equal_rot_vel = false	# this rotates with time.
@@ -506,7 +506,7 @@ func actual_rotate_90(delta, target_rot):
 	#		 target_rot: the target degrees to be rotated.
 	if angular_velocity.y != 0:
 		time_target_ros = deg2rad(target_rot)/abs(angular_velocity.y)	# calculates the time needed to rotate to target_rot position.
-		# print(time_target_ros)
+		print(time_target_ros)
 	time_curr_ros += delta
 	if time_target_ros >= 0 and time_curr_ros >= time_target_ros:
 		var diff = 0
@@ -520,7 +520,7 @@ func actual_rotate_90(delta, target_rot):
 		stop()
 		# checks if stop function was called and either velocity is at 80% of the other (observation) or collision with object.
 		# if one of the above is true, it does not force-rotate to specific rotation.
-		if horizontal_ground and check_rot_coll <= 0 and diff >= 0.8 and final_rot_pos < 359:
+		if horizontal_ground and diff >= 0.8 and final_rot_pos < 359:
 			rotation_degrees.y = final_rot_pos
 		target_ros = -1
 		time_curr_ros = 0

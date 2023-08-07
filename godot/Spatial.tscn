@@ -61,9 +61,7 @@ background_mode = 2
 background_sky = SubResource( 25 )
 adjustment_enabled = true
 
-[sub_resource type="CylinderShape" id=27]
-height = 0.3
-radius = 1.4
+[sub_resource type="BoxShape" id=27]
 
 [sub_resource type="CubeMesh" id=13]
 
@@ -311,10 +309,10 @@ margin_bottom = 29.0
 value = 50.0
 
 [node name="rotation_check" type="Area" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.02779, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.02779, 0.000559807 )
 
 [node name="CollisionShape" type="CollisionShape" parent="fossbot/rotation_check"]
-transform = Transform( 1.2, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.496729, -0.206203 )
+transform = Transform( 1.5, 0, 0, 0, 0.22, 0, 0, 0, 1.1, 0, -0.485, -0.146101 )
 shape = SubResource( 27 )
 
 [node name="obstacle" type="MeshInstance" parent="."]
