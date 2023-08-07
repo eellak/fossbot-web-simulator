@@ -48,7 +48,7 @@ One of the central challenges encountered during the project was the creation of
 
 Additionally, crafting accurate representations of each robotic component (like ultrasonic sensor, line sensor and light sensor) for the fossbot from scratch posed another significant challenge. I meticulously matched these virtual parts to their real-world counterparts, aiming for authenticity and flawless functionality within the simulation.
 
-Addressing the complexities of the socketio server presented another hurdle. To ensure seamless message routing without message conflicts in multiple fossbot scenarios, I conceived a centralized message distributor within the simulation, effectively utilizing socketio's capabilities.
+Addressing the complexities of the socketio server presented another hurdle. To ensure seamless message routing without message conflicts in multiple fossbot scenarios, I conceived a message distributor within the simulation, effectively utilizing socketio's capabilities.
 
 Furthermore, devising a **dynamic** level generation process encompassing obstacles, terrain, and image integration onto the floor also demanded innovative problem-solving techniques.
 
@@ -77,7 +77,8 @@ Some thoughts for future work:
 1. Enhance Fossbot Model in Godot
 2. Refine Terrain Generation
 3. Diversify Preset Levels
-4. Extend Python Godot Library for AI Training
+4. Extend JavaScript Library
+5. Extend Python Godot Library for AI Training
 
 ### Student
 
