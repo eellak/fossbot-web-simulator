@@ -1,5 +1,5 @@
 
-# :robot: GSOC 2023 - A Web Simulator for the DIY robot kit for educators Wiki
+# :robot: GSOC 2023 - Web Based Simulator for the DIY robot kit for educators
 
 ![simple robot](./images/simple.png)
 
