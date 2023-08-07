@@ -51,7 +51,7 @@ var move_dir = "forward"
 export(bool) var horizontal_ground = true
 
 var equal_rot_vel = false
-
+var sum_rot = 0
 # METHODS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 
@@ -243,7 +243,7 @@ func _physics_process(delta):
 	# print(rotation.y)
 	if target_ros > 0:
 		if equal_rot_vel:
-			var r = 0.0038 * ((abs(vel_left) + abs(vel_right)) / 200)	# rythm for simulating rotation velocity.
+			var r = 0.006 * ((abs(vel_left) + abs(vel_right)) / 200)	# rythm for simulating rotation velocity.
 			rotate_degrees_transf(target_ros, dir_id, r)
 		else:
 			actual_rotate_90(delta, target_ros)	# rotates with time.
@@ -481,17 +481,17 @@ func rotate_90(dir_id: int, d):
 	#		 d: the initial dictionary (json) sent from the server.
 	resume()
 	# gets the amount of bodies the above cylinder collides with (to see if it can rotate without limit).
+	var init_rot = rotation_degrees.y
+	time_curr_ros = 0
+	time_target_ros = -1
+	target_ros = d["degree"]
+	final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
 	var check_rot_coll = $rotation_check.get_overlapping_bodies().size()
 	print(check_rot_coll)
 	if horizontal_ground and check_rot_coll <= 0 and abs(abs(d["vel_right"]) - abs(d["vel_left"])) <= 1:
 		equal_rot_vel = true	# this rotates with transform (accurate).
 	else:
 		equal_rot_vel = false	# this rotates with time.
-	var init_rot = rotation_degrees.y
-	time_curr_ros = 0
-	time_target_ros = -1
-	target_ros = d["degree"]
-	final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
 	if dir_id == 1:
 		vel_right = -abs(d["vel_right"])
 		vel_left = abs(d["vel_left"])
@@ -504,27 +504,15 @@ func actual_rotate_90(delta, target_rot):
 	# Stops if fossbot has rotated to target degrees (USE it in physics_process).
 	# Param: delta: the delta time of physics process.
 	#		 target_rot: the target degrees to be rotated.
-	if angular_velocity.y != 0:
-		time_target_ros = deg2rad(target_rot)/abs(angular_velocity.y)	# calculates the time needed to rotate to target_rot position.
-		print(time_target_ros)
-	time_curr_ros += delta
-	if time_target_ros >= 0 and time_curr_ros >= time_target_ros:
-		var diff = 0
-		if vel_left + vel_right == 0:
-			diff = 1
-		else:
-			diff = abs(vel_left - vel_right) / ((vel_left + vel_right) / 2)	# calculates the percentage 'difference' of the 2 velocities.
-		var check_rot_coll = $rotation_check.get_overlapping_bodies().size()
-		print(rotation_degrees.y)
-		print(final_rot_pos)
+	var rotation_angle = abs(sign(rotation.y) * delta * angular_velocity.y)
+	sum_rot += rotation_angle
+	# print(rad2deg(sum_rot))
+	if rad2deg(sum_rot) >= target_rot:
 		stop()
-		# checks if stop function was called and either velocity is at 80% of the other (observation) or collision with object.
-		# if one of the above is true, it does not force-rotate to specific rotation.
-		if horizontal_ground and diff >= 0.8 and final_rot_pos < 359:
-			rotation_degrees.y = final_rot_pos
+		sum_rot = 0
 		target_ros = -1
-		time_curr_ros = 0
-		time_target_ros = -1
+		rotation_degrees.y = final_rot_pos
+
 
 func rotate_degrees_transf(degr: float, dir_id: int, rythm=0.01):
 	# Rotates (slowly) the robot (USE IT IN PHYSICS_PROCESS)

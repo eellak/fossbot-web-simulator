@@ -5,4 +5,4 @@ func _ready():
 	pass # Replace with function body.
 
 func _on_BrightnessSlider_value_changed(value):
-	environment.adjustment_brightness = value / 50
+	environment.background_energy = value / 50

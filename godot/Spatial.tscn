@@ -87,7 +87,7 @@ material/0 = SubResource( 8 )
 shape = SubResource( 10 )
 
 [node name="fossbot" type="VehicleBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.566675, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.567, 0 )
 script = ExtResource( 1 )
 
 [node name="Camera" type="Camera" parent="fossbot"]
