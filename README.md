@@ -48,7 +48,7 @@ One of the central challenges encountered during the project was the creation of
 
 Additionally, crafting accurate representations of each robotic component (like ultrasonic sensor, line sensor and light sensor) for the fossbot from scratch posed another significant challenge. I meticulously matched these virtual parts to their real-world counterparts, aiming for authenticity and flawless functionality within the simulation.
 
-Addressing the complexities of the socketio server presented another hurdle. To ensure seamless message routing without message conflicts in multiple fossbot scenarios, I conceived a centralized message distributor within the simulation, expertly harnessing socketio's capabilities.
+Addressing the complexities of the socketio server presented another hurdle. To ensure seamless message routing without message conflicts in multiple fossbot scenarios, I conceived a centralized message distributor within the simulation, effectively utilizing socketio's capabilities.
 
 Furthermore, devising a **dynamic** level generation process encompassing obstacles, terrain, and image integration onto the floor also demanded innovative problem-solving techniques.
 
@@ -70,7 +70,7 @@ GSoC Deliverables
 Future Work
 ------------
 
-There are still opportunities for further enhancement of the Fossbot Web Simulator. I am confident that, with the combined efforts of the Open Source community, this goal can be realized. Feel free, to contribute and participate on that project, any suggestion and improvement are welcomed.
+There are still opportunities for further enhancement of the Fossbot Web Simulator. I am confident that, with the combined efforts of the Open Source community, this goal can be achieved. Feel free, to contribute and participate on that project, any suggestion and improvement are welcomed.
 
 Some thoughts for future work:
 
