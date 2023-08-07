@@ -58,7 +58,7 @@ GSoC Deliverables
 
 1. Fossbot Model Implementation
 2. Robotic Component Integration in Godot
-3. Multi-Fossbot Message Routing Mechanism
+3. Multiple Fossbot Message Routing Mechanism
 4. Advanced Level Generation System
 5. Flask-Socketio Server Development
 6. Web Simulator Frontend Design
