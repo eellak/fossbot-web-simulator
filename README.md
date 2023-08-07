@@ -5,9 +5,9 @@
 
 ## Introduction
 
-This project introduces a web-based fossbot simulator developed using the open-source game engine [Godot 3.5.2](https://godotengine.org/). It incorporates all methods available in the fossbot interface, detailed in the [wiki](https://github.com/chronis10/fossbot-source/wiki/2.-Robot-Interface). Additionally, it introduces new features, such as the ability to control multiple fossbots and dynamically alter the environment's obstacle terrain. This enhanced simulator offers an immersive platform for comprehensive testing and simulation of fossbot capabilities.
+This project introduces a web-based fossbot simulator developed using the open-source game engine [Godot 3.5.2](https://godotengine.org/). It incorporates all methods available in the fossbot interface, which can be found in the corresponding section of this [wiki](https://github.com/chronis10/fossbot-source/wiki). Additionally, it introduces new features, such as the ability to control multiple fossbots and dynamically alter the environment's obstacle terrain. This enhanced simulator offers an immersive platform for comprehensive testing and simulation of fossbot capabilities.
 
-Communication within the simulator relies on SocketIO with rooms, supported by a Flask-SocketIO server. To run this web simulator, I've developed both Python and JavaScript libraries. To learn more about the Python library, you can explore the relevant [wiki](https://github.com/chronis10/fossbot-source/wiki). For information on the JavaScript library, please refer to the corresponding section of this [wiki](https://github.com/eellak/fossbot-web-simulator/wiki).
+Communication within the simulator relies on SocketIO with rooms, supported by a Flask-SocketIO server, which I developed. To run this web simulator, I have also implemented both Python and JavaScript libraries. To learn more about the Python library, you can explore the relevant [wiki](https://github.com/chronis10/fossbot-source/wiki). For information on the JavaScript library, please refer to the corresponding section of this [wiki](https://github.com/eellak/fossbot-web-simulator/wiki).
 
 
 [View the project on Google Summer of Code website](https://summerofcode.withgoogle.com/programs/2023/projects/xsxF9klm).
