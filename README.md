@@ -44,9 +44,9 @@ python3 server.py
 Challenges and Solutions
 --------
 
-One of the central challenges encountered during the project was the creation of the fossbot model from scratch. Although Godot does not inherently restrict vehicles to only four wheels, implementing a three-wheel vehicle proved intricate challenge. To ensure precise and realistic fossbot movements, I devised custom methods to adapt the model's center and exhaustively tested various options for optimal results.
+One of the central challenges encountered during the project was the creation of the fossbot model from scratch. Although Godot does not inherently restrict vehicles to only four wheels, implementing a three-wheeled vehicle proved an intricate challenge. To ensure precise and realistic fossbot movements, I devised custom methods to adapt the model's center of gravity and exhaustively tested various options for optimal results.
 
-Additionally, crafting accurate representations of each robotic component (like ultrasonic sensor, line sensor and light sensor) for the fossbot from scratch posed another significant challenge. I meticulously matched these virtual parts to their real-world counterparts, aiming for authenticity and flawless functionality within the simulation.
+Additionally, crafting accurate representations of each robotic component (like the ultrasonic sensor, line sensor and light sensor) for the fossbot from scratch posed another significant challenge. I meticulously matched these virtual parts to their real-world counterparts, aiming for authenticity and flawless functionality within the simulation.
 
 Addressing the complexities of the socketio server presented another hurdle. To ensure seamless message routing without message conflicts in multiple fossbot scenarios, I conceived a message distributor within the simulation, effectively utilizing socketio's capabilities.
 
@@ -70,13 +70,13 @@ GSoC Deliverables
 Future Work
 ------------
 
-There are still opportunities for further enhancement of the Fossbot Web Simulator. I am confident that, with the combined efforts of the Open Source community, this goal can be achieved. Feel free, to contribute and participate on that project, any suggestion and improvement are welcomed.
+There are still opportunities for further enhancement of the Fossbot Web Simulator. I am confident that, with the combined efforts of the Open Source community, this goal can be achieved. Feel free, to contribute and participate on this project, any suggestions and improvements are welcome.
 
 Some thoughts for future work:
 
 1. Enhance Fossbot Model in Godot
 2. Refine Terrain Generation
-3. Diversify Preset Levels
+3. Diversify Preset Client Levels
 4. Extend JavaScript Library
 5. Extend Python Godot Library for AI Training
 
