@@ -1,7 +1,7 @@
 extends VehicleBody
 
-var vel_right = 100
-var vel_left = 100
+var vel_right = 0
+var vel_left = 0
 var obstacle_name = "obstacle"
 var ultrasonic_tradeoff = 2.32	# change it according to the position of ultrasonic in comparison to the player
 # Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
@@ -221,7 +221,7 @@ func send_axis_vector(in_vector, axis: String):
 
 func _physics_process(delta):
 	client.poll()	# used for websockets
-
+	print(self.rotation_degrees.y)
 	if music:	# this is for stop looping the music.
 		curr_music_pos = music.get_playback_position()
 		if curr_music_pos < prev_music_pos:
@@ -263,12 +263,17 @@ func _physics_process(delta):
 
 func move(right_vel, left_vel):
 	# Puts input right and left velocities to right and left motors.
-	var max_torque = 100	# change this if needed
+	var max_torque = 50	# change this if needed
+	var lerp_step = 0.1
+	if move_dir == "forward":
+		lerp_step = 0.01
 	var max_rpm = 100
 	var rpm = abs($"front-right-wheel".get_rpm())
-	$"front-right-wheel".engine_force = -(right_vel/100) * max_torque * (1 - rpm / max_rpm)
+	var cur_force = $"front-right-wheel".engine_force
+	$"front-right-wheel".engine_force = lerp(cur_force, -(right_vel/100) * max_torque * (1 - rpm / max_rpm), lerp_step)
 	rpm = abs($"front-left-wheel".get_rpm())
-	$"front-left-wheel".engine_force = -(left_vel/100) * max_torque * (1 - rpm / max_rpm)
+	cur_force = $"front-left-wheel".engine_force
+	$"front-left-wheel".engine_force = lerp(cur_force, -(left_vel/100) * max_torque * (1 - rpm / max_rpm), lerp_step)
 
 var v0 = Vector3(0,0,0)
 var r0 = Vector3(0,0,0)
