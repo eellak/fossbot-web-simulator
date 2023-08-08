@@ -87,41 +87,31 @@ material/0 = SubResource( 8 )
 shape = SubResource( 10 )
 
 [node name="fossbot" type="VehicleBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.567, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.9114, -0.724724 )
 script = ExtResource( 1 )
 
 [node name="Camera" type="Camera" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.00967548, 2.32969, -0.807518 )
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.00967548, 4.80809, -0.0827943 )
 current = true
 fov = 129.375
 
 [node name="car-body" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.012, 0, 0, 0, -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, -0.199097, -0.121167 )
+transform = Transform( 0.012, 0, 0, 0, -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 2.2793, 0.603557 )
 mesh = ExtResource( 3 )
 
 [node name="CollisionShape" type="CollisionShape" parent="fossbot"]
-transform = Transform( 1.5, 0, 8.14905e-11, 0, 1, 0, -1.74623e-10, 0, 0.7, 0, 0, -0.117159 )
+transform = Transform( 1.5, 0, 8.14905e-11, 0, 1, 0, -1.74623e-10, 0, 0.7, 0, 2.4784, 0.607565 )
 shape = SubResource( 4 )
 
 [node name="caste-wheel-skin" type="MeshInstance" parent="fossbot"]
-transform = Transform( 3.49691e-08, 0.7, -1.35896e-07, 0.8, -3.0598e-08, -5.22346e-22, -5.28019e-15, -1.05697e-07, -0.9, 0, -0.25, 0.531 )
+transform = Transform( 3.49691e-08, 0.7, -1.35896e-07, 0.8, -3.0598e-08, -5.22346e-22, -5.28019e-15, -1.05697e-07, -0.9, 0, 2.2284, 1.25572 )
+visible = false
 mesh = SubResource( 9 )
-skeleton = NodePath("../caster-wheel")
+skeleton = NodePath("")
 material/0 = SubResource( 17 )
 
-[node name="caster-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, -0.237, 0.8 )
-brake = 1.0
-use_as_steering = true
-wheel_roll_influence = 0.0
-wheel_radius = 0.2
-suspension_travel = 0.25
-suspension_stiffness = 50.0
-damping_compression = 2.9
-damping_relaxation = 3.0
-
 [node name="front-right-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22, 0, -0.7 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22, 2.47821, 0 )
 use_as_traction = true
 wheel_radius = 0.4
 suspension_travel = 0.25
@@ -134,7 +124,7 @@ transform = Transform( -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 0, 0, 0.
 mesh = ExtResource( 4 )
 
 [node name="front-left-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22, 0, -0.7 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22, 2.47821, 0 )
 use_as_traction = true
 wheel_radius = 0.4
 suspension_travel = 0.25
@@ -147,8 +137,12 @@ transform = Transform( 5.24537e-10, 0.012, -1.04907e-09, 0.012, -5.24537e-10, 0,
 mesh = ExtResource( 4 )
 skeleton = NodePath("../../front-right-wheel")
 
+[node name="VehicleWheel" type="VehicleWheel" parent="fossbot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.27555, 1.30238 )
+wheel_radius = 0.2
+
 [node name="ultrasonic" type="Area" parent="fossbot"]
-transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, 0, 0.546, -4.4 )
+transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, 0, 3.0244, -3.67528 )
 
 [node name="MeshInstance" type="MeshInstance" parent="fossbot/ultrasonic"]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )
@@ -160,7 +154,7 @@ transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0
 shape = SubResource( 12 )
 
 [node name="led" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0.872, 0.441, -1.085 )
+transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0.872, 2.9194, -0.360276 )
 mesh = SubResource( 15 )
 material/0 = SubResource( 16 )
 
@@ -186,7 +180,7 @@ text = "00 : 00 : 00 : 000"
 align = 1
 
 [node name="LeftSensor" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.421197, -0.155595, -1.00195 )
+transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.421197, 2.3228, -0.277226 )
 mesh = SubResource( 19 )
 
 [node name="LeftContainer" type="ViewportContainer" parent="fossbot/LeftSensor"]
@@ -214,7 +208,7 @@ visible = false
 mesh = SubResource( 18 )
 
 [node name="MiddleSensor" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.00107528, -0.155595, -1.00195 )
+transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.00107528, 2.3228, -0.277226 )
 mesh = SubResource( 19 )
 
 [node name="MiddleContainer" type="ViewportContainer" parent="fossbot/MiddleSensor"]
@@ -243,7 +237,7 @@ mesh = SubResource( 18 )
 skeleton = NodePath("../../../../../LeftSensor/LeftContainer/Viewport/LeftSensor")
 
 [node name="RightSensor" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, 0.41504, -0.155595, -1.00195 )
+transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, 0.41504, 2.3228, -0.277226 )
 mesh = SubResource( 19 )
 
 [node name="RightContainer" type="ViewportContainer" parent="fossbot/RightSensor"]
@@ -272,7 +266,7 @@ mesh = SubResource( 18 )
 skeleton = NodePath("../../../../../LeftSensor/LeftContainer/Viewport/LeftSensor")
 
 [node name="LightSensor" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -0.856, 0.445, -1.08473 )
+transform = Transform( 0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -0.856, 2.9234, -0.360006 )
 mesh = SubResource( 20 )
 material/0 = SubResource( 21 )
 
@@ -311,14 +305,14 @@ margin_bottom = 29.0
 value = 50.0
 
 [node name="rotation_check" type="Area" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.02779, 0.000559807 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.50619, 0.725284 )
 
 [node name="CollisionShape" type="CollisionShape" parent="fossbot/rotation_check"]
 transform = Transform( 1.5, 0, 0, 0, 0.22, 0, 0, 0, 1.1, 0, -0.485, -0.146101 )
 shape = SubResource( 27 )
 
 [node name="obstacle" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.859271, 1.159, -6.10734 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 9.29217, 1.159, -6.10734 )
 mesh = SubResource( 13 )
 
 [node name="obstacle" type="StaticBody" parent="obstacle"]
@@ -327,7 +321,7 @@ mesh = SubResource( 13 )
 shape = SubResource( 14 )
 
 [node name="obstacle2" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.07825, 1.35106, -7.58175 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.2297, 1.35106, -7.58175 )
 mesh = SubResource( 13 )
 
 [node name="obstacle" type="StaticBody" parent="obstacle2"]

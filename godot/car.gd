@@ -1,7 +1,7 @@
 extends VehicleBody
 
-var vel_right = 0
-var vel_left = 0
+var vel_right = 100
+var vel_left = 100
 var obstacle_name = "obstacle"
 var ultrasonic_tradeoff = 2.32	# change it according to the position of ultrasonic in comparison to the player
 # Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
@@ -241,6 +241,7 @@ func _physics_process(delta):
 
 	move(vel_right, vel_left)
 	# print(rotation.y)
+	equal_rot_vel = false
 	if target_ros > 0:
 		if equal_rot_vel:
 			var r = 0.006 * ((abs(vel_left) + abs(vel_right)) / 200)	# rythm for simulating rotation velocity.
@@ -485,7 +486,7 @@ func rotate_90(dir_id: int, d):
 	# Param: dir_id: the direction id of rotation: clockwise == 1, counterclockwise == 0.
 	#		 d: the initial dictionary (json) sent from the server.
 	resume()
-	print(self.transform.origin)
+	print(self.global_transform.origin)
 	# gets the amount of bodies the above cylinder collides with (to see if it can rotate without limit).
 	var init_rot = rotation_degrees.y
 	time_curr_ros = 0
@@ -513,17 +514,15 @@ func actual_rotate_90(delta, target_rot):
 	var rotation_angle = abs(sign(rotation.y) * delta * angular_velocity.y)
 	sum_rot += rotation_angle
 	# print(rad2deg(sum_rot))
-	var vector = (init_player_pos - self.transform.origin).normalized()
-	var SPEED = 10
-	self.set_linear_velocity(vector * SPEED * delta)
 	if rad2deg(sum_rot) >= target_rot:
 		stop()
-		print(self.transform.origin)
 		sum_rot = 0
 		target_ros = -1
 		if horizontal_ground:
 			rotation_degrees.y = final_rot_pos
-			init_player_pos
+			# init_player_pos
+		print(self.global_transform.origin)
+
 
 func rotate_degrees_transf(degr: float, dir_id: int, rythm=0.01):
 	# Rotates (slowly) the robot (USE IT IN PHYSICS_PROCESS)
@@ -586,4 +585,3 @@ func just_move(d, direction="forward"):
 	elif direction == "reverse":
 		vel_right = -abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
-
