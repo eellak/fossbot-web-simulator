@@ -111,7 +111,9 @@ material/0 = SubResource( 17 )
 
 [node name="caster-wheel" type="VehicleWheel" parent="fossbot"]
 transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, -0.237, 0.8 )
+brake = 1.0
 use_as_steering = true
+wheel_roll_influence = 0.0
 wheel_radius = 0.2
 suspension_travel = 0.25
 suspension_stiffness = 50.0
