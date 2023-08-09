@@ -264,16 +264,11 @@ func _physics_process(delta):
 func move(right_vel, left_vel):
 	# Puts input right and left velocities to right and left motors.
 	var max_torque = 50	# change this if needed
-	var lerp_step = 0.1
-	if move_dir == "forward":
-		lerp_step = 0.01
 	var max_rpm = 100
 	var rpm = abs($"front-right-wheel".get_rpm())
-	var cur_force = $"front-right-wheel".engine_force
-	$"front-right-wheel".engine_force = lerp(cur_force, -(right_vel/100) * max_torque * (1 - rpm / max_rpm), lerp_step)
+	$"front-right-wheel".engine_force = -(right_vel/100) * max_torque * (1 - rpm / max_rpm)
 	rpm = abs($"front-left-wheel".get_rpm())
-	cur_force = $"front-left-wheel".engine_force
-	$"front-left-wheel".engine_force = lerp(cur_force, -(left_vel/100) * max_torque * (1 - rpm / max_rpm), lerp_step)
+	$"front-left-wheel".engine_force = -(left_vel/100) * max_torque * (1 - rpm / max_rpm)
 
 var v0 = Vector3(0,0,0)
 var r0 = Vector3(0,0,0)

@@ -86,33 +86,33 @@ material/0 = SubResource( 8 )
 [node name="CollisionShape" type="CollisionShape" parent="Floor/Floor"]
 shape = SubResource( 10 )
 
-[node name="fossbot" type="VehicleBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.03734, -0.724724 )
-mass = 70.0
-script = ExtResource( 1 )
-
-[node name="Camera" type="Camera" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.00967548, 5.62129, 0.666934 )
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 2.29466, -0.718398 )
 current = true
 fov = 129.375
 
+[node name="fossbot" type="VehicleBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.03734, -0.719398 )
+mass = 100.0
+script = ExtResource( 1 )
+
 [node name="car-body" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.012, 0, 0, 0, -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 2.2793, 0.603557 )
+transform = Transform( 0.012, 0, 0, 0, -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 2.2793, 0.598231 )
 mesh = ExtResource( 3 )
 
 [node name="CollisionShape" type="CollisionShape" parent="fossbot"]
-transform = Transform( 1.5, 0, 8.14905e-11, 0, 1, 0, -1.74623e-10, 0, 0.7, 0, 2.4784, 0.607565 )
+transform = Transform( 1.5, 0, 8.14905e-11, 0, 1, 0, -1.74623e-10, 0, 0.7, 0, 2.4784, 0.602239 )
 shape = SubResource( 4 )
 
 [node name="caste-wheel-skin" type="MeshInstance" parent="fossbot"]
-transform = Transform( 3.49691e-08, 0.7, -1.35896e-07, 0.8, -3.0598e-08, -5.22346e-22, -5.28019e-15, -1.05697e-07, -0.9, 0, 2.2284, 1.25572 )
+transform = Transform( 3.49691e-08, 0.7, -1.35896e-07, 0.8, -3.0598e-08, -5.22346e-22, -5.28019e-15, -1.05697e-07, -0.9, 0, 2.2284, 1.2504 )
 visible = false
 mesh = SubResource( 9 )
 skeleton = NodePath("")
 material/0 = SubResource( 17 )
 
 [node name="front-right-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22, 2.47821, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22, 2.47821, -0.00532627 )
 use_as_traction = true
 wheel_roll_influence = 0.0
 wheel_radius = 0.4
@@ -126,7 +126,7 @@ transform = Transform( -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 0, 0, 0.
 mesh = ExtResource( 4 )
 
 [node name="front-left-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22, 2.47821, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22, 2.47821, -0.00532627 )
 use_as_traction = true
 wheel_roll_influence = 0.0
 wheel_radius = 0.4
@@ -141,13 +141,23 @@ mesh = ExtResource( 4 )
 skeleton = NodePath("../../front-right-wheel")
 
 [node name="caster-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.28199, 1.35026 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.28199, 1.34494 )
 wheel_radius = 0.2
 wheel_friction_slip = 0.0
-damping_compression = 30.0
+suspension_stiffness = 30.0
+damping_compression = 20.0
+damping_relaxation = 31.0
+
+[node name="dummy-wheel" type="VehicleWheel" parent="fossbot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.28199, -0.309548 )
+wheel_radius = 0.2
+wheel_friction_slip = 0.0
+suspension_stiffness = 100.0
+damping_compression = 120.0
+damping_relaxation = 121.0
 
 [node name="ultrasonic" type="Area" parent="fossbot"]
-transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, 0, 3.0244, -3.67528 )
+transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, 0, 3.0244, -3.6806 )
 
 [node name="MeshInstance" type="MeshInstance" parent="fossbot/ultrasonic"]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )
@@ -159,7 +169,7 @@ transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0
 shape = SubResource( 12 )
 
 [node name="led" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0.872, 2.9194, -0.360276 )
+transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0.872, 2.9194, -0.365602 )
 mesh = SubResource( 15 )
 material/0 = SubResource( 16 )
 
@@ -185,7 +195,7 @@ text = "00 : 00 : 00 : 000"
 align = 1
 
 [node name="LeftSensor" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.421197, 2.3228, -0.277226 )
+transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.421197, 2.3228, -0.282552 )
 mesh = SubResource( 19 )
 
 [node name="LeftContainer" type="ViewportContainer" parent="fossbot/LeftSensor"]
@@ -213,7 +223,7 @@ visible = false
 mesh = SubResource( 18 )
 
 [node name="MiddleSensor" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.00107528, 2.3228, -0.277226 )
+transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.00107528, 2.3228, -0.282552 )
 mesh = SubResource( 19 )
 
 [node name="MiddleContainer" type="ViewportContainer" parent="fossbot/MiddleSensor"]
@@ -242,7 +252,7 @@ mesh = SubResource( 18 )
 skeleton = NodePath("../../../../../LeftSensor/LeftContainer/Viewport/LeftSensor")
 
 [node name="RightSensor" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, 0.41504, 2.3228, -0.277226 )
+transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, 0.41504, 2.3228, -0.282552 )
 mesh = SubResource( 19 )
 
 [node name="RightContainer" type="ViewportContainer" parent="fossbot/RightSensor"]
@@ -271,7 +281,7 @@ mesh = SubResource( 18 )
 skeleton = NodePath("../../../../../LeftSensor/LeftContainer/Viewport/LeftSensor")
 
 [node name="LightSensor" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -0.856, 2.9234, -0.360006 )
+transform = Transform( 0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -0.856, 2.9234, -0.365332 )
 mesh = SubResource( 20 )
 material/0 = SubResource( 21 )
 
@@ -310,7 +320,7 @@ margin_bottom = 29.0
 value = 50.0
 
 [node name="rotation_check" type="Area" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.50619, 0.725284 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.50619, 0.719958 )
 
 [node name="CollisionShape" type="CollisionShape" parent="fossbot/rotation_check"]
 transform = Transform( 1.5, 0, 0, 0, 0.22, 0, 0, 0, 1.1, 0, -0.485, -0.146101 )
