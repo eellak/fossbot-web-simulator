@@ -2,13 +2,12 @@ extends VehicleBody
 
 var vel_right = 0
 var vel_left = 0
-var obstacle_name = "obstacle"
-var ultrasonic_tradeoff = 2.32	# change it according to the position of ultrasonic in comparison to the player
+var ultrasonic_tradeoff = 1.9	# change it according to the position of ultrasonic in comparison to the player
 # Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
-var middle_sensor = "MiddleSensor/MiddleContainer/Viewport/MiddleSensor"		# path to ground sensors (change it if needed).
-var left_sensor = "LeftSensor/LeftContainer/Viewport/LeftSensor"
-var right_sensor = "RightSensor/RightContainer/Viewport/RightSensor"
-var light_sensor = "LightSensor/LightContainer/Viewport/LightSensor"	# path to light sensor (change it if needed).
+onready var middle_sensor = $MiddleSensor/MiddleContainer/Viewport/MiddleSensor
+onready var left_sensor = $LeftSensor/LeftContainer/Viewport/LeftSensor
+onready var right_sensor = $RightSensor/RightContainer/Viewport/RightSensor
+onready var light_sensor = $LightSensor/LightContainer/Viewport/LightSensor
 # rotation related:
 var radians = 0
 var target_ros = 0
@@ -50,18 +49,17 @@ var move_dir = "forward"
 # Set this to false if not horizontal ground in scene (you can also do it from editor!)
 export(bool) var horizontal_ground = true
 
-var equal_rot_vel = false
+export(float) var max_rpm = 100.0
+var reduce_speed_rot_percent = 0.2	# 20 percent of initial torque for rotation (slows rotation).
+
 var sum_rot = 0
-# METHODS FOR WEBSOCKET CONNECTION ====================================
+# VARS FOR WEBSOCKET CONNECTION ====================================
 var client = WebSocketClient.new()
 
 var url = "ws://localhost:5000"
 
 func _ready():
-	middle_sensor = get_node(middle_sensor)
-	left_sensor = get_node(left_sensor)
-	right_sensor = get_node(right_sensor)
-	light_sensor = get_node(light_sensor)
+	_on_horizontal_ground_changed()
 	client.connect("data_received", self, "data_received")
 	var err = client.connect_to_url(url)
 	if err != OK:
@@ -81,68 +79,58 @@ func data_received():
 	# print("Got data from server: " + pkt.get_string_from_utf8())
 	var req_func = d["func"]
 	if req_func == "move_forward":
-		move_dir = "forward"
-		just_move(d, move_dir)
+		just_move(d, "forward")
 	elif req_func == "move_reverse":
-		move_dir = "reverse"
-		just_move(d, move_dir)
+		just_move(d, "reverse")
 	elif req_func == "just_move":
 		var tmp_move_dir = d["direction"]
 		if tmp_move_dir != "forward" and tmp_move_dir != "reverse":
 			print("Motor accepts only forward and reverse values.")
 			return
-		move_dir = tmp_move_dir
-		just_move(d, move_dir)
+		just_move(d, tmp_move_dir)
 	elif req_func == "move_distance":
 		var tmp_move_dir = d["direction"]
 		if tmp_move_dir != "forward" and tmp_move_dir != "reverse":
 			print("Motor accepts only forward and reverse values.")
 			return
-		move_dir = tmp_move_dir
-		move_distance(d, move_dir)
+		move_distance(d, tmp_move_dir)
 	elif req_func == "move_forward_distance":
-		move_dir = "forward"
-		move_distance(d, move_dir)
+		move_distance(d, "forward")
 	elif req_func == "move_reverse_distance":
-		move_dir = "reverse"
-		move_distance(d, move_dir)
+		move_distance(d, "reverse")
 	elif req_func == "move_forward_default":
-		move_dir = "forward"
 		d["tar_dist"] = d["def_dist"]
-		move_distance(d, move_dir)
+		move_distance(d, "forward")
 	elif req_func == "move_reverse_default":
-		move_dir = "reverse"
 		d["tar_dist"] = d["def_dist"]
-		move_distance(d, move_dir)
+		move_distance(d, "reverse")
 	elif req_func == "rotate_clockwise":
 		resume()
+		dir_id = 1
 		vel_right = -abs(d["vel_right"])
 		vel_left = abs(d["vel_left"])
 	elif req_func == "rotate_counterclockwise":
 		resume()
+		dir_id = 0
 		vel_right = abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
 	elif req_func == "rotate_clockwise_90":
-		dir_id = 1
-		rotate_90(dir_id, d)
+		rotate_90(1, d)
 	elif req_func == "rotate_counterclockwise_90":
-		dir_id = 0
-		rotate_90(dir_id, d)
+		rotate_90(0, d)
 	elif req_func == "just_rotate":
 		var tmp_dir_id = d["dir_id"]
 		if tmp_dir_id != 0 and tmp_dir_id != 1:
 			print('Requested direction is out of bounds.')
 			return
-		dir_id = tmp_dir_id
 		d["degree"] = 1
-		rotate_90(dir_id, d)
+		rotate_90(tmp_dir_id, d)
 	elif req_func == "rotate_90":
 		var tmp_dir_id = d["dir_id"]
 		if tmp_dir_id != 0 and tmp_dir_id != 1:
 			print('Requested direction is out of bounds.')
 			return
-		dir_id = tmp_dir_id
-		rotate_90(dir_id, d)
+		rotate_90(tmp_dir_id, d)
 	elif req_func == "check_for_obstacle":
 		send(get_ultrasonic(false))
 	elif req_func == "get_distance":
@@ -221,7 +209,6 @@ func send_axis_vector(in_vector, axis: String):
 
 func _physics_process(delta):
 	client.poll()	# used for websockets
-	print(self.rotation_degrees.y)
 	if music:	# this is for stop looping the music.
 		curr_music_pos = music.get_playback_position()
 		if curr_music_pos < prev_music_pos:
@@ -231,7 +218,7 @@ func _physics_process(delta):
 			curr_music_pos = 0
 			print("Sound ended.")
 		prev_music_pos = curr_music_pos
-	
+
 	if wait_time > 0:
 		# does not do anything for wait_time seconds.
 		print(wait_time)
@@ -241,13 +228,8 @@ func _physics_process(delta):
 
 	move(vel_right, vel_left)
 	# print(rotation.y)
-	equal_rot_vel = false
 	if target_ros > 0:
-		if equal_rot_vel:
-			var r = 0.006 * ((abs(vel_left) + abs(vel_right)) / 200)	# rythm for simulating rotation velocity.
-			rotate_degrees_transf(target_ros, dir_id, r)
-		else:
-			actual_rotate_90(delta, target_ros)	# rotates with time.
+		actual_rotate_90(delta, target_ros)	# rotates with time.
 
 	if target_distance > 0:
 		count_distance()
@@ -264,11 +246,13 @@ func _physics_process(delta):
 func move(right_vel, left_vel):
 	# Puts input right and left velocities to right and left motors.
 	var max_torque = 50	# change this if needed
-	var max_rpm = 100
+	if dir_id >= 0:	# rotation:
+		max_torque = max_torque * reduce_speed_rot_percent
+	var mx_rpm = max_rpm
 	var rpm = abs($"front-right-wheel".get_rpm())
-	$"front-right-wheel".engine_force = -(right_vel/100) * max_torque * (1 - rpm / max_rpm)
+	$"front-right-wheel".engine_force = -(right_vel/100) * max_torque * (1 - rpm / mx_rpm)
 	rpm = abs($"front-left-wheel".get_rpm())
-	$"front-left-wheel".engine_force = -(left_vel/100) * max_torque * (1 - rpm / max_rpm)
+	$"front-left-wheel".engine_force = -(left_vel/100) * max_torque * (1 - rpm / mx_rpm)
 
 var v0 = Vector3(0,0,0)
 var r0 = Vector3(0,0,0)
@@ -288,6 +272,7 @@ func stop():
 	vel_left = 0
 	vel_right = 0
 	engine_force = 0
+	dir_id = -1
 	mode = MODE_RIGID
 	linear_damp = 5
 
@@ -303,15 +288,15 @@ func get_ultrasonic(calc_distance):
 	# iterate over the list of overlapping bodies
 	var min_d = 10000
 	for body in list_detect:
-		if body.get_name().to_lower() == obstacle_name:
-			if !calc_distance:
-				return true #if no calc_distance, just returns if the object is colliding with static.
-			var player_position = self.global_transform.origin
-			var body_position = body.global_transform.origin
-			var distance = player_position.distance_to(body_position) - ultrasonic_tradeoff
-			# print("Distance to ", body.get_name(), " is ", distance)
-			if distance < min_d:
-				min_d = distance
+		# print(body.get_name().to_lower())
+		if !calc_distance:
+			return true #if no calc_distance, just returns if the object is colliding with static.
+		var player_position = self.global_transform.origin
+		var body_position = body.global_transform.origin
+		var distance = player_position.distance_to(body_position) - ultrasonic_tradeoff
+		# print("Distance to ", body.get_name(), " is ", distance)
+		if distance < min_d:
+			min_d = distance
 	if min_d == 10000 and !calc_distance:
 		return false 	# no obstacle has been detected.
 	return min_d
@@ -481,28 +466,24 @@ func exit():
 	change_rgb('closed')
 	client.disconnect_from_host(1000, "User disconnected.")
 
-func rotate_90(dir_id: int, d):
+func rotate_90(dr_id: int, d):
 	# Sets the necessary variables and functions for x degree rotation with dir_id rotation.
-	# Param: dir_id: the direction id of rotation: clockwise == 1, counterclockwise == 0.
+	# Param: dr_id: the direction id (dir_id) of rotation: clockwise == 1, counterclockwise == 0.
 	#		 d: the initial dictionary (json) sent from the server.
+	if d["degree"] <= 0:
+		return
 	resume()
+	dir_id = dr_id
 	print(self.global_transform.origin)
-	# gets the amount of bodies the above cylinder collides with (to see if it can rotate without limit).
 	var init_rot = rotation_degrees.y
 	time_curr_ros = 0
 	time_target_ros = -1
 	target_ros = d["degree"]
-	final_rot_pos = calc_final_rot(init_rot, target_ros, dir_id)
-	var check_rot_coll = $rotation_check.get_overlapping_bodies().size()
-	print(check_rot_coll)
-	if horizontal_ground and check_rot_coll <= 0 and abs(abs(d["vel_right"]) - abs(d["vel_left"])) <= 1:
-		equal_rot_vel = true	# this rotates with transform (accurate).
-	else:
-		equal_rot_vel = false	# this rotates with time.
-	if dir_id == 1:
+	final_rot_pos = calc_final_rot(init_rot, target_ros, dr_id)
+	if dr_id == 1:
 		vel_right = -abs(d["vel_right"])
 		vel_left = abs(d["vel_left"])
-	elif dir_id == 0:
+	elif dr_id == 0:
 		vel_right = abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
 
@@ -513,18 +494,21 @@ func actual_rotate_90(delta, target_rot):
 	#		 target_rot: the target degrees to be rotated.
 	var rotation_angle = abs(sign(rotation.y) * delta * angular_velocity.y)
 	sum_rot += rotation_angle
-	# print(rad2deg(sum_rot))
+	print(rad2deg(sum_rot))
 	if rad2deg(sum_rot) >= target_rot:
 		stop()
 		sum_rot = 0
 		target_ros = -1
-		if horizontal_ground:
-			rotation_degrees.y = final_rot_pos
-			# init_player_pos
+		#if horizontal_ground:
+		# Sets final player rotation regardles:
+		rotation_degrees.y = final_rot_pos
+		# init_player_pos
+		print("Final rot pos: " + str(self.rotation_degrees.y))
 		print(self.global_transform.origin)
 
 
 func rotate_degrees_transf(degr: float, dir_id: int, rythm=0.01):
+	# DEPRECATED:
 	# Rotates (slowly) the robot (USE IT IN PHYSICS_PROCESS)
 	# Param: degr: the degrees to rotate it
 	#		 dir_id: the direction to rotate it:
@@ -563,9 +547,12 @@ func move_distance(d, direction="forward"):
 	# Sets the necessaruy variables for moving a specific distance.
 	# Param: d: the initial dictionary (json) sent from the server.
 	#		 direction: string: the direction to be moved (default is 'forward').
+	if d["tar_dist"] <= 0:
+		return
 	resume()
+	move_dir = direction
 	init_player_pos = self.global_transform.origin
-	target_distance = abs(d["tar_dist"])
+	target_distance = d["tar_dist"]
 	if direction == "forward":
 		vel_right = abs(d["vel_right"])
 		vel_left = abs(d["vel_left"])
@@ -579,9 +566,30 @@ func just_move(d, direction="forward"):
 	#		 direction: string: the direction to be moved (default is 'forward').
 	resume()	# ALWAYS add resume() when function is movement related!
 	# Pattern here: velocity = (-) abs(in_velocity)
+	move_dir = direction
 	if direction == "forward":
 		vel_right = abs(d["vel_right"])
 		vel_left = abs(d["vel_left"])
 	elif direction == "reverse":
 		vel_right = -abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
+
+func lock_x_z_ang():
+	# Locks x and z angular axis
+	axis_lock_angular_x = true
+	axis_lock_angular_z = true
+
+func unlock_x_z_ang():
+	# Unlocks x and z angular axis
+	axis_lock_angular_x = false
+	axis_lock_angular_z = false
+
+func _on_horizontal_ground_changed():
+	# Define a function that will be executed when horizontal ground changes
+	if horizontal_ground:
+		lock_x_z_ang()
+		# print("Axis locked")
+	else:
+		unlock_x_z_ang()
+		# print("Axis unlocked")
+

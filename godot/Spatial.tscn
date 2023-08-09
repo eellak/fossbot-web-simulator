@@ -63,16 +63,15 @@ adjustment_enabled = true
 
 [sub_resource type="BoxShape" id=27]
 
-[sub_resource type="CubeMesh" id=13]
-
-[sub_resource type="ConcavePolygonShape" id=14]
-data = PoolVector3Array( -1, 1, 1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, -1, 1, -1, -1, 1, 1, -1, -1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, 1, 1, 1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, -1, -1 )
-
 [sub_resource type="CubeMesh" id=23]
 size = Vector3( 2, 20, 100 )
 
 [sub_resource type="ConcavePolygonShape" id=24]
 data = PoolVector3Array( -1, 10, 50, 1, 10, 50, -1, -10, 50, 1, 10, 50, 1, -10, 50, -1, -10, 50, 1, 10, -50, -1, 10, -50, 1, -10, -50, -1, 10, -50, -1, -10, -50, 1, -10, -50, 1, 10, 50, 1, 10, -50, 1, -10, 50, 1, 10, -50, 1, -10, -50, 1, -10, 50, -1, 10, -50, -1, 10, 50, -1, -10, -50, -1, 10, 50, -1, -10, 50, -1, -10, -50, 1, 10, 50, -1, 10, 50, 1, 10, -50, -1, 10, 50, -1, 10, -50, 1, 10, -50, -1, -10, 50, 1, -10, 50, -1, -10, -50, 1, -10, 50, 1, -10, -50, -1, -10, -50 )
+
+[sub_resource type="BoxShape" id=28]
+
+[sub_resource type="CubeMesh" id=29]
 
 [node name="Spatial" type="Spatial"]
 
@@ -86,22 +85,23 @@ material/0 = SubResource( 8 )
 [node name="CollisionShape" type="CollisionShape" parent="Floor/Floor"]
 shape = SubResource( 10 )
 
-[node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 2.29466, -0.718398 )
-current = true
-fov = 129.375
-
 [node name="fossbot" type="VehicleBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.03734, -0.719398 )
 mass = 100.0
 script = ExtResource( 1 )
+horizontal_ground = false
+
+[node name="Camera" type="Camera" parent="fossbot"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4.90752, 0.00100005 )
+current = true
+fov = 129.375
 
 [node name="car-body" type="MeshInstance" parent="fossbot"]
 transform = Transform( 0.012, 0, 0, 0, -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 2.2793, 0.598231 )
 mesh = ExtResource( 3 )
 
 [node name="CollisionShape" type="CollisionShape" parent="fossbot"]
-transform = Transform( 1.5, 0, 8.14905e-11, 0, 1, 0, -1.74623e-10, 0, 0.7, 0, 2.4784, 0.602239 )
+transform = Transform( 1.5, 0, 8.14905e-11, 0, 1, 0, -1.74623e-10, 0, 0.7, 0, 2.34139, 0.602239 )
 shape = SubResource( 4 )
 
 [node name="caste-wheel-skin" type="MeshInstance" parent="fossbot"]
@@ -112,7 +112,7 @@ skeleton = NodePath("")
 material/0 = SubResource( 17 )
 
 [node name="front-right-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22, 2.47821, -0.00532627 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22, 2.478, 0 )
 use_as_traction = true
 wheel_roll_influence = 0.0
 wheel_radius = 0.4
@@ -126,7 +126,7 @@ transform = Transform( -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 0, 0, 0.
 mesh = ExtResource( 4 )
 
 [node name="front-left-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22, 2.47821, -0.00532627 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22, 2.478, 0 )
 use_as_traction = true
 wheel_roll_influence = 0.0
 wheel_radius = 0.4
@@ -142,22 +142,26 @@ skeleton = NodePath("../../front-right-wheel")
 
 [node name="caster-wheel" type="VehicleWheel" parent="fossbot"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.28199, 1.34494 )
+wheel_roll_influence = 0.0
 wheel_radius = 0.2
 wheel_friction_slip = 0.0
 suspension_stiffness = 30.0
-damping_compression = 20.0
-damping_relaxation = 31.0
+damping_compression = 10.0
+damping_relaxation = 11.0
 
 [node name="dummy-wheel" type="VehicleWheel" parent="fossbot"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.28199, -0.309548 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.282, -0.4 )
+wheel_roll_influence = 0.0
 wheel_radius = 0.2
 wheel_friction_slip = 0.0
 suspension_stiffness = 100.0
-damping_compression = 120.0
-damping_relaxation = 121.0
+damping_compression = 20.0
+damping_relaxation = 30.0
 
 [node name="ultrasonic" type="Area" parent="fossbot"]
 transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, 0, 3.0244, -3.6806 )
+collision_layer = 128
+collision_mask = 128
 
 [node name="MeshInstance" type="MeshInstance" parent="fossbot/ultrasonic"]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )
@@ -326,24 +330,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.50619, 0.719958 )
 transform = Transform( 1.5, 0, 0, 0, 0.22, 0, 0, 0, 1.1, 0, -0.485, -0.146101 )
 shape = SubResource( 27 )
 
-[node name="obstacle" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 9.29217, 1.159, -6.10734 )
-mesh = SubResource( 13 )
-
-[node name="obstacle" type="StaticBody" parent="obstacle"]
-
-[node name="CollisionShape" type="CollisionShape" parent="obstacle/obstacle"]
-shape = SubResource( 14 )
-
-[node name="obstacle2" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 12.2297, 1.35106, -7.58175 )
-mesh = SubResource( 13 )
-
-[node name="obstacle" type="StaticBody" parent="obstacle2"]
-
-[node name="CollisionShape" type="CollisionShape" parent="obstacle2/obstacle"]
-shape = SubResource( 14 )
-
 [node name="Bound" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 49.4633, 8.57741, 0 )
 visible = false
@@ -383,6 +369,30 @@ mesh = SubResource( 23 )
 
 [node name="CollisionShape" type="CollisionShape" parent="Bound4/StaticBody"]
 shape = SubResource( 24 )
+
+[node name="obstacle1" type="RigidBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.979569, 0.32745, -4.59893 )
+collision_mask = 129
+mass = 50.0
+
+[node name="obstacle" type="CollisionShape" parent="obstacle1"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.673131, -0.540737 )
+shape = SubResource( 28 )
+
+[node name="MeshInstance" type="MeshInstance" parent="obstacle1/obstacle"]
+mesh = SubResource( 29 )
+
+[node name="obstacle2" type="RigidBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.40371, 0.32745, -7.07384 )
+collision_mask = 129
+mass = 50.0
+
+[node name="obstacle" type="CollisionShape" parent="obstacle2"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.673131, -0.540737 )
+shape = SubResource( 28 )
+
+[node name="MeshInstance" type="MeshInstance" parent="obstacle2/obstacle"]
+mesh = SubResource( 29 )
 
 [connection signal="pressed" from="fossbot/noise_btn" to="fossbot" method="make_noise_btn"]
 [connection signal="value_changed" from="fossbot/WorldEnvironment/BrightnessSlider" to="fossbot/WorldEnvironment" method="_on_BrightnessSlider_value_changed"]
