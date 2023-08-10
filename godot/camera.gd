@@ -21,9 +21,9 @@ func _input(event):
 	if not $InnerGimbal/Camera.current:
 		return
 	if event is InputEventMouseButton:
-		if event.button_index == BUTTON_LEFT and event.pressed:
+		if event.button_index == BUTTON_RIGHT and event.pressed:
 			mouse_control = true
-		elif event.button_index == BUTTON_LEFT and not event.pressed:
+		elif event.button_index == BUTTON_RIGHT and not event.pressed:
 			mouse_control = false
 		if event.button_index == BUTTON_WHEEL_UP:
 			zoom -= zoom_speed
@@ -42,16 +42,16 @@ func _input(event):
 func get_input_keyboard(delta):
 	# Rotate outer gimbal around y axis
 	var y_rotation = 0
-	if Input.is_action_pressed("cam_right"):
+	if Input.is_action_pressed("ui_right"):
 		y_rotation += 1
-	if Input.is_action_pressed("cam_left"):
+	if Input.is_action_pressed("ui_left"):
 		y_rotation += -1
 	rotate_object_local(Vector3.UP, y_rotation * rotation_speed * delta)
 	# Rotate inner gimbal around local x axis
 	var x_rotation = 0
-	if Input.is_action_pressed("cam_up"):
+	if Input.is_action_pressed("ui_up"):
 		x_rotation += -1
-	if Input.is_action_pressed("cam_down"):
+	if Input.is_action_pressed("ui_down"):
 		x_rotation += 1
 	x_rotation = -x_rotation if invert_y else x_rotation
 	$InnerGimbal.rotate_object_local(Vector3.RIGHT, x_rotation * rotation_speed * delta)
@@ -65,3 +65,7 @@ func _process(delta):
 	scale = lerp(scale, Vector3.ONE * zoom, zoom_speed)
 	if target:
 		global_transform.origin = get_node(target).global_transform.origin
+
+func enable_mouse_control():
+	if not mouse_control:
+		mouse_control = true

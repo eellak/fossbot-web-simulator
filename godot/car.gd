@@ -564,6 +564,8 @@ func just_move(d, direction="forward"):
 	# Sets the necessaruy variables for moving forever towards input direction.
 	# Param: d: the initial dictionary (json) sent from the server.
 	#		 direction: string: the direction to be moved (default is 'forward').
+	if move_dir != direction:
+		stop()
 	resume()	# ALWAYS add resume() when function is movement related!
 	# Pattern here: velocity = (-) abs(in_velocity)
 	move_dir = direction

@@ -20,13 +20,13 @@ func _input(event):
 		size = zoom
 
 func get_input_keyboard(delta):
-	if Input.is_action_pressed("cam_down"):
+	if Input.is_action_pressed("ui_down"):
 		translate_offset_z += move_speed
-	if Input.is_action_pressed("cam_up"):
+	if Input.is_action_pressed("ui_up"):
 		translate_offset_z += -move_speed
-	if Input.is_action_pressed("cam_left"):
+	if Input.is_action_pressed("ui_left"):
 		translate_offset_x += -move_speed
-	if Input.is_action_pressed("cam_right"):
+	if Input.is_action_pressed("ui_right"):
 		translate_offset_x += move_speed
 
 
@@ -44,5 +44,5 @@ func enable_orth_cam():
 
 func disable_orth_cam():
 	current = false
-	translate_offset_x = 0
-	translate_offset_z = 0
+	#translate_offset_x = 0
+	#translate_offset_z = 0

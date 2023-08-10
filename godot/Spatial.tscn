@@ -90,12 +90,12 @@ shape = SubResource( 10 )
 
 [node name="camera_handler" type="Spatial" parent="."]
 script = ExtResource( 8 )
+stage = NodePath("../Floor")
 
 [node name="CameraGimbal" type="Spatial" parent="camera_handler"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.184064, -0.495725 )
 script = ExtResource( 6 )
 target = NodePath("../../fossbot/camera_target")
-invert_y = true
 
 [node name="InnerGimbal" type="Spatial" parent="camera_handler/CameraGimbal"]
 
@@ -106,9 +106,14 @@ current = true
 [node name="cameraOrth" type="Camera" parent="camera_handler"]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4.3597, -0.375157 )
 projection = 1
-size = 5.0
+size = 7.5
 script = ExtResource( 7 )
 target = NodePath("../../fossbot")
+
+[node name="cameraStage" type="Camera" parent="camera_handler"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 14.331, -4.91617e-07 )
+projection = 1
+size = 10.0
 
 [node name="fossbot" type="VehicleBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.03734, -0.719398 )
