@@ -4,7 +4,7 @@ export (NodePath) var stage
 
 func _input(event):
 	if event is InputEventMouseButton:
-		if event.button_index == BUTTON_RIGHT and event.pressed:
+		if $cameraStage.current and event.is_action_pressed("camera_handle")  and event.pressed:
 			enable_player_cam()
 			$CameraGimbal.enable_mouse_control()
 

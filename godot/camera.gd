@@ -21,9 +21,9 @@ func _input(event):
 	if not $InnerGimbal/Camera.current:
 		return
 	if event is InputEventMouseButton:
-		if event.button_index == BUTTON_RIGHT and event.pressed:
+		if event.is_action_pressed("camera_handle") and event.pressed:
 			mouse_control = true
-		elif event.button_index == BUTTON_RIGHT and not event.pressed:
+		elif event.is_action_released("camera_handle") and not event.pressed:
 			mouse_control = false
 		if event.button_index == BUTTON_WHEEL_UP:
 			zoom -= zoom_speed
