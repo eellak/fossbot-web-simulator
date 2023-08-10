@@ -18,7 +18,8 @@ export (float, 0.05, 1.0) var zoom_speed = 0.09
 var zoom = 1.5
 
 func _input(event):
-
+	if not $InnerGimbal/Camera.current:
+		return
 	if event is InputEventMouseButton:
 		if event.button_index == BUTTON_LEFT and event.pressed:
 			mouse_control = true
@@ -56,6 +57,8 @@ func get_input_keyboard(delta):
 	$InnerGimbal.rotate_object_local(Vector3.RIGHT, x_rotation * rotation_speed * delta)
 
 func _process(delta):
+	if not $InnerGimbal/Camera.current:
+		return
 	if !mouse_control:
 		get_input_keyboard(delta)
 	$InnerGimbal.rotation.x = clamp($InnerGimbal.rotation.x, -1.45, -0.01)

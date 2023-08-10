@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=2]
+[gd_scene load_steps=31 format=2]
 
 [ext_resource path="res://car.gd" type="Script" id=1]
 [ext_resource path="res://square.jpg" type="Texture" id=2]
@@ -6,6 +6,8 @@
 [ext_resource path="res://assets/wheel.tres" type="ArrayMesh" id=4]
 [ext_resource path="res://environment.gd" type="Script" id=5]
 [ext_resource path="res://camera.gd" type="Script" id=6]
+[ext_resource path="res://cameraOrth.gd" type="Script" id=7]
+[ext_resource path="res://camera_handler.gd" type="Script" id=8]
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 100, 1, 100 )
@@ -86,16 +88,27 @@ material/0 = SubResource( 8 )
 [node name="CollisionShape" type="CollisionShape" parent="Floor/Floor"]
 shape = SubResource( 10 )
 
-[node name="CameraGimbal" type="Spatial" parent="."]
+[node name="camera_handler" type="Spatial" parent="."]
+script = ExtResource( 8 )
+
+[node name="CameraGimbal" type="Spatial" parent="camera_handler"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.184064, -0.495725 )
 script = ExtResource( 6 )
-target = NodePath("../fossbot/camera_target")
+target = NodePath("../../fossbot/camera_target")
 invert_y = true
 
-[node name="InnerGimbal" type="Spatial" parent="CameraGimbal"]
+[node name="InnerGimbal" type="Spatial" parent="camera_handler/CameraGimbal"]
 
-[node name="Camera" type="Camera" parent="CameraGimbal/InnerGimbal"]
+[node name="Camera" type="Camera" parent="camera_handler/CameraGimbal/InnerGimbal"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.469, 4 )
+current = true
+
+[node name="cameraOrth" type="Camera" parent="camera_handler"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4.3597, -0.375157 )
+projection = 1
+size = 5.0
+script = ExtResource( 7 )
+target = NodePath("../../fossbot")
 
 [node name="fossbot" type="VehicleBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.03734, -0.719398 )
