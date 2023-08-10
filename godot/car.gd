@@ -197,12 +197,13 @@ func send(msg):
 
 func send_axis_vector(in_vector, axis: String):
 	# Sends the data of the requested axis (of input vector) back to server.
+	# Godot has y vertical (z in "our" 3d space). Also y is x and x is z (converting from godot to "our" 3d space).
 	if axis == "x":
-		send(in_vector.x)
-	elif axis == "z":
 		send(in_vector.z)
-	elif axis == "y":
+	elif axis == "z":
 		send(in_vector.y)
+	elif axis == "y":
+		send(in_vector.x)
 	else:
 		print("Unknown Axis!")
 		send("0")

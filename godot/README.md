@@ -28,4 +28,4 @@ Go to http://localhost:8000/ (the default port of "python -m http.server") and t
 * Reset dir function stops the fossbot, and sets the direction to forward (currently).
 * Boolean Horizontal Ground = Set this to true if horizontal ground in scene for more accurate rotation and movement (you can also do it from editor). Restart scene to apply different value for boolean horizontal ground.
 * To change camera: press 1 for player camera, 2 for orthogonal player camera, 3 for stage camera.
-* To handle camera within screen: press right click and drag.
+* To handle camera within screen: press right click and drag or movement keys (w, a, s, d or arrows).
