@@ -7,7 +7,7 @@
 
 This project introduces a web-based fossbot simulator developed using the open-source game engine [Godot 3.5.2](https://godotengine.org/). It encompasses all methods in the fossbot interface, for which you can find more details [here](https://github.com/chronis10/fossbot-source/wiki) and introduces new features, like controlling multiple fossbots and dynamically creating levels from the client, providing an immersive platform. Communication relies on a Flask-SocketIO server I developed, using rooms. Additionally, Python and JavaScript libraries have been created for running the simulator.
 
-For more details on the fossbot web simulator, please refer to this [repository](https://github.com/eellak/fossbot-web-simulator) or the comprehensive [wiki](https://github.com/eellak/fossbot-web-simulator/wiki), in which I go in detail about the new Fossbot Web Simulator implementation and the JavaScript Library. Similarly, for additional insights into the fossbot Python library, you'll find a wealth of information in this [wiki](https://github.com/chronis10/fossbot-source/wiki).
+**For more details on the fossbot web simulator, please refer to this [repository](https://github.com/eellak/fossbot-web-simulator) or the comprehensive [wiki](https://github.com/eellak/fossbot-web-simulator/wiki)**, in which I go in detail about the new Fossbot Web Simulator implementation and the JavaScript Library. Similarly, for additional insights into the fossbot Python library, you'll find a wealth of information in this [wiki](https://github.com/chronis10/fossbot-source/wiki).
 
 [View the project on Google Summer of Code website](https://summerofcode.withgoogle.com/programs/2023/projects/xsxF9klm).
 
