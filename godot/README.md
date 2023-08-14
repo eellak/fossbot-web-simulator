@@ -4,7 +4,7 @@ To run the server and connect to the simulator, run from exports directory:
 python3 server.py
 ```
 
-This should run a socketio-flask server. Go to http://localhost:8000/ and try the simulator!
+This should run a socketio-flask server. Go to http://localhost:8000/godot and try the simulator!
 
 All the files necessary for deployment are in the exports folder (just download it, run the server as shown above, and then you can test the simulator).
 

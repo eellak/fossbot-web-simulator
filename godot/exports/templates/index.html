@@ -221,10 +221,17 @@
 		var direction = document.getElementById("direction")
 		var defDist = document.getElementById("defDist")
 
+		var ws_port = "{{ ws_port }}";
+		var ws_ip = "{{ ws_ip }}";
+
 		// Client (User) Related Code =====================================
 		var lastClientMessage;
 
-		var clientSocket = io();
+		var clientSocket = io.connect('http://' + ws_ip + ':' + ws_port);
+
+		clientSocket.on('connect', function () {
+			clientSocket.emit('browserConnect');
+		});
 
 		clientSocket.on('godotMessage', (message) => {
 			response = message["message"];
@@ -284,7 +291,10 @@
 		var godotSocket;
 
 		function initGodotSocket(){
-			godotSocket = io();
+			godotSocket = io.connect('http://' + ws_ip + ':' + ws_port);
+			godotSocket.on('connect', function () {
+				godotSocket.emit('browserConnect');
+			});
 			godotSocket.on('clientMessage', (message) => {
 				message = message["message"];
 				lastClientMessage = JSON.stringify(message);

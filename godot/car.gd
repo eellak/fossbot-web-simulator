@@ -66,16 +66,26 @@ func convert_values_type(pkt):
 	var tmp_d = str(pkt)
 	var d = JSON.parse(tmp_d)
 	d = d.get_result()
-	d["vel_right"] = float(d["vel_right"])
-	d["vel_left"] = float(d["vel_left"])
-	d["degree"] = float(d["degree"])
-	d["sensor_id"] = int(d["sensor_id"])
-	d["tar_dist"] = float(d["tar_dist"])
-	d["dark_value"] = float(d["dark_value"])
-	d["light_val"] = float(d["light_val"])
-	d["wait_time"] = float(d["wait_time"])
-	d["dir_id"] = int(d["dir_id"])
-	d["def_dist"] = float(d["def_dist"])
+	if "vel_right" in d:
+		d["vel_right"] = float(d["vel_right"])
+	if "vel_left" in d:
+		d["vel_left"] = float(d["vel_left"])
+	if "degree" in d:
+		d["degree"] = float(d["degree"])
+	if "sensor_id" in d:
+		d["sensor_id"] = int(d["sensor_id"])
+	if "tar_dist" in d:
+		d["tar_dist"] = float(d["tar_dist"])
+	if "dark_value" in d:
+		d["dark_value"] = float(d["dark_value"])
+	if "light_val" in d:
+		d["light_val"] = float(d["light_val"])
+	if "wait_time" in d:
+		d["wait_time"] = float(d["wait_time"])
+	if "dir_id" in d:
+		d["dir_id"] = int(d["dir_id"])
+	if "def_dist" in d:
+		d["def_dist"] = float(d["def_dist"])
 	return d
 
 func data_received(pkt):
@@ -83,12 +93,17 @@ func data_received(pkt):
 
 	if pkt == null or str(pkt) == 'nan':
 		return
-	sum_distance = 0
-	target_distance = -1
-	radians = 0
-	init_player_pos = self.global_transform.origin
-
 	var d = convert_values_type(pkt)
+
+	var req_func = d["func"]
+	if req_func != "dist_travelled":
+		sum_distance = 0
+		target_distance = -1
+		init_player_pos = self.global_transform.origin
+	
+	if req_func != "deg_rotated":
+		sum_rot = 0
+		radians = 0
 
 #	print(d)
 #	print(d.keys())
@@ -97,7 +112,6 @@ func data_received(pkt):
 #	print(typeof(d["axis"]))
 #	print(typeof(d["vel_right"]))
 
-	var req_func = d["func"]
 	if req_func == "move_forward":
 		just_move(d, "forward")
 	elif req_func == "move_reverse":
@@ -175,22 +189,22 @@ func data_received(pkt):
 		send(time)
 	elif req_func == "stop_timer":
 		time_on = false
-		send("Timer Stopped.")
+		# send("Timer Stopped.")
 	elif req_func == "start_timer":
 		time = 0
 		time_on = true
-		send("Timer Started.")
+		# send("Timer Started.")
 	elif req_func == "wait":
 		stop()
 		wait_time = d["wait_time"]
-		var message = "Waiting for %d seconds." % wait_time
-		send(message)
+		print("Waiting for %d seconds." % wait_time)
+		# send(message)
 	elif req_func == "play_sound":
 		if music == null:
 			var sound_path = d["sound_path"]
 			var music_file = load(sound_path)
 			if music_file == null:
-				send("Requested Music File not found.")
+				print("Requested Music File not found.")
 				return
 			music = AudioStreamPlayer.new()
 			music.autoplay = false
@@ -214,11 +228,16 @@ func data_received(pkt):
 		stop()
 		change_rgb('closed')
 		exit()
+	elif req_func == "dist_travelled":
+		send(sum_distance)
+	elif req_func == "reset_steps":
+		sum_distance = 0
+		sum_rot = 0
+	elif req_func == "deg_rotated":
+		send(rad2deg(sum_rot))
 
 func send(msg):
-	var d = {"message": msg}
-	window.sendMessageFromGodot(str(d))
-
+	window.sendMessageFromGodot(msg)
 
 # =======================================================================
 
@@ -306,9 +325,9 @@ func stop():
 	mode = MODE_STATIC
 	vel_left = 0
 	vel_right = 0
-	sum_rot = 0
+	# sum_rot = 0
 	target_ros = -1
-	sum_distance = 0
+	# sum_distance = 0
 	target_distance = -1
 	engine_force = 0
 	dir_id = -1
@@ -494,7 +513,6 @@ func update_timer(delta):
 	var secs = fmod(time,60)
 	var mins = fmod(time, 60*60) / 60
 	var hr = fmod(fmod(time,3600 * 60) / 3600,24)
-	
 	var time_passed = "%02d : %02d : %02d : %03d" % [hr,mins,secs,mils]
 	$timer_label.text = time_passed# + " : " + var2str(time)
 
