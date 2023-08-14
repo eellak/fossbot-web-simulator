@@ -10,7 +10,7 @@ onready var right_sensor = $RightSensor/RightContainer/Viewport/RightSensor
 onready var light_sensor = $LightSensor/LightContainer/Viewport/LightSensor
 # rotation related:
 var radians = 0
-var target_ros = 0
+var target_ros = -1
 var dir_id = -1
 var final_rot_pos = 0
 
@@ -24,7 +24,7 @@ var gyroscope = Vector3(0, 0, 0)
 
 # player distance related:
 var init_player_pos
-var target_distance = 0
+var target_distance = -1
 var sum_distance = 0
 
 # ground sensor id:
@@ -53,30 +53,50 @@ export(float) var max_rpm = 100.0
 var reduce_speed_rot_percent = 0.2	# 20 percent of initial torque for rotation (slows rotation).
 
 var sum_rot = 0
+var move_func = false	# used to detect whether there is a "moving" func executed.
 # VARS FOR WEBSOCKET CONNECTION ====================================
-var client = WebSocketClient.new()
 
-var url = "ws://localhost:5000"
+var window = JavaScript.get_interface("window")
 
 func _ready():
 	_on_horizontal_ground_changed()
-	client.connect("data_received", self, "data_received")
-	var err = client.connect_to_url(url)
-	if err != OK:
-		set_process(false)
-		print("Unable to connect to server.")
+	window.initGodotSocket()
 
+func convert_values_type(pkt):
+	var tmp_d = str(pkt)
+	var d = JSON.parse(tmp_d)
+	d = d.get_result()
+	d["vel_right"] = float(d["vel_right"])
+	d["vel_left"] = float(d["vel_left"])
+	d["degree"] = float(d["degree"])
+	d["sensor_id"] = int(d["sensor_id"])
+	d["tar_dist"] = float(d["tar_dist"])
+	d["dark_value"] = float(d["dark_value"])
+	d["light_val"] = float(d["light_val"])
+	d["wait_time"] = float(d["wait_time"])
+	d["dir_id"] = int(d["dir_id"])
+	d["def_dist"] = float(d["def_dist"])
+	return d
 
-func data_received():
-	# Handles all data received from server.
-	var pkt = client.get_peer(1).get_packet()
+func data_received(pkt):
+	pkt = pkt[0]
+
+	if pkt == null or str(pkt) == 'nan':
+		return
 	sum_distance = 0
 	target_distance = -1
 	radians = 0
 	init_player_pos = self.global_transform.origin
-	var parsedJson: JSONParseResult = JSON.parse(pkt.get_string_from_ascii())
-	var d = parsedJson.get_result()
-	# print("Got data from server: " + pkt.get_string_from_utf8())
+
+	var d = convert_values_type(pkt)
+
+#	print(d)
+#	print(d.keys())
+#	print(d.values())
+#	print(typeof(d["user"]))
+#	print(typeof(d["axis"]))
+#	print(typeof(d["vel_right"]))
+
 	var req_func = d["func"]
 	if req_func == "move_forward":
 		just_move(d, "forward")
@@ -105,11 +125,17 @@ func data_received():
 		d["tar_dist"] = d["def_dist"]
 		move_distance(d, "reverse")
 	elif req_func == "rotate_clockwise":
+		if move_func:
+			stop()
+		move_func = true
 		resume()
 		dir_id = 1
 		vel_right = -abs(d["vel_right"])
 		vel_left = abs(d["vel_left"])
 	elif req_func == "rotate_counterclockwise":
+		if move_func:
+			stop()
+		move_func = true
 		resume()
 		dir_id = 0
 		vel_right = abs(d["vel_right"])
@@ -162,9 +188,13 @@ func data_received():
 	elif req_func == "play_sound":
 		if music == null:
 			var sound_path = d["sound_path"]
+			var music_file = load(sound_path)
+			if music_file == null:
+				send("Requested Music File not found.")
+				return
 			music = AudioStreamPlayer.new()
 			music.autoplay = false
-			music.stream = load(sound_path)
+			music.stream = music_file
 			add_child(music)
 			music.play()
 	elif req_func == "rgb_set_color":
@@ -179,19 +209,16 @@ func data_received():
 		send(move_dir)
 	elif req_func == "stop":	# stops
 		stop()
-		target_ros = -1
-		final_rot_pos = 400
-		vel_right = 0
-		vel_left = 0
+		# final_rot_pos = 0
 	elif req_func == "exit":
 		stop()
 		change_rgb('closed')
-		vel_right = 0
-		vel_left = 0
 		exit()
 
 func send(msg):
-	client.get_peer(1).put_packet(JSON.print(msg).to_utf8())
+	var d = {"message": msg}
+	window.sendMessageFromGodot(str(d))
+
 
 # =======================================================================
 
@@ -208,8 +235,15 @@ func send_axis_vector(in_vector, axis: String):
 		print("Unknown Axis!")
 		send("0")
 
+var data_callback = JavaScript.create_callback(self, "data_received")
+
+#func client_message(args):
+#	print(args)
+#	return args
+
 func _physics_process(delta):
-	client.poll()	# used for websockets
+	window.getLatestClientMessage(data_callback)
+
 	if music:	# this is for stop looping the music.
 		curr_music_pos = music.get_playback_position()
 		if curr_music_pos < prev_music_pos:
@@ -272,8 +306,13 @@ func stop():
 	mode = MODE_STATIC
 	vel_left = 0
 	vel_right = 0
+	sum_rot = 0
+	target_ros = -1
+	sum_distance = 0
+	target_distance = -1
 	engine_force = 0
 	dir_id = -1
+	move_func = false
 	mode = MODE_RIGID
 	linear_damp = 5
 
@@ -439,8 +478,6 @@ func count_distance():
 		print(sum_distance)
 	else:
 		stop()
-		sum_distance = 0
-		target_distance = 0
 
 func make_noise_btn():
 	# Function executed when pressing the 'make a noise button'.
@@ -465,15 +502,16 @@ func exit():
 	# The simulator exits the connection of the websocket.
 	stop()
 	change_rgb('closed')
-	client.disconnect_from_host(1000, "User disconnected.")
+	# client.disconnect_from_host(1000, "User disconnected.")
 
 func rotate_90(dr_id: int, d):
 	# Sets the necessary variables and functions for x degree rotation with dir_id rotation.
 	# Param: dr_id: the direction id (dir_id) of rotation: clockwise == 1, counterclockwise == 0.
 	#		 d: the initial dictionary (json) sent from the server.
-	if d["degree"] <= 0:
-		return
-	resume()
+	if move_func:
+		stop()
+	resume()	# ALWAYS add resume() when function is movement related!
+	move_func = true
 	dir_id = dr_id
 	print(self.global_transform.origin)
 	var init_rot = rotation_degrees.y
@@ -498,8 +536,6 @@ func actual_rotate_90(delta, target_rot):
 	print(rad2deg(sum_rot))
 	if rad2deg(sum_rot) >= target_rot:
 		stop()
-		sum_rot = 0
-		target_ros = -1
 		#if horizontal_ground:
 		# Sets final player rotation regardles:
 		rotation_degrees.y = final_rot_pos
@@ -516,6 +552,10 @@ func rotate_degrees_transf(degr: float, dir_id: int, rythm=0.01):
 	#			counterclockwise: dir_id == 0	(left)
 	#			clockwise: dir_id == 1	(right)
 	# 		 rythm=0.01: the step for each rotation (decrease it for slower rotation)
+	if move_func:
+		stop()
+	resume()	# ALWAYS add resume() when function is movement related!
+	move_func = true
 	if !dir_id:
 		if radians < deg2rad(abs(degr)):
 			radians += rythm
@@ -550,6 +590,9 @@ func move_distance(d, direction="forward"):
 	#		 direction: string: the direction to be moved (default is 'forward').
 	if d["tar_dist"] <= 0:
 		return
+	if move_func:
+		stop()
+	move_func = true
 	resume()
 	move_dir = direction
 	init_player_pos = self.global_transform.origin
@@ -565,9 +608,10 @@ func just_move(d, direction="forward"):
 	# Sets the necessaruy variables for moving forever towards input direction.
 	# Param: d: the initial dictionary (json) sent from the server.
 	#		 direction: string: the direction to be moved (default is 'forward').
-	if move_dir != direction:
+	if move_func:
 		stop()
 	resume()	# ALWAYS add resume() when function is movement related!
+	move_func = true
 	# Pattern here: velocity = (-) abs(in_velocity)
 	move_dir = direction
 	if direction == "forward":
