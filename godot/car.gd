@@ -52,6 +52,9 @@ export(bool) var horizontal_ground = true
 export(float) var max_rpm = 100.0
 var reduce_speed_rot_percent = 0.2	# 20 percent of initial torque for rotation (slows rotation).
 
+var prev_func
+var PARALLEL_METHODS = ["dist_travelled", "deg_rotated", "check_for_obstacle", "get_distance", "get_floor_sensor", "check_on_line", "get_light_sensor", "check_for_dark", "get_noise_detection", "get_elapsed", "stop_timer","start_timer", "play_sound", "rgb_set_color", "get_acceleration", "get_gyroscope"]
+
 var sum_rot = 0
 var move_func = false	# used to detect whether there is a "moving" func executed.
 # VARS FOR WEBSOCKET CONNECTION ====================================
@@ -112,16 +115,17 @@ func data_received(pkt):
 #	print(typeof(d["axis"]))
 #	print(typeof(d["vel_right"]))
 
-	if req_func == "move_forward":
-		just_move(d, "forward")
-	elif req_func == "move_reverse":
-		just_move(d, "reverse")
-	elif req_func == "just_move":
+	#if req_func == "move_forward":
+	#	just_move(d, "forward")
+	#elif req_func == "move_reverse":
+	#	just_move(d, "reverse")
+	if req_func == "just_move":
 		var tmp_move_dir = d["direction"]
 		if tmp_move_dir != "forward" and tmp_move_dir != "reverse":
 			print("Motor accepts only forward and reverse values.")
 			return
-		just_move(d, tmp_move_dir)
+		if prev_func != "just_move":
+			just_move(d, tmp_move_dir)
 	elif req_func == "move_distance":
 		var tmp_move_dir = d["direction"]
 		if tmp_move_dir != "forward" and tmp_move_dir != "reverse":
@@ -138,22 +142,22 @@ func data_received(pkt):
 	elif req_func == "move_reverse_default":
 		d["tar_dist"] = d["def_dist"]
 		move_distance(d, "reverse")
-	elif req_func == "rotate_clockwise":
-		if move_func:
-			stop()
-		move_func = true
-		resume()
-		dir_id = 1
-		vel_right = -abs(d["vel_right"])
-		vel_left = abs(d["vel_left"])
-	elif req_func == "rotate_counterclockwise":
-		if move_func:
-			stop()
-		move_func = true
-		resume()
-		dir_id = 0
-		vel_right = abs(d["vel_right"])
-		vel_left = -abs(d["vel_left"])
+	#elif req_func == "rotate_clockwise":
+	#	if move_func:
+	#		stop()
+	#	move_func = true
+	#	resume()
+	#	dir_id = 1
+	#	vel_right = -abs(d["vel_right"])
+	#	vel_left = abs(d["vel_left"])
+	#elif req_func == "rotate_counterclockwise":
+	#	if move_func:
+	#		stop()
+	#	move_func = true
+	#	resume()
+	#	dir_id = 0
+	#	vel_right = abs(d["vel_right"])
+	#	vel_left = -abs(d["vel_left"])
 	elif req_func == "rotate_clockwise_90":
 		rotate_90(1, d)
 	elif req_func == "rotate_counterclockwise_90":
@@ -163,8 +167,8 @@ func data_received(pkt):
 		if tmp_dir_id != 0 and tmp_dir_id != 1:
 			print('Requested direction is out of bounds.')
 			return
-		d["degree"] = 1
-		rotate_90(tmp_dir_id, d)
+		if prev_func != "just_rotate":
+			just_rotate(d)
 	elif req_func == "rotate_90":
 		var tmp_dir_id = d["dir_id"]
 		if tmp_dir_id != 0 and tmp_dir_id != 1:
@@ -225,8 +229,6 @@ func data_received(pkt):
 		stop()
 		# final_rot_pos = 0
 	elif req_func == "exit":
-		stop()
-		change_rgb('closed')
 		exit()
 	elif req_func == "dist_travelled":
 		send(sum_distance)
@@ -235,6 +237,23 @@ func data_received(pkt):
 		sum_rot = 0
 	elif req_func == "deg_rotated":
 		send(rad2deg(sum_rot))
+	elif req_func == "move_motor":
+		var dir_motor = d["direction"]
+		if dir_motor != "forward" and dir_motor != "reverse":
+			print("Motor accepts only forward and reverse values.")
+			return
+		if d["motor_name"] == "motor_left":
+			vel_left = move_motor(dir_motor, d["motor_vel"])
+		elif d["motor_name"] == "motor_right":
+			vel_right = move_motor(dir_motor, d["motor_vel"])
+	if not req_func in PARALLEL_METHODS:
+		prev_func = req_func
+
+func move_motor(direction, vel):
+	if direction == "forward":
+		return abs(vel)
+	elif direction == "reverse":
+		return -abs(vel)
 
 func send(msg):
 	window.sendMessageFromGodot(msg)
@@ -638,6 +657,19 @@ func just_move(d, direction="forward"):
 	elif direction == "reverse":
 		vel_right = -abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
+
+func just_rotate(d):
+	if move_func:
+		stop()
+	move_func = true
+	resume()
+	dir_id = d["dir_id"]
+	if dir_id == 0:
+		vel_right = abs(d["vel_right"])
+		vel_left = -abs(d["vel_left"])
+	elif dir_id == 1:
+		vel_right = -abs(d["vel_right"])
+		vel_left = abs(d["vel_left"])
 
 func lock_x_z_ang():
 	# Locks x and z angular axis

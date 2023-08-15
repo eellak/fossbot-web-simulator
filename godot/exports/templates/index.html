@@ -239,8 +239,27 @@
 		});
 
         sendButton.addEventListener("click", function() {
+			let exec_func = messageInput.value;
+			let direction_val = direction.value;
+			let dir_id_val = dirId.value;
+			if (messageInput.value === "move_forward") {
+				direction_val = "forward"
+				exec_func = "just_move"
+			}
+			if (messageInput.value === "move_reverse") {
+				direction_val = "reverse"
+				exec_func = "just_move"
+			}
+			if (messageInput.value === "rotate_clockwise") {
+				dir_id_val = 1
+				exec_func = "just_rotate"
+			}
+			if (messageInput.value === "rotate_counterclockwise") {
+				dir_id_val = 0
+				exec_func = "just_rotate"
+			}
 			var message = {
-				func: messageInput.value,
+				func: exec_func,
 				vel_right: rightVel.value ? rightVel.value : 0, //sets to 0 if value is empty
 				vel_left: leftVel.value ? leftVel.value : 0,
                 color: color.value.toLowerCase(),
@@ -252,8 +271,8 @@
 				light_val: lightValue.value,
 				wait_time: waitTime.value,
 				sound_path: soundPath.value,
-				dir_id: dirId.value,
-				direction: direction.value,
+				dir_id: dir_id_val,
+				direction: direction_val,
 				def_dist: defDist.value
 			};
 			clientSocket.emit("clientMessage", message);

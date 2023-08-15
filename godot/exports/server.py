@@ -62,6 +62,10 @@ def message(data):
 @socketio.on("disconnect")
 def disconnect():
     session_id = session.get("session_id")
+    content = {
+        "message": {"func": "exit"}
+    }
+    emit("clientMessage", content, to=session_id)
     clients = socketio.server.manager.rooms.get(session_id)
     if not clients or len(clients) == 0:
         leave_room(session_id)
