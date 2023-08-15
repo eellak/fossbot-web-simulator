@@ -21,3 +21,4 @@ All the files necessary for deployment are in the exports folder (just download 
 * To change camera: press 1 for player camera, 2 for orthogonal player camera, 3 for stage camera.
 * To handle camera within screen: press right click and drag or movement keys (w, a, s, d or arrows).
 * For the Flask Server, make sure to have defined the url_for in template html (and also that all index.html is saved in templates and all the other required files for the sim in static).
+* If you implement any GET methods in godot, it is recommended to add them to the list PARALLEL_METHODS (in godot).

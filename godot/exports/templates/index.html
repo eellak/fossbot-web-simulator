@@ -123,8 +123,25 @@
 		Please try updating or use a different browser.
 	</canvas>
     </div>
-    <div><strong>Session ID: </strong>{{session_id}}</div>
     <div>
+		<strong>Session ID: </strong>
+		<span id="session-id">{{ session_id }}</span>
+		<button onclick="copySessionId()">Copy</button>
+	</div>
+
+	<script>
+		function copySessionId() {
+			var sessionElement = document.getElementById('session-id');
+			var textarea = document.createElement('textarea');
+			textarea.value = sessionElement.textContent;
+			document.body.appendChild(textarea);
+			textarea.select();
+			textarea.setSelectionRange(0, 99999); // For mobile devices
+			document.execCommand('copy');
+			document.body.removeChild(textarea);
+		}
+	</script>
+	<div>
 		<select name="categories" id="messageInput" size="1">
 			<option value="move_forward">move_forward</option>
 			<option value="move_reverse">move_reverse</option>

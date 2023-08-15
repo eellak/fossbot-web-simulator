@@ -22,10 +22,23 @@ var time_target_ros = -1
 var accelerometer = Vector3(0, 0, 0)
 var gyroscope = Vector3(0, 0, 0)
 
+var motor_left_name = "motor_left"
+var motor_right_name = "motor_right"
+
 # player distance related:
 var init_player_pos
 var target_distance = -1
 var sum_distance = 0
+
+# used to get revolutions and steps:
+var sensor_disc = 20	# by default 20 lines sensor disc
+var total_rev_left = 0
+var total_rev_right = 0
+var total_steps_left = 0
+var total_steps_right = 0
+var total_left_dist = 0
+var total_right_dist = 0
+var total_sum_rot = 0
 
 # ground sensor id:
 var middle_sensor_id = 1
@@ -53,7 +66,8 @@ export(float) var max_rpm = 100.0
 var reduce_speed_rot_percent = 0.2	# 20 percent of initial torque for rotation (slows rotation).
 
 var prev_func
-var PARALLEL_METHODS = ["dist_travelled", "deg_rotated", "check_for_obstacle", "get_distance", "get_floor_sensor", "check_on_line", "get_light_sensor", "check_for_dark", "get_noise_detection", "get_elapsed", "stop_timer","start_timer", "play_sound", "rgb_set_color", "get_acceleration", "get_gyroscope"]
+var PARALLEL_METHODS = ["dist_travelled", "deg_rotated", "check_for_obstacle", "get_distance", "get_floor_sensor", "check_on_line", "get_light_sensor", "check_for_dark", "get_noise_detection", "get_elapsed", "stop_timer","start_timer", "play_sound", "rgb_set_color", "get_acceleration", "get_gyroscope", "get_revolutions", "get_steps", "reset_steps", "count_revolutions"]
+
 var last_just_move_time_func = 0
 var last_just_rot_time_func = 0
 
@@ -61,6 +75,8 @@ var wait_until_next_just_do = 0.5	# in seconds
 
 var sum_rot = 0
 var move_func = false	# used to detect whether there is a "moving" func executed.
+var move_dist_func_end = false	# used to detect if a move_distance function has ended.
+var rot_deg_func_end = false	# same here but with rotation degree.
 # VARS FOR WEBSOCKET CONNECTION ====================================
 
 var window = JavaScript.get_interface("window")
@@ -112,26 +128,17 @@ func data_received(pkt):
 	var d = convert_values_type(pkt)
 
 	var req_func = d["func"]
-	if req_func != "dist_travelled":
+
+	if not req_func in PARALLEL_METHODS:
 		sum_distance = 0
 		target_distance = -1
 		init_player_pos = self.global_transform.origin
-	
-	if req_func != "deg_rotated":
 		sum_rot = 0
 		radians = 0
+		# total_sum_rot = 0
+		move_dist_func_end = false
+		rot_deg_func_end = false
 
-#	print(d)
-#	print(d.keys())
-#	print(d.values())
-#	print(typeof(d["user"]))
-#	print(typeof(d["axis"]))
-#	print(typeof(d["vel_right"]))
-
-	#if req_func == "move_forward":
-	#	just_move(d, "forward")
-	#elif req_func == "move_reverse":
-	#	just_move(d, "reverse")
 	if req_func == "just_move":
 		last_just_move_time_func = Time.get_ticks_msec()
 		var tmp_move_dir = d["direction"]
@@ -156,22 +163,6 @@ func data_received(pkt):
 	elif req_func == "move_reverse_default":
 		d["tar_dist"] = d["def_dist"]
 		move_distance(d, "reverse")
-	#elif req_func == "rotate_clockwise":
-	#	if move_func:
-	#		stop()
-	#	move_func = true
-	#	resume()
-	#	dir_id = 1
-	#	vel_right = -abs(d["vel_right"])
-	#	vel_left = abs(d["vel_left"])
-	#elif req_func == "rotate_counterclockwise":
-	#	if move_func:
-	#		stop()
-	#	move_func = true
-	#	resume()
-	#	dir_id = 0
-	#	vel_right = abs(d["vel_right"])
-	#	vel_left = -abs(d["vel_left"])
 	elif req_func == "rotate_clockwise_90":
 		rotate_90(1, d)
 	elif req_func == "rotate_counterclockwise_90":
@@ -245,22 +236,48 @@ func data_received(pkt):
 		# final_rot_pos = 0
 	elif req_func == "exit":
 		exit()
+	elif req_func == "set_motor_names":
+		motor_right_name = d["right_motor_name"]
+		motor_left_name = d["left_motor_name"]
 	elif req_func == "dist_travelled":
-		send(sum_distance)
+		if move_dist_func_end:
+			send(sum_distance)
+		elif d["motor_name"] == motor_left_name:
+			send(total_left_dist)
+		elif d["motor_name"] == motor_right_name:
+			send(total_right_dist)
+	elif req_func == "get_revolutions":
+		if d["motor_name"] == motor_left_name:
+			send(total_rev_left)
+		elif d["motor_name"] == motor_right_name:
+			send(total_rev_right)
+	elif req_func == "get_steps":
+		if d["motor_name"] == motor_left_name:
+			send(total_steps_left)
+		elif d["motor_name"] == motor_right_name:
+			send(total_steps_right)
 	elif req_func == "reset_steps":
-		sum_distance = 0
-		sum_rot = 0
+		total_steps_left = 0
+		total_steps_right = 0
+	elif req_func == "count_revolutions":
+		if d["motor_name"] == motor_left_name:
+			total_steps_left += 1
+		elif d["motor_name"] == motor_right_name:
+			total_steps_right += 1
 	elif req_func == "deg_rotated":
-		send(rad2deg(sum_rot))
+		if rot_deg_func_end:
+			send(rad2deg(sum_rot))
+		else:
+			send(rad2deg(total_sum_rot))
 	elif req_func == "move_motor":
 		var dir_motor = d["direction"]
 		if dir_motor != "forward" and dir_motor != "reverse":
 			print("Motor accepts only forward and reverse values.")
 			return
-		if d["motor_name"] == "motor_left":
-			vel_left = move_motor(dir_motor, d["motor_vel"])
-		elif d["motor_name"] == "motor_right":
-			vel_right = move_motor(dir_motor, d["motor_vel"])
+		if d["motor_name"] == motor_left_name:
+			vel_left = move_motor(dir_motor, float(d["motor_vel"]))
+		elif d["motor_name"] == motor_right_name:
+			vel_right = move_motor(dir_motor, float(d["motor_vel"]))
 	if not req_func in PARALLEL_METHODS:
 		prev_func = req_func
 
@@ -290,12 +307,10 @@ func send_axis_vector(in_vector, axis: String):
 
 var data_callback = JavaScript.create_callback(self, "data_received")
 
-#func client_message(args):
-#	print(args)
-#	return args
-
 func _physics_process(delta):
 	window.getLatestClientMessage(data_callback)
+
+	calc_steps_revolutions_degrees(delta)
 
 	if music:	# this is for stop looping the music.
 		curr_music_pos = music.get_playback_position()
@@ -342,6 +357,29 @@ func move(right_vel, left_vel):
 	rpm = abs($"front-left-wheel".get_rpm())
 	$"front-left-wheel".engine_force = -(left_vel/100) * max_torque * (1 - rpm / mx_rpm)
 
+
+func calc_steps_revolutions_degrees(delta):
+	var rotation_angle = abs(sign(rotation.y) * delta * angular_velocity.y)
+	total_sum_rot += rotation_angle
+	# print(total_sum_rot)
+	# Calculating left wheel rev, steps and distance:
+	var left_step = abs(($"front-left-wheel".get_rpm() / 60) * delta * sensor_disc)
+	total_steps_left += left_step
+
+	total_rev_left = total_steps_left / sensor_disc
+
+	total_left_dist = 2 * PI * $"front-left-wheel".get_radius() * total_rev_left
+
+	# Calculating right wheel rev, steps and distance:
+	var right_step = abs(($"front-right-wheel".get_rpm() / 60) * delta * sensor_disc)
+	total_steps_right += right_step
+
+	total_rev_right = total_steps_right / sensor_disc
+
+	total_right_dist = 2 * PI * $"front-right-wheel".get_radius() * total_rev_right
+
+
+
 var v0 = Vector3(0,0,0)
 var r0 = Vector3(0,0,0)
 func update_accel_gyro(delta):
@@ -359,6 +397,13 @@ func stop():
 	mode = MODE_STATIC
 	vel_left = 0
 	vel_right = 0
+	total_rev_left = 0
+	total_rev_right = 0
+	total_steps_left = 0
+	total_steps_right = 0
+	total_left_dist = 0
+	total_right_dist = 0
+	total_sum_rot = 0
 	# sum_rot = 0
 	target_ros = -1
 	# sum_distance = 0
@@ -530,6 +575,7 @@ func count_distance():
 		init_player_pos = self.global_transform.origin
 		print(sum_distance)
 	else:
+		move_dist_func_end = true
 		stop()
 
 func make_noise_btn():
@@ -587,6 +633,7 @@ func actual_rotate_90(delta, target_rot):
 	sum_rot += rotation_angle
 	print(rad2deg(sum_rot))
 	if rad2deg(sum_rot) >= target_rot:
+		rot_deg_func_end = true
 		stop()
 		#if horizontal_ground:
 		# Sets final player rotation regardles:
