@@ -54,6 +54,10 @@ var reduce_speed_rot_percent = 0.2	# 20 percent of initial torque for rotation (
 
 var prev_func
 var PARALLEL_METHODS = ["dist_travelled", "deg_rotated", "check_for_obstacle", "get_distance", "get_floor_sensor", "check_on_line", "get_light_sensor", "check_for_dark", "get_noise_detection", "get_elapsed", "stop_timer","start_timer", "play_sound", "rgb_set_color", "get_acceleration", "get_gyroscope"]
+var last_just_move_time_func = 0
+var last_just_rot_time_func = 0
+
+var wait_until_next_just_do = 0.5	# in seconds
 
 var sum_rot = 0
 var move_func = false	# used to detect whether there is a "moving" func executed.
@@ -91,10 +95,19 @@ func convert_values_type(pkt):
 		d["def_dist"] = float(d["def_dist"])
 	return d
 
+func check_last_just_do_time(last_do_time):
+	if abs(Time.get_ticks_msec() - last_do_time) >= wait_until_next_just_do * 1000:
+		prev_func = "stop"
+		stop()
+
 func data_received(pkt):
 	pkt = pkt[0]
 
 	if pkt == null or str(pkt) == 'nan':
+		if prev_func == "just_move":
+			check_last_just_do_time(last_just_move_time_func)
+		elif prev_func == "just_rotate":
+			check_last_just_do_time(last_just_rot_time_func)
 		return
 	var d = convert_values_type(pkt)
 
@@ -120,6 +133,7 @@ func data_received(pkt):
 	#elif req_func == "move_reverse":
 	#	just_move(d, "reverse")
 	if req_func == "just_move":
+		last_just_move_time_func = Time.get_ticks_msec()
 		var tmp_move_dir = d["direction"]
 		if tmp_move_dir != "forward" and tmp_move_dir != "reverse":
 			print("Motor accepts only forward and reverse values.")
@@ -163,6 +177,7 @@ func data_received(pkt):
 	elif req_func == "rotate_counterclockwise_90":
 		rotate_90(0, d)
 	elif req_func == "just_rotate":
+		last_just_rot_time_func = Time.get_ticks_msec()
 		var tmp_dir_id = d["dir_id"]
 		if tmp_dir_id != 0 and tmp_dir_id != 1:
 			print('Requested direction is out of bounds.')
