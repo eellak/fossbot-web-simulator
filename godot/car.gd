@@ -22,9 +22,6 @@ var time_target_ros = -1
 var accelerometer = Vector3(0, 0, 0)
 var gyroscope = Vector3(0, 0, 0)
 
-var motor_left_name = "motor_left"
-var motor_right_name = "motor_right"
-
 # player distance related:
 var init_player_pos
 var target_distance = -1
@@ -59,10 +56,13 @@ var curr_music_pos = 0
 # direction of motors
 var move_dir = "forward"
 
+export var fossbot_name = "fossbot"
 # Set this to false if not horizontal ground in scene (you can also do it from editor!)
 export(bool) var horizontal_ground = true
-
 export(float) var max_rpm = 100.0
+export var motor_left_name = "motor_left"
+export var motor_right_name = "motor_right"
+
 var reduce_speed_rot_percent = 0.2	# 20 percent of initial torque for rotation (slows rotation).
 
 var prev_func
@@ -236,9 +236,6 @@ func data_received(pkt):
 		# final_rot_pos = 0
 	elif req_func == "exit":
 		exit()
-	elif req_func == "set_motor_names":
-		motor_right_name = d["right_motor_name"]
-		motor_left_name = d["left_motor_name"]
 	elif req_func == "dist_travelled":
 		if move_dist_func_end:
 			send(sum_distance)
@@ -278,6 +275,9 @@ func data_received(pkt):
 			vel_left = move_motor(dir_motor, float(d["motor_vel"]))
 		elif d["motor_name"] == motor_right_name:
 			vel_right = move_motor(dir_motor, float(d["motor_vel"]))
+	elif req_func == "restart_all":
+		window.disconnectGodotSocket()
+		get_tree().reload_current_scene()
 	if not req_func in PARALLEL_METHODS:
 		prev_func = req_func
 
