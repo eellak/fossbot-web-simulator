@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=33 format=2]
 
 [ext_resource path="res://car.gd" type="Script" id=1]
 [ext_resource path="res://square.jpg" type="Texture" id=2]
@@ -11,6 +11,8 @@
 [ext_resource path="res://foss_handler.gd" type="Script" id=9]
 [ext_resource path="res://timer.gd" type="Script" id=10]
 [ext_resource path="res://noise_btn.gd" type="Script" id=11]
+[ext_resource path="res://right_motor.gd" type="Script" id=12]
+[ext_resource path="res://left_motor.gd" type="Script" id=13]
 
 [sub_resource type="ProceduralSky" id=25]
 
@@ -39,27 +41,15 @@ radial_segments = 32
 [sub_resource type="ConvexPolygonShape" id=12]
 points = PoolVector3Array( 4.30252, 2.53948, 0.115669, -0.699977, 3.13137, -4.66773, -0.346886, 2.87896, -4.52223, -3.82644, 3.32882, 2.98923, -0.115517, -3.27129, 0.115517, 2.66171, 3.36847, 4.11338, -4.11339, 3.36847, -2.66172, 3.25237, 3.48377, -3.75296, -0.724197, 3.36082, 4.82924, -4.82924, 3.36082, 0.724197, 4.41537, 3.32301, 2.02823, 0.115517, -3.27129, -0.115517, 4.41535, 3.323, -2.02822, -2.66171, 3.36847, -4.11338, 3.25237, 3.48377, 3.75296, 1.32079, 3.34166, -4.68154, -2.66172, 3.36847, 4.11339, 0.724197, 3.36082, 4.82924, -4.82924, 3.36082, -0.724197, -0.115517, -3.27129, -0.115517, 0.115517, -3.27129, 0.115517, 4.83034, 3.36225, -0.723416, -4.41452, 3.32171, 2.02784, -1.6881, 3.35617, -4.5809, 2.66172, 3.36847, -4.11339, 4.11492, 3.3704, 2.66176, 4.11491, 3.37039, -2.66175, 4.83034, 3.36225, 0.723416, -1.6881, 3.35617, 4.5809, -3.20299, 2.84086, -3.20209, -4.01221, 2.61737, -1.71837, 1.71897, 2.61691, 4.01152, 0.724197, 3.36082, -4.82924, -3.20299, 2.84086, 3.20209, -4.11338, 3.36847, 2.66171, -4.30252, 2.53948, 0.115669, 0.115648, 2.53838, 4.30173, 1.71897, 2.61692, -4.01153, 3.20225, 2.8402, -3.20225, 3.20225, 2.8402, 3.20225, 4.68294, 3.34333, -1.32025, 4.68294, 3.34332, 1.32025, -4.68282, 3.34325, 1.32048, -0.814091, -2.34434, -0.115648, 1.3208, 3.34166, 4.68154, 0.114923, -3.13864, -0.229845, -4.68282, 3.34325, -1.32048, -0.114923, -3.13864, 0.229845, 0.230676, -3.13763, -0.114886, 0.230676, -3.13763, 0.114886, 0.115648, 2.53837, -4.30173, -0.114923, -3.13864, -0.229845, 0.114923, -3.13864, 0.229845, -0.230676, -3.13763, 0.114886, -1.71897, 2.61692, 4.01153, -1.71897, 2.61691, -4.01152, -1.03801, 2.98041, 4.49896, -1.03801, 2.98041, -4.49897, -0.724197, 3.36082, -4.82924, -2.98923, 3.32882, -3.82644, -0.115627, 0.0963667, 2.55745, -0.814091, -2.34434, 0.115648, 3.13888, 0.910383, -0.115648, -0.230676, -3.13763, -0.114886 )
 
-[sub_resource type="SphereMesh" id=15]
-radius = 0.1
-height = 0.2
-radial_segments = 32
-
-[sub_resource type="SpatialMaterial" id=16]
-flags_unshaded = true
-albedo_color = Color( 0, 0, 0, 1 )
-
 [sub_resource type="CubeMesh" id=19]
 
 [sub_resource type="CubeMesh" id=18]
 
-[sub_resource type="SphereMesh" id=20]
-
-[sub_resource type="SpatialMaterial" id=21]
-albedo_color = Color( 0.47451, 0.47451, 0.47451, 1 )
-
 [sub_resource type="CubeMesh" id=22]
 
 [sub_resource type="BoxShape" id=27]
+
+[sub_resource type="BoxShape" id=31]
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 100, 1, 100 )
@@ -169,7 +159,7 @@ mesh = SubResource( 9 )
 skeleton = NodePath("")
 material/0 = SubResource( 17 )
 
-[node name="front-right-wheel" type="VehicleWheel" parent="fossbot"]
+[node name="right_motor" type="VehicleWheel" parent="fossbot"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22, 2.478, 0 )
 use_as_traction = true
 wheel_roll_influence = 0.0
@@ -178,12 +168,13 @@ suspension_travel = 0.1
 suspension_stiffness = 60.0
 damping_compression = 3.0
 damping_relaxation = 10.0
+script = ExtResource( 12 )
 
-[node name="wheel-skin" type="MeshInstance" parent="fossbot/front-right-wheel"]
+[node name="wheel-skin" type="MeshInstance" parent="fossbot/right_motor"]
 transform = Transform( -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 0, 0, 0.012, -0.25, 0, 0 )
 mesh = ExtResource( 4 )
 
-[node name="front-left-wheel" type="VehicleWheel" parent="fossbot"]
+[node name="left_motor" type="VehicleWheel" parent="fossbot"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22, 2.478, 0 )
 use_as_traction = true
 wheel_roll_influence = 0.0
@@ -192,11 +183,12 @@ suspension_travel = 0.1
 suspension_stiffness = 60.0
 damping_compression = 3.0
 damping_relaxation = 10.0
+script = ExtResource( 13 )
 
-[node name="wheel-skin" type="MeshInstance" parent="fossbot/front-left-wheel"]
+[node name="wheel-skin" type="MeshInstance" parent="fossbot/left_motor"]
 transform = Transform( 5.24537e-10, 0.012, -1.04907e-09, 0.012, -5.24537e-10, 0, -4.58565e-17, -1.04907e-09, -0.012, 0.25, 0, 0 )
 mesh = ExtResource( 4 )
-skeleton = NodePath("../../front-right-wheel")
+skeleton = NodePath("../../right_motor")
 
 [node name="caster-wheel" type="VehicleWheel" parent="fossbot"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.28199, 1.34494 )
@@ -218,7 +210,7 @@ damping_relaxation = 30.0
 
 [node name="ultrasonic" type="Area" parent="fossbot"]
 transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, 0, 3.0244, -3.6806 )
-collision_layer = 128
+collision_layer = 2
 collision_mask = 128
 
 [node name="MeshInstance" type="MeshInstance" parent="fossbot/ultrasonic"]
@@ -229,14 +221,6 @@ mesh = SubResource( 11 )
 [node name="CollisionShape" type="CollisionShape" parent="fossbot/ultrasonic"]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )
 shape = SubResource( 12 )
-
-[node name="led" type="MeshInstance" parent="fossbot"]
-transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0.872, 2.9194, -0.365602 )
-mesh = SubResource( 15 )
-material/0 = SubResource( 16 )
-
-[node name="ledlight" type="SpotLight" parent="fossbot/led"]
-light_color = Color( 0, 0, 0, 1 )
 
 [node name="LeftSensor" type="MeshInstance" parent="fossbot"]
 transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.421197, 2.3228, -0.282552 )
@@ -326,8 +310,6 @@ skeleton = NodePath("../../../../../LeftSensor/LeftContainer/Viewport/LeftSensor
 
 [node name="LightSensor" type="MeshInstance" parent="fossbot"]
 transform = Transform( 0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -0.856, 2.9234, -0.365332 )
-mesh = SubResource( 20 )
-material/0 = SubResource( 21 )
 
 [node name="LightContainer" type="ViewportContainer" parent="fossbot/LightSensor"]
 show_behind_parent = true
@@ -352,6 +334,18 @@ transform = Transform( 0.01, 0, 0, 0, 0.01, 0, 0, 0, 1, 0, 0, -0.470422 )
 visible = false
 mesh = SubResource( 22 )
 
+[node name="led" type="OmniLight" parent="fossbot"]
+transform = Transform( 1, 0, 0, 0, 0.0356844, 0.999363, 0, -0.999363, 0.0356844, 0.86408, 2.92548, -0.391021 )
+light_color = Color( 0, 0, 0, 1 )
+light_energy = 16.0
+light_indirect_energy = 0.0
+light_specular = 2.936
+omni_range = 0.0437589
+
+[node name="ledlight" type="SpotLight" parent="fossbot/led"]
+transform = Transform( 1, 0, 0, 0, 0.0356844, -0.999363, 0, 0.999363, 0.0356844, 0.00791991, -0.0256195, -0.00517374 )
+light_color = Color( 0, 0, 0, 1 )
+
 [node name="rotation_check" type="Area" parent="fossbot"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.50619, 0.719958 )
 visible = false
@@ -363,11 +357,17 @@ shape = SubResource( 27 )
 [node name="camera_target" type="Spatial" parent="fossbot"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.91032, 0.525291 )
 
+[node name="foss_detect" type="Area" parent="fossbot"]
+collision_layer = 129
+
+[node name="CollisionShape" type="CollisionShape" parent="fossbot/foss_detect"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.39906, 0.78037 )
+shape = SubResource( 31 )
+
 [node name="fossbot2" type="VehicleBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5252, -2.03734, -0.719398 )
+transform = Transform( 0.0470193, 0, 0.998894, 0, 1, 0, -0.998894, 0, 0.0470193, 9.10864, -2.03734, -6.16902 )
 mass = 100.0
 script = ExtResource( 1 )
-fossbot_name = "fossbot2"
 horizontal_ground = false
 
 [node name="car-body" type="MeshInstance" parent="fossbot2"]
@@ -384,7 +384,7 @@ mesh = SubResource( 9 )
 skeleton = NodePath("")
 material/0 = SubResource( 17 )
 
-[node name="front-right-wheel" type="VehicleWheel" parent="fossbot2"]
+[node name="right_motor" type="VehicleWheel" parent="fossbot2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.22, 2.478, 0 )
 use_as_traction = true
 wheel_roll_influence = 0.0
@@ -393,12 +393,13 @@ suspension_travel = 0.1
 suspension_stiffness = 60.0
 damping_compression = 3.0
 damping_relaxation = 10.0
+script = ExtResource( 12 )
 
-[node name="wheel-skin" type="MeshInstance" parent="fossbot2/front-right-wheel"]
+[node name="wheel-skin" type="MeshInstance" parent="fossbot2/right_motor"]
 transform = Transform( -5.24537e-10, -0.012, 0, 0.012, -5.24537e-10, 0, 0, 0, 0.012, -0.25, 0, 0 )
 mesh = ExtResource( 4 )
 
-[node name="front-left-wheel" type="VehicleWheel" parent="fossbot2"]
+[node name="left_motor" type="VehicleWheel" parent="fossbot2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22, 2.478, 0 )
 use_as_traction = true
 wheel_roll_influence = 0.0
@@ -407,11 +408,12 @@ suspension_travel = 0.1
 suspension_stiffness = 60.0
 damping_compression = 3.0
 damping_relaxation = 10.0
+script = ExtResource( 13 )
 
-[node name="wheel-skin" type="MeshInstance" parent="fossbot2/front-left-wheel"]
+[node name="wheel-skin" type="MeshInstance" parent="fossbot2/left_motor"]
 transform = Transform( 5.24537e-10, 0.012, -1.04907e-09, 0.012, -5.24537e-10, 0, -4.58565e-17, -1.04907e-09, -0.012, 0.25, 0, 0 )
 mesh = ExtResource( 4 )
-skeleton = NodePath("../../front-right-wheel")
+skeleton = NodePath("../../right_motor")
 
 [node name="caster-wheel" type="VehicleWheel" parent="fossbot2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.28199, 1.34494 )
@@ -433,7 +435,7 @@ damping_relaxation = 30.0
 
 [node name="ultrasonic" type="Area" parent="fossbot2"]
 transform = Transform( 0.999998, 0, 0, 0, 1, 0, 0, 0, 0.999998, 0, 3.0244, -3.6806 )
-collision_layer = 128
+collision_layer = 2
 collision_mask = 128
 
 [node name="MeshInstance" type="MeshInstance" parent="fossbot2/ultrasonic"]
@@ -444,14 +446,6 @@ mesh = SubResource( 11 )
 [node name="CollisionShape" type="CollisionShape" parent="fossbot2/ultrasonic"]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )
 shape = SubResource( 12 )
-
-[node name="led" type="MeshInstance" parent="fossbot2"]
-transform = Transform( 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0.872, 2.9194, -0.365602 )
-mesh = SubResource( 15 )
-material/0 = SubResource( 16 )
-
-[node name="ledlight" type="SpotLight" parent="fossbot2/led"]
-light_color = Color( 0, 0, 0, 1 )
 
 [node name="LeftSensor" type="MeshInstance" parent="fossbot2"]
 transform = Transform( 0.02, 0, 0, 0, 0.05, 0, 0, 0, 0.02, -0.421197, 2.3228, -0.282552 )
@@ -541,8 +535,6 @@ skeleton = NodePath("../../../../../LeftSensor/LeftContainer/Viewport/LeftSensor
 
 [node name="LightSensor" type="MeshInstance" parent="fossbot2"]
 transform = Transform( 0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -0.856, 2.9234, -0.365332 )
-mesh = SubResource( 20 )
-material/0 = SubResource( 21 )
 
 [node name="LightContainer" type="ViewportContainer" parent="fossbot2/LightSensor"]
 show_behind_parent = true
@@ -567,6 +559,18 @@ transform = Transform( 0.01, 0, 0, 0, 0.01, 0, 0, 0, 1, 0, 0, -0.470422 )
 visible = false
 mesh = SubResource( 22 )
 
+[node name="led" type="OmniLight" parent="fossbot2"]
+transform = Transform( 1, 0, 0, 0, 0.0356844, 0.999363, 0, -0.999363, 0.0356844, 0.86408, 2.92548, -0.391021 )
+light_color = Color( 0, 0, 0, 1 )
+light_energy = 16.0
+light_indirect_energy = 0.0
+light_specular = 2.936
+omni_range = 0.0437589
+
+[node name="ledlight" type="SpotLight" parent="fossbot2/led"]
+transform = Transform( 1, 0, 0, 0, 0.0356844, -0.999363, 0, 0.999363, 0.0356844, 0.00791991, -0.0256195, -0.00517374 )
+light_color = Color( 0, 0, 0, 1 )
+
 [node name="rotation_check" type="Area" parent="fossbot2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.50619, 0.719958 )
 visible = false
@@ -577,6 +581,13 @@ shape = SubResource( 27 )
 
 [node name="camera_target" type="Spatial" parent="fossbot2"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.91032, 0.525291 )
+
+[node name="foss_detect" type="Area" parent="fossbot2"]
+collision_layer = 129
+
+[node name="CollisionShape" type="CollisionShape" parent="fossbot2/foss_detect"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.39906, 0.78037 )
+shape = SubResource( 31 )
 
 [node name="Floor" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.473451, 0 )
@@ -630,6 +641,7 @@ shape = SubResource( 24 )
 
 [node name="obstacle1" type="RigidBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.979569, 0.32745, -4.59893 )
+collision_layer = 129
 collision_mask = 129
 mass = 50.0
 
@@ -642,6 +654,7 @@ mesh = SubResource( 29 )
 
 [node name="obstacle2" type="RigidBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.40371, 0.32745, -7.07384 )
+collision_layer = 129
 collision_mask = 129
 mass = 50.0
 
@@ -652,11 +665,9 @@ shape = SubResource( 28 )
 [node name="MeshInstance" type="MeshInstance" parent="obstacle2/obstacle"]
 mesh = SubResource( 29 )
 
-[connection signal="pressed" from="noise_btn" to="fossbot" method="_on_noise_btn_pressed"]
 [connection signal="value_changed" from="WorldEnvironment/BrightnessSlider" to="WorldEnvironment" method="_on_BrightnessSlider_value_changed"]
+[connection signal="timer" from="foss_handler" to="timer_label" method="_on_foss_handler_timer"]
 [connection signal="change_noise_text" from="fossbot" to="noise_btn" method="_on_fossbot_change_noise_text"]
 [connection signal="fossbot" from="fossbot" to="foss_handler" method="_on_fossbot_fossbot"]
-[connection signal="timer" from="fossbot" to="timer_label" method="_on_fossbot_timer"]
 [connection signal="change_noise_text" from="fossbot2" to="noise_btn" method="_on_fossbot_change_noise_text"]
 [connection signal="fossbot" from="fossbot2" to="foss_handler" method="_on_fossbot_fossbot"]
-[connection signal="timer" from="fossbot2" to="timer_label" method="_on_fossbot_timer"]

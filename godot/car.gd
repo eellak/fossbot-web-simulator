@@ -2,7 +2,6 @@ extends VehicleBody
 
 
 signal fossbot(fossbot_path)
-signal timer(time_passed)
 signal change_noise_text(noise_text)
 var vel_right = 0
 var vel_left = 0
@@ -46,11 +45,6 @@ var middle_sensor_id = 1
 var right_sensor_id = 2
 var left_sensor_id = 3
 
-var make_noise = false
-# timer variables
-var time_on = false
-var time = 0
-
 # music (and its loop handling) related:
 var wait_time = -1
 var music = null
@@ -60,12 +54,12 @@ var curr_music_pos = 0
 # direction of motors
 var move_dir = "forward"
 
-export var fossbot_name = "fossbot"
+onready var fossbot_name = get_node(".").name
 # Set this to false if not horizontal ground in scene (you can also do it from editor!)
 export(bool) var horizontal_ground = true
 export(float) var max_rpm = 100.0
-export var motor_left_name = "motor_left"
-export var motor_right_name = "motor_right"
+var motor_left_name
+var motor_right_name
 
 var reduce_speed_rot_percent = 0.2	# 20 percent of initial torque for rotation (slows rotation).
 
@@ -88,7 +82,7 @@ var window = JavaScript.get_interface("window")
 func _ready():
 	emit_signal("fossbot", get_node(".").get_path())
 	_on_horizontal_ground_changed()
-	window.initGodotSocket()
+
 
 func convert_values_type(pkt):
 	var tmp_d = str(pkt)
@@ -122,7 +116,6 @@ func check_last_just_do_time(last_do_time):
 		stop()
 
 func data_received(pkt):
-	pkt = pkt[0]
 
 	if pkt == null or str(pkt) == 'nan':
 		if prev_func == "just_move":
@@ -130,8 +123,8 @@ func data_received(pkt):
 		elif prev_func == "just_rotate":
 			check_last_just_do_time(last_just_rot_time_func)
 		return
-	var d = convert_values_type(pkt)
 
+	var d = pkt
 	var req_func = d["func"]
 
 	if not req_func in PARALLEL_METHODS:
@@ -199,16 +192,9 @@ func data_received(pkt):
 	elif req_func == "check_for_dark":
 		send(check_for_dark(d["light_val"]))
 	elif req_func == "get_noise_detection":
-		send(make_noise)
+		send(sim_info.get_make_noise())
 	elif req_func == "get_elapsed":
-		send(time)
-	elif req_func == "stop_timer":
-		time_on = false
-		# send("Timer Stopped.")
-	elif req_func == "start_timer":
-		time = 0
-		time_on = true
-		# send("Timer Started.")
+		send(sim_info.time)
 	elif req_func == "wait":
 		stop()
 		wait_time = d["wait_time"]
@@ -280,9 +266,6 @@ func data_received(pkt):
 			vel_left = move_motor(dir_motor, float(d["motor_vel"]))
 		elif d["motor_name"] == motor_right_name:
 			vel_right = move_motor(dir_motor, float(d["motor_vel"]))
-	elif req_func == "restart_all":
-		window.disconnectGodotSocket()
-		get_tree().reload_current_scene()
 	if not req_func in PARALLEL_METHODS:
 		prev_func = req_func
 
@@ -310,13 +293,9 @@ func send_axis_vector(in_vector, axis: String):
 		print("Unknown Axis!")
 		send("0")
 
-var data_callback = JavaScript.create_callback(self, "data_received")
 
 func _physics_process(delta):
-	window.getLatestClientMessageAsync(data_callback, fossbot_name)
-
 	calc_steps_revolutions_degrees(delta)
-
 	if music:	# this is for stop looping the music.
 		curr_music_pos = music.get_playback_position()
 		if curr_music_pos < prev_music_pos:
@@ -341,15 +320,14 @@ func _physics_process(delta):
 
 	if target_distance > 0:
 		count_distance()
-	# print(get_ultrasonic(true))
+	# print(fossbot_name + ": " + str(get_ultrasonic(true)))
 	# UPDATE OF COMPONENTS (VERY IMPORTANT TO BE HERE) ======================================
 	update_all_camera_sensors()
 	# updates values of accelerometer and gyro:
 	update_accel_gyro(delta)
 	# ============================================================================
 	# print(get_darkness_percent(middle_sensor))
-	if time_on:
-		update_timer(delta)
+
 
 func move(right_vel, left_vel):
 	# Puts input right and left velocities to right and left motors.
@@ -357,10 +335,10 @@ func move(right_vel, left_vel):
 	if dir_id >= 0:	# rotation:
 		max_torque = max_torque * reduce_speed_rot_percent
 	var mx_rpm = max_rpm
-	var rpm = abs($"front-right-wheel".get_rpm())
-	$"front-right-wheel".engine_force = -(right_vel/100) * max_torque * (1 - rpm / mx_rpm)
-	rpm = abs($"front-left-wheel".get_rpm())
-	$"front-left-wheel".engine_force = -(left_vel/100) * max_torque * (1 - rpm / mx_rpm)
+	var rpm = abs($"right_motor".get_rpm())
+	$"right_motor".engine_force = -(right_vel/100) * max_torque * (1 - rpm / mx_rpm)
+	rpm = abs($"left_motor".get_rpm())
+	$"left_motor".engine_force = -(left_vel/100) * max_torque * (1 - rpm / mx_rpm)
 
 
 func calc_steps_revolutions_degrees(delta):
@@ -368,21 +346,20 @@ func calc_steps_revolutions_degrees(delta):
 	total_sum_rot += rotation_angle
 	# print(total_sum_rot)
 	# Calculating left wheel rev, steps and distance:
-	var left_step = abs(($"front-left-wheel".get_rpm() / 60) * delta * sensor_disc)
+	var left_step = abs(($"left_motor".get_rpm() / 60) * delta * sensor_disc)
 	total_steps_left += left_step
 
 	total_rev_left = total_steps_left / sensor_disc
 
-	total_left_dist = 2 * PI * $"front-left-wheel".get_radius() * total_rev_left
+	total_left_dist = 2 * PI * $"left_motor".get_radius() * total_rev_left
 
 	# Calculating right wheel rev, steps and distance:
-	var right_step = abs(($"front-right-wheel".get_rpm() / 60) * delta * sensor_disc)
+	var right_step = abs(($"right_motor".get_rpm() / 60) * delta * sensor_disc)
 	total_steps_right += right_step
 
 	total_rev_right = total_steps_right / sensor_disc
 
-	total_right_dist = 2 * PI * $"front-right-wheel".get_radius() * total_rev_right
-
+	total_right_dist = 2 * PI * $"right_motor".get_radius() * total_rev_right
 
 
 var v0 = Vector3(0,0,0)
@@ -427,7 +404,7 @@ func get_ultrasonic(calc_distance):
 	# If cal_distance == false, just returns if ultrasonic has detected a static body.
 	# If cal_distance == true, returns the distance of the nearest obstacle.
 	# Parameters: calc_distance = boolean.
-	var list_detect = $ultrasonic.get_overlapping_bodies()
+	var list_detect = $ultrasonic.get_overlapping_bodies() + $ultrasonic.get_overlapping_areas()
 	# iterate over the list of overlapping bodies
 	var min_d = 10000
 	for body in list_detect:
@@ -529,27 +506,27 @@ func update_all_camera_sensors():
 
 func change_rgb(color):
 	# Changes the color to input color string.
-	var material = $led.get_surface_material(0)
+	var lig_color
 	if color == 'red':
-		material.albedo_color = Color(1, 0, 0)
+		lig_color = Color(1, 0, 0)
 	elif color == 'green':
-		material.albedo_color = Color(0, 1, 0)
+		lig_color = Color(0, 1, 0)
 	elif color == 'blue':
-		material.albedo_color = Color(0, 0, 1)
+		lig_color = Color(0, 0, 1)
 	elif color == 'white':
-		material.albedo_color = Color(1, 1, 1)
+		lig_color = Color(1, 1, 1)
 	elif color == 'yellow':
-		material.albedo_color = Color(1, 1, 0)
+		lig_color = Color(1, 1, 0)
 	elif color == 'cyan':
-		material.albedo_color = Color(0, 1, 1)
+		lig_color = Color(0, 1, 1)
 	elif color == 'violet':
-		material.albedo_color = Color(1, 0, 1)
+		lig_color = Color(1, 0, 1)
 	elif color == 'closed':
-		material.albedo_color = Color(0, 0, 0)
+		lig_color = Color(0, 0, 0)
 	else:
 		print('Uknown color!')
-	$led.set_surface_material(0, material)
-	$led/ledlight.light_color = material.albedo_color
+	$led.light_color = lig_color
+	$led/ledlight.light_color = lig_color
 
 func calc_final_rot(initial_rot: float, degrees_to_rotate: float, dir_id: int) -> float:
 	# Calculates the final rotation position (call it before rotation to calculate final position of rotation).
@@ -582,16 +559,6 @@ func count_distance():
 	else:
 		move_dist_func_end = true
 		stop()
-
-func update_timer(delta):
-	# Updates the timer (use it in physics process).
-	time += delta
-	var mils = fmod(time,1)*1000
-	var secs = fmod(time,60)
-	var mins = fmod(time, 60*60) / 60
-	var hr = fmod(fmod(time,3600 * 60) / 3600,24)
-	var time_passed = "%02d : %02d : %02d : %03d" % [hr,mins,secs,mils]
-	emit_signal("timer", time_passed)
 
 func exit():
 	# The simulator exits the connection of the websocket.
@@ -750,10 +717,8 @@ func _on_horizontal_ground_changed():
 		# print("Axis unlocked")
 
 
-func _on_noise_btn_pressed():
-	# Function executed when pressing the 'make a noise button'.
-	make_noise = !make_noise
-	if make_noise:
-		emit_signal("change_noise_text", "Stop Noise")
-	else:
-		emit_signal("change_noise_text", "Make Noise")
+func set_right_motor_name(motor_name):
+	motor_right_name = motor_name
+
+func set_left_motor_name(motor_name):
+	motor_left_name = motor_name

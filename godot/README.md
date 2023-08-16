@@ -10,7 +10,7 @@ All the files necessary for deployment are in the exports folder (just download 
 
 ---
 ### Important Reminders While Developing:
-* All obstacles that should be detected from ultrasonic sensor shall be also in collision mask 8.
+* All obstacles that should be detected from ultrasonic sensor shall be also in collision layer 8.
 * Final rotation position is rounded (currently) in godot.
 * Ground Sensor id are "hardcoded" in godot and set according to the yaml file of fossbot simulation in vrep.
 * Camera sensors (ground + light) positions offsets and rotations should be changed inside of godot (so they update with robot).

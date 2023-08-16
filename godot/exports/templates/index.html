@@ -211,10 +211,8 @@ window.addEventListener('DOMContentLoaded', () => {
 		var ws_port = "{{ ws_port }}";
 		var ws_ip = "{{ ws_ip }}";
 
-		var lastClientMessage = {};
-		var messageLock = Promise.resolve();
-
 		var godotSocket;
+		var callbackGodot;
 
 		function initGodotSocket(){
 			godotSocket = io.connect('http://' + ws_ip + ':' + ws_port);
@@ -223,24 +221,16 @@ window.addEventListener('DOMContentLoaded', () => {
 			});
 			godotSocket.on('clientMessage', async (message) => {
 				message = message["message"];
-				foss_name = message["fossbot_name"];
-				await messageLock;
-				lastClientMessage[foss_name] = JSON.stringify(message);
+				callbackGodot(JSON.stringify(message));
 			});
+		}
+
+		function initCallBack(callback) {
+			callbackGodot = callback;	// initialize callback to godot.
 		}
 
 		function disconnectGodotSocket(){
 			godotSocket.disconnect()
-		}
-
-		async function getLatestClientMessage(callback, fossbot_name) {
-			await messageLock;
-			callback(lastClientMessage[fossbot_name]);
-			lastClientMessage[fossbot_name] = NaN;
-		}
-
-		function getLatestClientMessageAsync(callback, fossbot_name) {
-			getLatestClientMessage(callback, fossbot_name);
 		}
 
 		function sendMessageFromGodot(data, fossbot_name) {

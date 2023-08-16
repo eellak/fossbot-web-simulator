@@ -44,8 +44,7 @@ def message(data):
     room = session.get("session_id")
     print(f"Room: {room} & Message sent From Client: {data}")
     content = {
-        "message": data,
-        "fossbot_name": data["fossbot_name"]
+        "message": data
     }
     emit("clientMessage", content, to=room)
 

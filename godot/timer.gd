@@ -4,6 +4,5 @@ extends Label
 func _ready():
 	pass # Replace with function body.
 
-
-func _on_fossbot_timer(time_passed):
-	get_node(".").text = time_passed
+func _on_foss_handler_timer(time_passed):
+		text = time_passed
