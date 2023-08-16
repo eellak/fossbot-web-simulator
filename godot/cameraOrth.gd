@@ -1,6 +1,6 @@
 extends Camera
 
-export (NodePath) var target
+var target
 export var zoom_speed = 0.5
 export var move_speed = 0.5
 export (float, 0.001, 1.0) var mouse_sensitivity = 0.05
@@ -61,3 +61,9 @@ func disable_orth_cam():
 	current = false
 	#translate_offset_x = 0
 	#translate_offset_z = 0
+
+func set_target(foss_target):
+	target = foss_target
+
+
+

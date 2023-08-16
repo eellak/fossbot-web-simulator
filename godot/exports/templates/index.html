@@ -134,6 +134,7 @@
 			right: 0;
 			height: 50px; /* Set the height of the footer */
 			background-color: rgb(255, 255, 255); /* Optional: Set the background color of the footer */
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 		}
 
 	</style>
@@ -210,7 +211,8 @@ window.addEventListener('DOMContentLoaded', () => {
 		var ws_port = "{{ ws_port }}";
 		var ws_ip = "{{ ws_ip }}";
 
-		var lastClientMessage;
+		var lastClientMessage = {};
+		var messageLock = Promise.resolve();
 
 		var godotSocket;
 
@@ -219,9 +221,11 @@ window.addEventListener('DOMContentLoaded', () => {
 			godotSocket.on('connect', function () {
 				godotSocket.emit('browserConnect');
 			});
-			godotSocket.on('clientMessage', (message) => {
+			godotSocket.on('clientMessage', async (message) => {
 				message = message["message"];
-				lastClientMessage = JSON.stringify(message);
+				foss_name = message["fossbot_name"];
+				await messageLock;
+				lastClientMessage[foss_name] = JSON.stringify(message);
 			});
 		}
 
@@ -229,13 +233,18 @@ window.addEventListener('DOMContentLoaded', () => {
 			godotSocket.disconnect()
 		}
 
-		function getLatestClientMessage(callback) {
-			callback(lastClientMessage);
-			lastClientMessage = NaN;
+		async function getLatestClientMessage(callback, fossbot_name) {
+			await messageLock;
+			callback(lastClientMessage[fossbot_name]);
+			lastClientMessage[fossbot_name] = NaN;
 		}
 
-		function sendMessageFromGodot(data) {
-			godotSocket.emit("godotMessage", data);
+		function getLatestClientMessageAsync(callback, fossbot_name) {
+			getLatestClientMessage(callback, fossbot_name);
+		}
+
+		function sendMessageFromGodot(data, fossbot_name) {
+			godotSocket.emit("godotMessage", {"data":data, "fossbot_name":fossbot_name});
 		}
 
 		(function() {

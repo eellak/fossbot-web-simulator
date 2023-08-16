@@ -44,7 +44,8 @@ def message(data):
     room = session.get("session_id")
     print(f"Room: {room} & Message sent From Client: {data}")
     content = {
-        "message": data
+        "message": data,
+        "fossbot_name": data["fossbot_name"]
     }
     emit("clientMessage", content, to=room)
 
@@ -73,5 +74,5 @@ def disconnect():
 
 if __name__ == '__main__':
     print(f"Godot server running on http://{server_ip}:{server_port}/godot.")
-    socketio.run(app=app, port=server_port)
-    # socketio.run(app=app, port=server_port, debug=True)
+    socketio.run(app=app, host=server_ip, port=server_port)
+    # socketio.run(app=app, host=server_ip, port=server_port, debug=True)

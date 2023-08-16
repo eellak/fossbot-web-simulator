@@ -1,6 +1,7 @@
 extends Spatial
 
-export (NodePath) var target
+var target
+export var camera_target = "camera_target"
 
 export (float, 0.0, 2.0) var rotation_speed = PI/2
 
@@ -69,3 +70,8 @@ func _process(delta):
 func enable_mouse_control():
 	if not mouse_control:
 		mouse_control = true
+
+
+func set_target(foss_target):
+	target = NodePath(str(foss_target) + "/" + camera_target)
+

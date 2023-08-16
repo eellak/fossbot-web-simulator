@@ -1,5 +1,9 @@
 extends VehicleBody
 
+
+signal fossbot(fossbot_path)
+signal timer(time_passed)
+signal change_noise_text(noise_text)
 var vel_right = 0
 var vel_left = 0
 var ultrasonic_tradeoff = 1.9	# change it according to the position of ultrasonic in comparison to the player
@@ -82,6 +86,7 @@ var rot_deg_func_end = false	# same here but with rotation degree.
 var window = JavaScript.get_interface("window")
 
 func _ready():
+	emit_signal("fossbot", get_node(".").get_path())
 	_on_horizontal_ground_changed()
 	window.initGodotSocket()
 
@@ -288,7 +293,7 @@ func move_motor(direction, vel):
 		return -abs(vel)
 
 func send(msg):
-	window.sendMessageFromGodot(msg)
+	window.sendMessageFromGodot(msg, fossbot_name)
 
 # =======================================================================
 
@@ -308,7 +313,7 @@ func send_axis_vector(in_vector, axis: String):
 var data_callback = JavaScript.create_callback(self, "data_received")
 
 func _physics_process(delta):
-	window.getLatestClientMessage(data_callback)
+	window.getLatestClientMessageAsync(data_callback, fossbot_name)
 
 	calc_steps_revolutions_degrees(delta)
 
@@ -578,14 +583,6 @@ func count_distance():
 		move_dist_func_end = true
 		stop()
 
-func make_noise_btn():
-	# Function executed when pressing the 'make a noise button'.
-	make_noise = !make_noise
-	if make_noise:
-		$noise_btn.text = "Stop Noise"
-	else:
-		$noise_btn.text = "Make Noise"
-
 func update_timer(delta):
 	# Updates the timer (use it in physics process).
 	time += delta
@@ -594,7 +591,7 @@ func update_timer(delta):
 	var mins = fmod(time, 60*60) / 60
 	var hr = fmod(fmod(time,3600 * 60) / 3600,24)
 	var time_passed = "%02d : %02d : %02d : %03d" % [hr,mins,secs,mils]
-	$timer_label.text = time_passed# + " : " + var2str(time)
+	emit_signal("timer", time_passed)
 
 func exit():
 	# The simulator exits the connection of the websocket.
@@ -752,3 +749,11 @@ func _on_horizontal_ground_changed():
 		unlock_x_z_ang()
 		# print("Axis unlocked")
 
+
+func _on_noise_btn_pressed():
+	# Function executed when pressing the 'make a noise button'.
+	make_noise = !make_noise
+	if make_noise:
+		emit_signal("change_noise_text", "Stop Noise")
+	else:
+		emit_signal("change_noise_text", "Make Noise")

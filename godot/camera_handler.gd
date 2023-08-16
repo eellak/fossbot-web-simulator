@@ -34,3 +34,7 @@ func enable_stage_cam():
 	$CameraGimbal/InnerGimbal/Camera.current = false
 	$cameraOrth.disable_orth_cam()
 	$cameraStage.current = true
+
+func set_target(fossbot_path):
+	$cameraOrth.set_target(fossbot_path)
+	$CameraGimbal.set_target(fossbot_path)
