@@ -142,6 +142,8 @@ size = 10.0
 [node name="fossbot" type="VehicleBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.03734, -0.719398 )
 mass = 100.0
+contacts_reported = 6
+contact_monitor = true
 script = ExtResource( 1 )
 horizontal_ground = false
 
@@ -367,6 +369,8 @@ shape = SubResource( 31 )
 [node name="fossbot2" type="VehicleBody" parent="."]
 transform = Transform( 0.0470193, 0, 0.998894, 0, 1, 0, -0.998894, 0, 0.0470193, 9.10864, -2.03734, -6.16902 )
 mass = 100.0
+contacts_reported = 6
+contact_monitor = true
 script = ExtResource( 1 )
 horizontal_ground = false
 
@@ -667,7 +671,5 @@ mesh = SubResource( 29 )
 
 [connection signal="value_changed" from="WorldEnvironment/BrightnessSlider" to="WorldEnvironment" method="_on_BrightnessSlider_value_changed"]
 [connection signal="timer" from="foss_handler" to="timer_label" method="_on_foss_handler_timer"]
-[connection signal="change_noise_text" from="fossbot" to="noise_btn" method="_on_fossbot_change_noise_text"]
 [connection signal="fossbot" from="fossbot" to="foss_handler" method="_on_fossbot_fossbot"]
-[connection signal="change_noise_text" from="fossbot2" to="noise_btn" method="_on_fossbot_change_noise_text"]
 [connection signal="fossbot" from="fossbot2" to="foss_handler" method="_on_fossbot_fossbot"]

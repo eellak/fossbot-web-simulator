@@ -17,6 +17,15 @@ func data_received(pkt):
 	var d = JSON.parse(tmp_d)
 	d = d.get_result()
 
+	if d["func"] == "exit":
+		for foss_name in user_dict.keys():
+			if user_dict[foss_name] == d["user_id"]:
+				user_dict.erase(foss_name)
+				get_node(foss_dict[foss_name]).data_received(d)
+				get_node(foss_dict[foss_name]).set_user_id(null)
+				break
+		return
+
 	if not "fossbot_name" in d:
 		return
 
@@ -54,7 +63,6 @@ func data_received(pkt):
 		d["def_dist"] = float(d["def_dist"])
 
 	var req_func = d["func"]
-	print(req_func)
 
 	if req_func == "restart_all":
 		window.disconnectGodotSocket()
@@ -65,13 +73,6 @@ func data_received(pkt):
 	elif req_func == "start_timer":
 		time = 0
 		time_on = true
-	elif req_func == "exit":
-		for foss_name in user_dict.keys():
-			if user_dict[foss_name] == d["user_id"]:
-				user_dict.erase(foss_name)
-				get_node(foss_dict[foss_name]).data_received(d)
-				get_node(foss_dict[foss_name]).set_user_id(null)
-				break
 	else:
 		for foss_name in foss_dict.keys():	# checks for the same names in foss_dict:
 			if d["fossbot_name"] == foss_name:

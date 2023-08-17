@@ -1,8 +1,6 @@
 extends VehicleBody
 
-
 signal fossbot(fossbot_path)
-signal change_noise_text(noise_text)
 var vel_right = 0
 var vel_left = 0
 var ultrasonic_tradeoff = 1.9	# change it according to the position of ultrasonic in comparison to the player
@@ -295,6 +293,19 @@ func send_axis_vector(in_vector, axis: String):
 		print("Unknown Axis!")
 		send("0")
 
+var collided_car = false
+func _integrate_forces(state):
+	# handles sliding after collision (reduced):
+	if state.get_contact_count() >= 1:
+		collided_car = true
+		if linear_velocity != Vector3.ZERO or angular_velocity != Vector3.ZERO:
+			if round(vel_left) == 0 and round(vel_right) == 0:
+				linear_damp = 2
+				angular_damp = 3
+	elif collided_car:
+		linear_damp = -1
+		angular_damp = -1
+		collided_car = false
 
 func _physics_process(delta):
 	calc_steps_revolutions_degrees(delta)

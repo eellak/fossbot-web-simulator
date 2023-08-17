@@ -210,12 +210,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		var ws_port = "{{ ws_port }}";
 		var ws_ip = "{{ ws_ip }}";
+		var sio_namespace = "{{ sio_namespace }}";
 
 		var godotSocket;
 		var callbackGodot;
 
 		function initGodotSocket(){
-			godotSocket = io.connect('http://' + ws_ip + ':' + ws_port);
+			godotSocket = io.connect('http://' + ws_ip + ':' + ws_port + sio_namespace);
 			godotSocket.on('connect', function () {
 				godotSocket.emit('browserConnect');
 			});
