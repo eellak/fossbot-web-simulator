@@ -220,7 +220,6 @@ window.addEventListener('DOMContentLoaded', () => {
 				godotSocket.emit('browserConnect');
 			});
 			godotSocket.on('clientMessage', async (message) => {
-				message = message["message"];
 				callbackGodot(JSON.stringify(message));
 			});
 		}
@@ -233,8 +232,12 @@ window.addEventListener('DOMContentLoaded', () => {
 			godotSocket.disconnect()
 		}
 
-		function sendMessageFromGodot(data, fossbot_name) {
-			godotSocket.emit("godotMessage", {"data":data, "fossbot_name":fossbot_name});
+		function sendMessageFromGodot(data, fossbot_name, user_id) {
+			godotSocket.emit("godotMessage", {"data":data, "fossbot_name":fossbot_name, "user_id": user_id});
+		}
+
+		function sendErrorFromGodot(data, fossbot_name, user_id) {
+			godotSocket.emit("godotMessage", {"error":data, "fossbot_name":fossbot_name, "user_id": user_id});
 		}
 
 		(function() {

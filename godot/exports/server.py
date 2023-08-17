@@ -43,29 +43,19 @@ def browserConnect():
 def message(data):
     room = session.get("session_id")
     print(f"Room: {room} & Message sent From Client: {data}")
-    content = {
-        "message": data
-    }
-    emit("clientMessage", content, to=room)
+    emit("clientMessage", data, to=room)
 
 
 @socketio.on("godotMessage")
 def message(data):
     room = session.get("session_id")
     print(f"Room: {room} & Message sent From Godot: {data}")
-    content = {
-        "message": data
-    }
-    emit("godotMessage", content, to=room)
+    emit("godotMessage", data, to=room)
 
 
 @socketio.on("disconnect")
 def disconnect():
     session_id = session.get("session_id")
-    content = {
-        "message": {"func": "exit"}
-    }
-    emit("clientMessage", content, to=session_id)
     clients = socketio.server.manager.rooms.get(session_id)
     if not clients or len(clients) == 0:
         leave_room(session_id)

@@ -12,11 +12,11 @@ config_version=4
 
 config/name="Fossbot_Car2"
 run/main_scene="res://Spatial.tscn"
-config/icon="res://icon.png"
+config/icon="res://assets/images/icon.png"
 
 [autoload]
 
-sim_info="*res://sim_info.gd"
+sim_info="*res://scripts/singleton/sim_info.gd"
 
 [display]
 
