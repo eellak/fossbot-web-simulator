@@ -238,7 +238,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function sendErrorFromGodot(data, fossbot_name, user_id) {
-			godotSocket.emit("godotMessage", {"error":data, "fossbot_name":fossbot_name, "user_id": user_id});
+			godotSocket.emit("godotError", {"data":data, "fossbot_name":fossbot_name, "user_id": user_id});
 		}
 
 		(function() {

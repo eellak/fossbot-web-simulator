@@ -58,6 +58,13 @@ def godotMessage(data):
     emit("godotMessage", data, to=user_id)
 
 
+@socketio.on("godotError", namespace=socketio_namespace)
+def godotError(data):
+    user_id = data["user_id"]
+    print(f"Error sent From Godot (to user {user_id}): {data}")
+    emit("godotError", data, to=user_id)
+
+
 @socketio.on("disconnect", namespace=socketio_namespace)
 def disconnect():
     session_id = session.get("session_id")

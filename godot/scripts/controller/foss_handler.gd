@@ -11,6 +11,8 @@ var time_on = false
 var time = 0
 var data_callback = JavaScript.create_callback(self, "data_received")
 
+var fossbot_scene = preload("res://scenes/models/fossbot.tscn")
+
 func data_received(pkt):
 	pkt = pkt[0]
 	var tmp_d = str(pkt)
@@ -24,6 +26,12 @@ func data_received(pkt):
 				get_node(foss_dict[foss_name]).data_received(d)
 				get_node(foss_dict[foss_name]).set_user_id(null)
 				break
+		return
+	elif d["func"] == "foss_spawn":
+		var fossbot_inst = fossbot_scene.instance()
+		fossbot_inst.global_transform.origin.x = 3
+		fossbot_inst.global_transform.origin.z = 3
+		get_parent().add_child(fossbot_inst, true)
 		return
 
 	if not "fossbot_name" in d:
@@ -105,6 +113,7 @@ func sendGodotError(msg, fossbot_name, user_id):
 	window.sendErrorFromGodot(msg, fossbot_name, user_id)
 
 func _process(delta):
+	update_dropdown()
 	var sel_id = $foss_dropdown.get_selected_id()
 	if prev_sel_id != sel_id:
 		var f_name = $foss_dropdown.get_item_text(sel_id)
@@ -117,7 +126,15 @@ func _process(delta):
 		update_timer(delta)
 
 
-func _on_fossbot_fossbot(fossbot_path):
-	var n = get_node(fossbot_path)
-	foss_dict[str(n.name)] = fossbot_path
-	$foss_dropdown.add_item(str(n.name))
+func update_dropdown():
+	var keys1 = foss_dict.keys()
+	var keys2 = sim_info.foss_dict.keys()
+	print(sim_info.foss_dict)
+	var diff = []
+	for key in keys2:
+		if !keys1.has(key):
+			diff.append(key)
+	for key in diff:
+		foss_dict[str(key)] = sim_info.foss_dict[key]
+		$foss_dropdown.add_item(str(key))
+
