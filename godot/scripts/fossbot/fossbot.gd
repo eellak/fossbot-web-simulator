@@ -2,7 +2,7 @@ extends VehicleBody
 
 var vel_right = 0
 var vel_left = 0
-var ultrasonic_tradeoff = 1.9	# change it according to the position of ultrasonic in comparison to the player
+var ultrasonic_tradeoff = 2.43	# change it according to the position of ultrasonic in comparison to the player
 # Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
 onready var middle_sensor = $MiddleSensor/MiddleContainer/Viewport/MiddleSensor
 onready var left_sensor = $LeftSensor/LeftContainer/Viewport/LeftSensor
@@ -279,8 +279,21 @@ func _integrate_forces(state):
 		angular_damp = -1
 		collided_car = false
 
-func _physics_process(delta):
+func _process(delta):
+	# updates steps:
 	calc_steps_revolutions_degrees(delta)
+
+	if wait_time > 0:
+		# does not do anything for wait_time seconds.
+		print(wait_time)
+		wait_time -= delta
+	else:
+		wait_time = -1
+
+	# updates values of accelerometer and gyro:
+	update_accel_gyro(delta)
+
+func _physics_process(delta):
 	if music:	# this is for stop looping the music.
 		curr_music_pos = music.get_playback_position()
 		if curr_music_pos < prev_music_pos:
@@ -290,13 +303,6 @@ func _physics_process(delta):
 			curr_music_pos = 0
 			print("Sound ended.")
 		prev_music_pos = curr_music_pos
-
-	if wait_time > 0:
-		# does not do anything for wait_time seconds.
-		print(wait_time)
-		wait_time -= delta
-	else:
-		wait_time = -1
 
 	move(vel_right, vel_left)
 	# print(rotation.y)
@@ -308,8 +314,6 @@ func _physics_process(delta):
 	# print(fossbot_name + ": " + str(get_ultrasonic(true)))
 	# UPDATE OF COMPONENTS (VERY IMPORTANT TO BE HERE) ======================================
 	update_all_camera_sensors()
-	# updates values of accelerometer and gyro:
-	update_accel_gyro(delta)
 	# ============================================================================
 	# print(get_darkness_percent(middle_sensor))
 
@@ -324,6 +328,27 @@ func move(right_vel, left_vel):
 	motor_right_node.engine_force = -(right_vel/100) * max_torque * (1 - rpm / mx_rpm)
 	rpm = abs(motor_left_node.get_rpm())
 	motor_left_node.engine_force = -(left_vel/100) * max_torque * (1 - rpm / mx_rpm)
+
+func set_foss_material_color(color):
+	var foss_material = SpatialMaterial.new()
+	if color == 'red':
+		foss_material.albedo_color = Color(1, 0, 0)
+	elif color == 'green':
+		foss_material.albedo_color = Color(0, 1, 0)
+	elif color == 'yellow':
+		foss_material.albedo_color = Color(1, 1, 0)
+	elif color == 'cyan':
+		foss_material.albedo_color = Color(0, 1, 1)
+	elif color == 'violet':
+		foss_material.albedo_color = Color(1, 0, 1)
+	elif color == 'white':
+		foss_material.albedo_color = Color(1, 1, 1)
+	elif color == 'black':
+		foss_material.albedo_color = Color(0, 0, 0)
+	else:
+		return
+	$car_body.mesh = $car_body.mesh.duplicate(true)
+	$car_body.mesh.surface_set_material(1, foss_material.duplicate(true))
 
 
 func calc_steps_revolutions_degrees(delta):
@@ -389,6 +414,7 @@ func get_ultrasonic(calc_distance):
 	# If cal_distance == false, just returns if ultrasonic has detected a static body.
 	# If cal_distance == true, returns the distance of the nearest obstacle.
 	# Parameters: calc_distance = boolean.
+	var space_state = get_world().direct_space_state
 	var list_detect = $ultrasonic.get_overlapping_bodies() + $ultrasonic.get_overlapping_areas()
 	# iterate over the list of overlapping bodies
 	var min_d = 10000
@@ -398,13 +424,16 @@ func get_ultrasonic(calc_distance):
 			return true #if no calc_distance, just returns if the object is colliding with static.
 		var player_position = self.global_transform.origin
 		var body_position = body.global_transform.origin
-		var distance = player_position.distance_to(body_position) - ultrasonic_tradeoff
+		var res = space_state.intersect_ray(player_position, body_position, [], $ultrasonic.get_collision_mask(), true, true)
+		var distance = min_d + 1
+		if res:
+			distance = player_position.distance_to(res.position) - ultrasonic_tradeoff
 		# print("Distance to ", body.get_name(), " is ", distance)
 		if distance < min_d:
 			min_d = distance
 	if min_d == 10000 and !calc_distance:
 		return false 	# no obstacle has been detected.
-	return min_d
+	return max(min_d, 0)
 
 func get_darkness_percent(camera: Camera):
 	# returns the percent value of dark color of input ground sensor.

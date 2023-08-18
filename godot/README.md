@@ -23,3 +23,4 @@ All the files necessary for deployment are in the exports folder (just download 
 * For the Flask Server, make sure to have defined the url_for in template html (and also that all index.html is saved in templates and all the other required files for the sim in static).
 * If you implement any GET methods in godot, it is recommended to add them to the list PARALLEL_METHODS (in godot).
 * Sliding when fossbots collide (with each other or with obstacles) is reduced in method _integrate_forces of godot (if you increase mass, it is recommended to change the linear and angular damp on collision).
+* In every scene there should always be a foss_handler node.

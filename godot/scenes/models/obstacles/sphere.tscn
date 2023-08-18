@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="SphereShape" id=30]
+
+[sub_resource type="SphereMesh" id=31]
+
+[node name="sphere" type="RigidBody"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.658629, 2.43367, -4.35646 )
+collision_layer = 129
+collision_mask = 129
+mass = 50.0
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+shape = SubResource( 30 )
+
+[node name="MeshInstance" type="MeshInstance" parent="CollisionShape"]
+mesh = SubResource( 31 )

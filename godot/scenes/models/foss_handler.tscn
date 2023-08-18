@@ -1,0 +1,84 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://scripts/ui/noise_btn.gd" type="Script" id=1]
+[ext_resource path="res://scripts/ui/timer.gd" type="Script" id=2]
+[ext_resource path="res://scripts/controller/camera/cameraOrth.gd" type="Script" id=3]
+[ext_resource path="res://scripts/controller/foss_handler.gd" type="Script" id=4]
+[ext_resource path="res://scripts/controller/environment.gd" type="Script" id=5]
+[ext_resource path="res://scripts/controller/camera/camera.gd" type="Script" id=6]
+[ext_resource path="res://scripts/controller/camera/camera_handler.gd" type="Script" id=7]
+
+[sub_resource type="ProceduralSky" id=25]
+
+[sub_resource type="Environment" id=26]
+background_mode = 2
+background_sky = SubResource( 25 )
+glow_enabled = true
+adjustment_enabled = true
+
+[node name="foss_handler" type="Spatial"]
+script = ExtResource( 4 )
+
+[node name="foss_dropdown" type="OptionButton" parent="."]
+margin_left = 182.0
+margin_top = 25.0
+margin_right = 211.0
+margin_bottom = 45.0
+
+[node name="camera_handler" type="Spatial" parent="."]
+script = ExtResource( 7 )
+stage = NodePath("../../Floor")
+
+[node name="CameraGimbal" type="Spatial" parent="camera_handler"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.184064, -0.495725 )
+script = ExtResource( 6 )
+
+[node name="InnerGimbal" type="Spatial" parent="camera_handler/CameraGimbal"]
+
+[node name="Camera" type="Camera" parent="camera_handler/CameraGimbal/InnerGimbal"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.469, 4 )
+current = true
+
+[node name="cameraOrth" type="Camera" parent="camera_handler"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4.3597, -0.375157 )
+projection = 1
+size = 7.5
+script = ExtResource( 3 )
+
+[node name="cameraStage" type="Camera" parent="camera_handler"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 14.331, -4.91617e-07 )
+projection = 1
+size = 10.0
+
+[node name="noise_btn" type="Button" parent="."]
+margin_left = 18.0
+margin_top = 16.0
+margin_right = 105.0
+margin_bottom = 51.0
+text = "Make Noise"
+icon_align = 1
+script = ExtResource( 1 )
+
+[node name="timer_label" type="Label" parent="."]
+margin_left = 898.0
+margin_top = 17.0
+margin_right = 1006.0
+margin_bottom = 38.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_colors/font_outline_modulate = Color( 1, 1, 1, 1 )
+text = "00 : 00 : 00 : 000"
+align = 1
+script = ExtResource( 2 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 26 )
+script = ExtResource( 5 )
+
+[node name="BrightnessSlider" type="HSlider" parent="WorldEnvironment"]
+margin_left = 352.0
+margin_top = 13.0
+margin_right = 707.0
+margin_bottom = 29.0
+value = 50.0
+
+[connection signal="value_changed" from="WorldEnvironment/BrightnessSlider" to="WorldEnvironment" method="_on_BrightnessSlider_value_changed"]

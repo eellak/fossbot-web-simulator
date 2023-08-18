@@ -2,7 +2,6 @@ extends Spatial
 
 var foss_dict = {}
 var user_dict = {}
-signal timer(time_passed)
 
 var prev_sel_id = -1
 var window = JavaScript.get_interface("window")
@@ -12,6 +11,64 @@ var time = 0
 var data_callback = JavaScript.create_callback(self, "data_received")
 
 var fossbot_scene = preload("res://scenes/models/fossbot.tscn")
+var cube_model = preload("res://scenes/models/obstacles/cube.tscn")
+var sphere_model = preload("res://scenes/models/obstacles/sphere.tscn")
+
+func _ready():
+	window.initGodotSocket()
+	window.initCallBack(data_callback)
+
+func spawn_obstacle(d, obs):
+	var obs_inst = obs.instance()
+	get_parent().add_child(obs_inst, true)
+	obs_inst.global_transform.origin.x = float(d["pos_y"])
+	obs_inst.global_transform.origin.z = float(d["pos_x"])
+	if "pos_z" in d:
+		obs_inst.global_transform.origin.y = float(d["pos_z"])
+	else:
+		obs_inst.global_transform.origin.y = float(d.get("scale_z", 1))
+	obs_inst.get_child(0).global_scale(Vector3(float(d.get("scale_y", 1)), float(d.get("scale_z", 1)), float(d.get("scale_x", 1))))
+	set_obs_color(d, obs_inst)
+
+func spawn_sphere(d):
+	if d.get("radius", 1) <= 0:
+		return
+	var obs_inst = sphere_model.instance()
+	get_parent().add_child(obs_inst, true)
+	obs_inst.global_transform.origin.x = float(d["pos_y"])
+	obs_inst.global_transform.origin.z = float(d["pos_x"])
+	if "pos_z" in d:
+		obs_inst.global_transform.origin.y = float(d["pos_z"])
+	else:
+		obs_inst.global_transform.origin.y = 1.8 * float(d.get("radius", 1))
+	obs_inst.get_child(0).global_scale(Vector3(float(d.get("radius", 1)), float(d.get("radius", 1)), float(d.get("radius", 1))))
+	set_obs_color(d, obs_inst)
+
+func set_obs_color(d, obs_inst):
+	if not "color" in d or not d["color"] in ["yellow", "cyan", "green", "violet", "red", "white", "black", "blue"]:
+		return
+	var color = d["color"]
+	var obs_material = SpatialMaterial.new()
+	if color == 'red':
+		obs_material.albedo_color = Color(1, 0, 0)
+	elif color == 'green':
+		obs_material.albedo_color = Color(0, 1, 0)
+	elif color == 'yellow':
+		obs_material.albedo_color = Color(1, 1, 0)
+	elif color == 'cyan':
+		obs_material.albedo_color = Color(0, 1, 1)
+	elif color == 'violet':
+		obs_material.albedo_color = Color(1, 0, 1)
+	elif color == 'white':
+		obs_material.albedo_color = Color(1, 1, 1)
+	elif color == 'black':
+		obs_material.albedo_color = Color(0, 0, 0)
+	elif color == 'blue':
+		obs_material.albedo_color = Color(0, 0, 1)
+	else:
+		return
+	obs_inst.get_child(0).get_child(0).material_override = obs_material
+
 
 func data_received(pkt):
 	pkt = pkt[0]
@@ -28,10 +85,23 @@ func data_received(pkt):
 				break
 		return
 	elif d["func"] == "foss_spawn":
+		if not "pos_x" in d or not "pos_y" in d:
+			return
 		var fossbot_inst = fossbot_scene.instance()
-		fossbot_inst.global_transform.origin.x = 3
-		fossbot_inst.global_transform.origin.z = 3
 		get_parent().add_child(fossbot_inst, true)
+		if "color" in d and d["color"] in ["yellow", "cyan", "green", "violet", "red", "white", "black"]:
+			fossbot_inst.set_foss_material_color(d["color"])
+		fossbot_inst.global_transform.origin.x = float(d["pos_y"])
+		fossbot_inst.global_transform.origin.z = float(d["pos_x"])
+		fossbot_inst.global_transform.origin.y = float(d.get("pos_z", 1))
+		return
+	elif d["func"] == "obs_spawn":
+		if not "pos_x" in d or not "pos_y" in d or not "type" in d:
+			return
+		if d["type"] == "cube":
+			spawn_obstacle(d, cube_model)
+		elif d["type"] == "sphere":
+			spawn_sphere(d)
 		return
 
 	if not "fossbot_name" in d:
@@ -93,16 +163,6 @@ func update_timer(delta):
 	# Updates the timer (use it in physics process).
 	time += delta
 	sim_info.time = time
-	var mils = fmod(time,1)*1000
-	var secs = fmod(time,60)
-	var mins = fmod(time, 60*60) / 60
-	var hr = fmod(fmod(time,3600 * 60) / 3600,24)
-	var time_passed = "%02d : %02d : %02d : %03d" % [hr,mins,secs,mils]
-	emit_signal("timer", time_passed)
-
-func _ready():
-	window.initGodotSocket()
-	window.initCallBack(data_callback)
 
 
 func send_null_all_fossbots():
@@ -129,7 +189,6 @@ func _process(delta):
 func update_dropdown():
 	var keys1 = foss_dict.keys()
 	var keys2 = sim_info.foss_dict.keys()
-	print(sim_info.foss_dict)
 	var diff = []
 	for key in keys2:
 		if !keys1.has(key):

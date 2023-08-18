@@ -1,22 +1,10 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://scenes/models/fossbot.tscn" type="PackedScene" id=1]
 [ext_resource path="res://assets/images/square.jpg" type="Texture" id=2]
-[ext_resource path="res://scripts/controller/environment.gd" type="Script" id=5]
-[ext_resource path="res://scripts/controller/camera/camera.gd" type="Script" id=6]
-[ext_resource path="res://scripts/controller/camera/cameraOrth.gd" type="Script" id=7]
-[ext_resource path="res://scripts/controller/camera/camera_handler.gd" type="Script" id=8]
-[ext_resource path="res://scripts/controller/foss_handler.gd" type="Script" id=9]
-[ext_resource path="res://scripts/ui/timer.gd" type="Script" id=10]
-[ext_resource path="res://scripts/ui/noise_btn.gd" type="Script" id=11]
-
-[sub_resource type="ProceduralSky" id=25]
-
-[sub_resource type="Environment" id=26]
-background_mode = 2
-background_sky = SubResource( 25 )
-glow_enabled = true
-adjustment_enabled = true
+[ext_resource path="res://scenes/models/foss_handler.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scenes/models/obstacles/sphere.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/models/obstacles/cube.tscn" type="PackedScene" id=5]
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 100, 1, 100 )
@@ -35,76 +23,9 @@ size = Vector3( 2, 20, 100 )
 [sub_resource type="ConcavePolygonShape" id=24]
 data = PoolVector3Array( -1, 10, 50, 1, 10, 50, -1, -10, 50, 1, 10, 50, 1, -10, 50, -1, -10, 50, 1, 10, -50, -1, 10, -50, 1, -10, -50, -1, 10, -50, -1, -10, -50, 1, -10, -50, 1, 10, 50, 1, 10, -50, 1, -10, 50, 1, 10, -50, 1, -10, -50, 1, -10, 50, -1, 10, -50, -1, 10, 50, -1, -10, -50, -1, 10, 50, -1, -10, 50, -1, -10, -50, 1, 10, 50, -1, 10, 50, 1, 10, -50, -1, 10, 50, -1, 10, -50, 1, 10, -50, -1, -10, 50, 1, -10, 50, -1, -10, -50, 1, -10, 50, 1, -10, -50, -1, -10, -50 )
 
-[sub_resource type="BoxShape" id=28]
-
-[sub_resource type="CubeMesh" id=29]
-
 [node name="Spatial" type="Spatial"]
 
-[node name="noise_btn" type="Button" parent="."]
-margin_left = 18.0
-margin_top = 16.0
-margin_right = 105.0
-margin_bottom = 51.0
-text = "Make Noise"
-icon_align = 1
-script = ExtResource( 11 )
-
-[node name="timer_label" type="Label" parent="."]
-margin_left = 898.0
-margin_top = 17.0
-margin_right = 1006.0
-margin_bottom = 38.0
-custom_colors/font_color = Color( 0, 0, 0, 1 )
-custom_colors/font_outline_modulate = Color( 1, 1, 1, 1 )
-text = "00 : 00 : 00 : 000"
-align = 1
-script = ExtResource( 10 )
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( 26 )
-script = ExtResource( 5 )
-
-[node name="BrightnessSlider" type="HSlider" parent="WorldEnvironment"]
-margin_left = 352.0
-margin_top = 13.0
-margin_right = 707.0
-margin_bottom = 29.0
-value = 50.0
-
-[node name="foss_handler" type="Spatial" parent="."]
-script = ExtResource( 9 )
-
-[node name="foss_dropdown" type="OptionButton" parent="foss_handler"]
-margin_left = 182.0
-margin_top = 25.0
-margin_right = 211.0
-margin_bottom = 45.0
-
-[node name="camera_handler" type="Spatial" parent="foss_handler"]
-script = ExtResource( 8 )
-stage = NodePath("../../Floor")
-
-[node name="CameraGimbal" type="Spatial" parent="foss_handler/camera_handler"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.184064, -0.495725 )
-script = ExtResource( 6 )
-
-[node name="InnerGimbal" type="Spatial" parent="foss_handler/camera_handler/CameraGimbal"]
-
-[node name="Camera" type="Camera" parent="foss_handler/camera_handler/CameraGimbal/InnerGimbal"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.469, 4 )
-current = true
-
-[node name="cameraOrth" type="Camera" parent="foss_handler/camera_handler"]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 4.3597, -0.375157 )
-projection = 1
-size = 7.5
-script = ExtResource( 7 )
-
-[node name="cameraStage" type="Camera" parent="foss_handler/camera_handler"]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 14.331, -4.91617e-07 )
-projection = 1
-size = 10.0
+[node name="foss_handler" parent="." instance=ExtResource( 3 )]
 
 [node name="fossbot" parent="." instance=ExtResource( 1 )]
 
@@ -158,31 +79,7 @@ mesh = SubResource( 23 )
 [node name="CollisionShape" type="CollisionShape" parent="Bound4/StaticBody"]
 shape = SubResource( 24 )
 
-[node name="obstacle1" type="RigidBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.979569, 0.32745, -4.59893 )
-collision_layer = 129
-collision_mask = 129
-mass = 50.0
+[node name="cube" parent="." instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.30137, 1.25228, -4.59893 )
 
-[node name="obstacle" type="CollisionShape" parent="obstacle1"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.673131, -0.540737 )
-shape = SubResource( 28 )
-
-[node name="MeshInstance" type="MeshInstance" parent="obstacle1/obstacle"]
-mesh = SubResource( 29 )
-
-[node name="obstacle2" type="RigidBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.40371, 0.32745, -7.07384 )
-collision_layer = 129
-collision_mask = 129
-mass = 50.0
-
-[node name="obstacle" type="CollisionShape" parent="obstacle2"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.673131, -0.540737 )
-shape = SubResource( 28 )
-
-[node name="MeshInstance" type="MeshInstance" parent="obstacle2/obstacle"]
-mesh = SubResource( 29 )
-
-[connection signal="value_changed" from="WorldEnvironment/BrightnessSlider" to="WorldEnvironment" method="_on_BrightnessSlider_value_changed"]
-[connection signal="timer" from="foss_handler" to="timer_label" method="_on_foss_handler_timer"]
+[node name="sphere" parent="." instance=ExtResource( 4 )]
