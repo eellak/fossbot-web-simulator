@@ -33,12 +33,14 @@ def pythonConnect(data):
     session_id = data["session_id"]
     session["session_id"] = session_id
     session["user_id"] = data["user_id"]
+    session["env_user"] = bool(data.get("env_user", False))
     join_room(session_id)
     print(f"Client joined room {session_id}")
 
 @socketio.on('browserConnect', namespace=socketio_namespace)
 def browserConnect():
     session_id = session.get("session_id")
+    session["env_user"] = False
     join_room(session_id)
     print(f"Client joined room {session_id}")
 
@@ -68,8 +70,11 @@ def godotError(data):
 @socketio.on("disconnect", namespace=socketio_namespace)
 def disconnect():
     session_id = session.get("session_id")
+    exit_func = "exit"
+    if session["env_user"]:
+        exit_func = "exit_env"
     if "user_id" in session:
-        emit("clientMessage", {"func":"exit", "user_id":session["user_id"]}, to=session_id)
+        emit("clientMessage", {"func":exit_func, "user_id":session["user_id"]}, to=session_id)
     leave_room(session_id)
     print(f"Client from room {session_id} was removed.")
 

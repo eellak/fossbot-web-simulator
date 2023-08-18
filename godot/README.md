@@ -24,3 +24,4 @@ All the files necessary for deployment are in the exports folder (just download 
 * If you implement any GET methods in godot, it is recommended to add them to the list PARALLEL_METHODS (in godot).
 * Sliding when fossbots collide (with each other or with obstacles) is reduced in method _integrate_forces of godot (if you increase mass, it is recommended to change the linear and angular damp on collision).
 * In every scene there should always be a foss_handler node.
+* If you upload an image, to check if upload is happening, see label "Loading Image..." in simulator. If you dont see that, reduce the chunk size in 

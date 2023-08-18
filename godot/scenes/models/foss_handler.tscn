@@ -70,6 +70,15 @@ text = "00 : 00 : 00 : 000"
 align = 1
 script = ExtResource( 2 )
 
+[node name="image_label" type="Label" parent="."]
+margin_left = 759.0
+margin_top = 16.0
+margin_right = 867.0
+margin_bottom = 37.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_colors/font_outline_modulate = Color( 1, 1, 1, 1 )
+align = 1
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource( 26 )
 script = ExtResource( 5 )
@@ -80,5 +89,10 @@ margin_top = 13.0
 margin_right = 707.0
 margin_bottom = 29.0
 value = 50.0
+
+[node name="camera_null" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.7823, 0 )
+
+[node name="camera_target" type="Spatial" parent="camera_null"]
 
 [connection signal="value_changed" from="WorldEnvironment/BrightnessSlider" to="WorldEnvironment" method="_on_BrightnessSlider_value_changed"]

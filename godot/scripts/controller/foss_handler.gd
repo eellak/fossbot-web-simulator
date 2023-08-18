@@ -15,6 +15,7 @@ var cube_model = preload("res://scenes/models/obstacles/cube.tscn")
 var sphere_model = preload("res://scenes/models/obstacles/sphere.tscn")
 
 func _ready():
+	sim_info.init_foss_handler(get_node("."))
 	window.initGodotSocket()
 	window.initCallBack(data_callback)
 
@@ -23,10 +24,7 @@ func spawn_obstacle(d, obs):
 	get_parent().add_child(obs_inst, true)
 	obs_inst.global_transform.origin.x = float(d["pos_y"])
 	obs_inst.global_transform.origin.z = float(d["pos_x"])
-	if "pos_z" in d:
-		obs_inst.global_transform.origin.y = float(d["pos_z"])
-	else:
-		obs_inst.global_transform.origin.y = float(d.get("scale_z", 1))
+	obs_inst.global_transform.origin.y = float(d.get("scale_z", 1)) + float(d["pos_z"])
 	obs_inst.get_child(0).global_scale(Vector3(float(d.get("scale_y", 1)), float(d.get("scale_z", 1)), float(d.get("scale_x", 1))))
 	set_obs_color(d, obs_inst)
 
@@ -37,10 +35,7 @@ func spawn_sphere(d):
 	get_parent().add_child(obs_inst, true)
 	obs_inst.global_transform.origin.x = float(d["pos_y"])
 	obs_inst.global_transform.origin.z = float(d["pos_x"])
-	if "pos_z" in d:
-		obs_inst.global_transform.origin.y = float(d["pos_z"])
-	else:
-		obs_inst.global_transform.origin.y = 1.8 * float(d.get("radius", 1))
+	obs_inst.global_transform.origin.y = 1.8 * float(d.get("radius", 1)) + float(d["pos_z"])
 	obs_inst.get_child(0).global_scale(Vector3(float(d.get("radius", 1)), float(d.get("radius", 1)), float(d.get("radius", 1))))
 	set_obs_color(d, obs_inst)
 
@@ -84,6 +79,12 @@ func data_received(pkt):
 				get_node(foss_dict[foss_name]).set_user_id(null)
 				break
 		return
+	# Environment functions ========================================
+	elif d["func"] == "exit_env":
+		if d["user_id"] in sim_info.user_image or d["user_id"] in sim_info.user_index_img_part:
+			sim_info.reset_user_image(d["user_id"])	# removes
+			$image_label.text = ""
+		return
 	elif d["func"] == "foss_spawn":
 		if not "pos_x" in d or not "pos_y" in d:
 			return
@@ -93,7 +94,7 @@ func data_received(pkt):
 			fossbot_inst.set_foss_material_color(d["color"])
 		fossbot_inst.global_transform.origin.x = float(d["pos_y"])
 		fossbot_inst.global_transform.origin.z = float(d["pos_x"])
-		fossbot_inst.global_transform.origin.y = float(d.get("pos_z", 1))
+		fossbot_inst.global_transform.origin.y = 1 + float(d["pos_z"])
 		return
 	elif d["func"] == "obs_spawn":
 		if not "pos_x" in d or not "pos_y" in d or not "type" in d:
@@ -103,6 +104,26 @@ func data_received(pkt):
 		elif d["type"] == "sphere":
 			spawn_sphere(d)
 		return
+	elif d["func"] == "change_floor_skin":
+		var image = load_user_image(d, "Loading Image...")
+		if not image:
+			return
+		var floor_indx = "0"
+		if "floor_index" in d:
+			floor_indx = d["floor_index"]
+		var floor_node = sim_info.floor_dict[floor_indx]
+		var texture = ImageTexture.new()
+		texture.create_from_image(image)
+		floor_node.set_material_skin(texture, d)
+		return
+	elif d["func"] == "change_floor_terrain":
+		var image = load_user_image(d, "Loading Terrain...")
+		if not image:
+			return
+		
+		sim_info.remove_all_extra_nodes()
+		return
+	# ============================================
 
 	if not "fossbot_name" in d:
 		return
@@ -159,6 +180,27 @@ func data_received(pkt):
 				get_node(foss_dict[d["fossbot_name"]]).data_received(null)
 
 
+func load_user_image(d, img_label_text):
+	#if not "img_num" in d:
+	#	return
+	if not "image_size" in d:
+		return null
+	print("Total Image Size: "+ str(d["image_size"]))
+	if sim_info.user_index_img_part.get(str(d["user_id"]), 0) < d["image_size"]:
+		sim_info.append_user_image(d["user_id"], d["image"], int(d["img_num"]), int(d["image_size"]))
+		$image_label.text = img_label_text
+		return null
+	$image_label.text = ""
+	print("Image Ready!")
+	var image_data = Marshalls.base64_to_raw(sim_info.get_reset_user_image(d["user_id"]))
+	var image = Image.new()
+	if image.load_png_from_buffer(image_data):
+		if image.load_jpg_from_buffer(image_data):
+			return null
+	return image
+
+
+
 func update_timer(delta):
 	# Updates the timer (use it in physics process).
 	time += delta
@@ -197,3 +239,9 @@ func update_dropdown():
 		foss_dict[str(key)] = sim_info.foss_dict[key]
 		$foss_dropdown.add_item(str(key))
 
+func reset_dropdown():
+	foss_dict = {}
+	user_dict = {}
+	$foss_dropdown.clear()
+	$camera_handler.set_target($camera_null.get_path())
+	prev_sel_id = -1
