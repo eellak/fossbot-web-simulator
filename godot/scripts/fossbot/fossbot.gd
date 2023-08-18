@@ -2,7 +2,7 @@ extends VehicleBody
 
 var vel_right = 0
 var vel_left = 0
-var ultrasonic_tradeoff = 2.43	# change it according to the position of ultrasonic in comparison to the player
+var ultrasonic_tradeoff = 2.4	# change it according to the position of ultrasonic in comparison to the player
 # Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
 onready var middle_sensor = $MiddleSensor/MiddleContainer/Viewport/MiddleSensor
 onready var left_sensor = $LeftSensor/LeftContainer/Viewport/LeftSensor
@@ -418,22 +418,38 @@ func get_ultrasonic(calc_distance):
 	var list_detect = $ultrasonic.get_overlapping_bodies() + $ultrasonic.get_overlapping_areas()
 	# iterate over the list of overlapping bodies
 	var min_d = 10000
+	var player_position = self.global_transform.origin
+	var dist_center = _find_smallest_ultra_raycast($ultrasonic/center_ray, min_d, player_position, ultrasonic_tradeoff*0.5)
+	var dist_right = _find_smallest_ultra_raycast($ultrasonic/right_ray, min_d, player_position, ultrasonic_tradeoff*0.7)
+	var dist_left = _find_smallest_ultra_raycast($ultrasonic/left_ray, min_d, player_position, ultrasonic_tradeoff*0.7)
+	var dist_top = _find_smallest_ultra_raycast($ultrasonic/top_ray, min_d, player_position, ultrasonic_tradeoff*0.4)
+	var min_ray_dist = min(min(min(dist_center, dist_right), dist_left), dist_top)
 	for body in list_detect:
 		# print(body.get_name().to_lower())
 		if !calc_distance:
 			return true #if no calc_distance, just returns if the object is colliding with static.
-		var player_position = self.global_transform.origin
 		var body_position = body.global_transform.origin
+		body_position.y = player_position.y + 3.08
 		var res = space_state.intersect_ray(player_position, body_position, [], $ultrasonic.get_collision_mask(), true, true)
 		var distance = min_d + 1
 		if res:
+			# distance = player_position.distance_to(res.position) - ultrasonic_tradeoff
 			distance = player_position.distance_to(res.position) - ultrasonic_tradeoff
-		# print("Distance to ", body.get_name(), " is ", distance)
-		if distance < min_d:
-			min_d = distance
+		var f_dist = min(min_ray_dist, distance)
+		min_d = min(f_dist, min_d)
+		# print("Distance to ", body.get_name(), " is ", min_d)
 	if min_d == 10000 and !calc_distance:
 		return false 	# no obstacle has been detected.
 	return max(min_d, 0)
+
+func _find_smallest_ultra_raycast(raycast, min_d, player_position, ultra_tradeoff):
+	var res = raycast.get_collision_point()
+	var dist = min_d + 2
+	if res:
+		res.y = player_position.y
+		dist = player_position.distance_to(res) - ultra_tradeoff
+	return dist
+
 
 func get_darkness_percent(camera: Camera):
 	# returns the percent value of dark color of input ground sensor.

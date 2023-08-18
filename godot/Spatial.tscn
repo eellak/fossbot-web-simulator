@@ -28,6 +28,7 @@ data = PoolVector3Array( -1, 10, 50, 1, 10, 50, -1, -10, 50, 1, 10, 50, 1, -10, 
 [node name="foss_handler" parent="." instance=ExtResource( 3 )]
 
 [node name="fossbot" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.66568, -2.03734, 6.25761 )
 
 [node name="Floor" type="MeshInstance" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.473451, 0 )
@@ -79,7 +80,8 @@ mesh = SubResource( 23 )
 [node name="CollisionShape" type="CollisionShape" parent="Bound4/StaticBody"]
 shape = SubResource( 24 )
 
-[node name="cube" parent="." instance=ExtResource( 5 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.30137, 1.25228, -4.59893 )
-
 [node name="sphere" parent="." instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14.2621, 1.03875, -0.158966 )
+
+[node name="cube" parent="." instance=ExtResource( 5 )]
+transform = Transform( -0.999637, 0, 0.0269446, 0, 1, 0, -0.0269446, 0, -0.999637, 19.875, 1.39658, -4.46327 )
