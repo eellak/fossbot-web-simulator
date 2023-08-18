@@ -2,6 +2,10 @@ extends VehicleBody
 
 var vel_right = 0
 var vel_left = 0
+var init_player_transform
+var init_player_rotation
+var respawn_y_pos = -25	# the y position to witch the respawn function is activated.
+
 var ultrasonic_tradeoff = 2.4	# change it according to the position of ultrasonic in comparison to the player
 # Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
 onready var middle_sensor = $MiddleSensor/MiddleContainer/Viewport/MiddleSensor
@@ -53,7 +57,7 @@ var move_dir = "forward"
 
 onready var fossbot_name = get_node(".").name
 # Set this to false if not horizontal ground in scene (you can also do it from editor!)
-export(float) var max_rpm = 100.0
+export(float) var max_rpm = 200.0
 var motor_left_name
 var motor_right_name
 var motor_left_node
@@ -68,17 +72,23 @@ var last_just_move_time_func = 0
 var last_just_rot_time_func = 0
 
 var wait_until_next_just_do = 0.5	# in seconds
-
+var collision_occured = false
 var sum_rot = 0
 var move_func = false	# used to detect whether there is a "moving" func executed.
 var move_dist_func_end = false	# used to detect if a move_distance function has ended.
 var rot_deg_func_end = false	# same here but with rotation degree.
 # VARS FOR WEBSOCKET CONNECTION ====================================
 var user_id
+
+var horizontal_ground = true
+
 var window = JavaScript.get_interface("window")
 
 func _ready():
 	sim_info.init_fossbot(get_node(".").get_path())
+	init_player_transform = global_transform.origin
+	init_player_transform.y += 0.5
+	init_player_rotation = global_rotation
 	# emit_signal("fossbot", get_node(".").get_path())
 
 
@@ -108,6 +118,7 @@ func data_received(pkt):
 		# total_sum_rot = 0
 		move_dist_func_end = false
 		rot_deg_func_end = false
+		collision_occured = false
 
 	if req_func == "just_move":
 		last_just_move_time_func = Time.get_ticks_msec()
@@ -270,6 +281,7 @@ func _integrate_forces(state):
 	# handles sliding after collision (reduced):
 	if state.get_contact_count() >= 1:
 		collided_car = true
+		collision_occured = true
 		if linear_velocity != Vector3.ZERO or angular_velocity != Vector3.ZERO:
 			if round(vel_left) == 0 and round(vel_right) == 0:
 				linear_damp = 2
@@ -294,6 +306,9 @@ func _process(delta):
 	update_accel_gyro(delta)
 
 func _physics_process(delta):
+	if global_transform.origin.y <= respawn_y_pos:
+		respawn()
+
 	if music:	# this is for stop looping the music.
 		curr_music_pos = music.get_playback_position()
 		if curr_music_pos < prev_music_pos:
@@ -317,17 +332,20 @@ func _physics_process(delta):
 	# ============================================================================
 	# print(get_darkness_percent(middle_sensor))
 
-
+var init_torque = 40
+var torque = init_torque
 func move(right_vel, left_vel):
 	# Puts input right and left velocities to right and left motors.
-	var max_torque = 50	# change this if needed
+	var max_torque = 100	# change this if needed
 	if dir_id >= 0:	# rotation:
-		max_torque = max_torque * reduce_speed_rot_percent
+		torque = 50 * reduce_speed_rot_percent
+	elif round(right_vel) !=0 and round(left_vel) !=0:
+		torque = lerp(torque, max_torque, 0.01)
 	var mx_rpm = max_rpm
 	var rpm = abs(motor_right_node.get_rpm())
-	motor_right_node.engine_force = -(right_vel/100) * max_torque * (1 - rpm / mx_rpm)
+	motor_right_node.engine_force = -(right_vel/100) * torque * (1 - rpm / mx_rpm)
 	rpm = abs(motor_left_node.get_rpm())
-	motor_left_node.engine_force = -(left_vel/100) * max_torque * (1 - rpm / mx_rpm)
+	motor_left_node.engine_force = -(left_vel/100) * torque * (1 - rpm / mx_rpm)
 
 func set_foss_material_color(color):
 	var foss_material = SpatialMaterial.new()
@@ -396,6 +414,7 @@ func stop():
 	total_left_dist = 0
 	total_right_dist = 0
 	total_sum_rot = 0
+	torque = init_torque
 	# sum_rot = 0
 	target_ros = -1
 	# sum_distance = 0
@@ -424,6 +443,7 @@ func get_ultrasonic(calc_distance):
 	var dist_left = _find_smallest_ultra_raycast($ultrasonic/left_ray, min_d, player_position, ultrasonic_tradeoff*0.7)
 	var dist_top = _find_smallest_ultra_raycast($ultrasonic/top_ray, min_d, player_position, ultrasonic_tradeoff*0.4)
 	var min_ray_dist = min(min(min(dist_center, dist_right), dist_left), dist_top)
+	min_d = min(min_d, min_ray_dist)
 	for body in list_detect:
 		# print(body.get_name().to_lower())
 		if !calc_distance:
@@ -618,6 +638,15 @@ func rotate_90(dr_id: int, d):
 		vel_right = abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
 
+func save_current_pos():
+	init_player_transform = global_transform.origin
+	init_player_rotation = global_rotation
+
+func respawn():
+	# stop()
+	global_transform.origin = init_player_transform
+	global_rotation = init_player_rotation
+
 
 func actual_rotate_90(delta, target_rot):
 	# Stops if fossbot has rotated to target degrees (USE it in physics_process).
@@ -631,7 +660,8 @@ func actual_rotate_90(delta, target_rot):
 		stop()
 		#if horizontal_ground:
 		# Sets final player rotation regardles:
-		rotation_degrees.y = final_rot_pos
+		if horizontal_ground and not collision_occured:
+			rotation_degrees.y = final_rot_pos
 		# init_player_pos
 		print("Final rot pos: " + str(self.rotation_degrees.y))
 		print(self.global_transform.origin)

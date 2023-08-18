@@ -22,10 +22,14 @@ func _ready():
 func spawn_obstacle(d, obs):
 	var obs_inst = obs.instance()
 	get_parent().add_child(obs_inst, true)
+	obs_inst.get_child(0).global_scale(Vector3(float(d.get("scale_y", 1)), float(d.get("scale_z", 1)), float(d.get("scale_x", 1))))
 	obs_inst.global_transform.origin.x = float(d["pos_y"])
 	obs_inst.global_transform.origin.z = float(d["pos_x"])
 	obs_inst.global_transform.origin.y = float(d.get("scale_z", 1)) + float(d["pos_z"])
-	obs_inst.get_child(0).global_scale(Vector3(float(d.get("scale_y", 1)), float(d.get("scale_z", 1)), float(d.get("scale_x", 1))))
+	if d["counterclockwise"]:
+		obs_inst.rotation_degrees.y = _calc_rot_pos(d.get("rotation", 0))
+	else:
+		obs_inst.rotation_degrees.y = - _calc_rot_pos(d.get("rotation", 0))
 	set_obs_color(d, obs_inst)
 
 func spawn_sphere(d):
@@ -95,6 +99,13 @@ func data_received(pkt):
 		fossbot_inst.global_transform.origin.x = float(d["pos_y"])
 		fossbot_inst.global_transform.origin.z = float(d["pos_x"])
 		fossbot_inst.global_transform.origin.y = 1 + float(d["pos_z"])
+		if d["counterclockwise"]:
+			fossbot_inst.rotation_degrees.y = _calc_rot_pos(d.get("rotation", 0))
+		else:
+			fossbot_inst.rotation_degrees.y = - _calc_rot_pos(d.get("rotation", 0))
+		fossbot_inst.horizontal_ground = sim_info.horizontal_ground
+		fossbot_inst.save_current_pos()
+		# fossbot_inst.stop()
 		return
 	elif d["func"] == "obs_spawn":
 		if not "pos_x" in d or not "pos_y" in d or not "type" in d:
@@ -115,13 +126,13 @@ func data_received(pkt):
 		var texture = ImageTexture.new()
 		texture.create_from_image(image)
 		floor_node.set_material_skin(texture, d)
+		sendMessageGodotEnv("Image loaded.", d["user_id"])
 		return
 	elif d["func"] == "change_floor_terrain":
 		var image = load_user_image(d, "Loading Terrain...")
 		if not image:
 			return
-		
-		sim_info.remove_all_extra_nodes()
+		image_terrain(image, d)
 		return
 	# ============================================
 
@@ -179,6 +190,18 @@ func data_received(pkt):
 			else:
 				get_node(foss_dict[d["fossbot_name"]]).data_received(null)
 
+func _calc_rot_pos(initial_rot):
+	return fmod((initial_rot + 180), 360) - 180
+
+func image_terrain(image, d):
+	sim_info.remove_all_extra_nodes()
+	var floor_indx = "0"
+	if "floor_index" in d:
+		floor_indx = d["floor_index"]
+	var floor_node = sim_info.floor_dict[floor_indx]
+	floor_node.load_terrain(image, int(d.get("intensity", 3)))
+	sendMessageGodotEnv("Terrain loaded.", d["user_id"])
+
 
 func load_user_image(d, img_label_text):
 	#if not "img_num" in d:
@@ -213,6 +236,10 @@ func send_null_all_fossbots():
 
 func sendGodotError(msg, fossbot_name, user_id):
 	window.sendErrorFromGodot(msg, fossbot_name, user_id)
+
+func sendMessageGodotEnv(msg, user_id):
+	window.sendEnvMessageFromGodot(msg, user_id)
+
 
 func _process(delta):
 	update_dropdown()

@@ -241,6 +241,10 @@ window.addEventListener('DOMContentLoaded', () => {
 			godotSocket.emit("godotError", {"data":data, "fossbot_name":fossbot_name, "user_id": user_id});
 		}
 
+		function sendEnvMessageFromGodot(data, user_id) {
+			godotSocket.emit("godotMessage", {"data":data, "user_id": user_id});
+		}
+
 		(function() {
 			const INDETERMINATE_STATUS_STEP_MS = 100;
 			var statusProgress = document.getElementById('status-progress');

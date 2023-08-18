@@ -1,89 +1,25 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://scenes/models/fossbot.tscn" type="PackedScene" id=1]
-[ext_resource path="res://assets/images/square.jpg" type="Texture" id=2]
+[ext_resource path="res://scenes/models/Floor.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scenes/models/foss_handler.tscn" type="PackedScene" id=3]
 [ext_resource path="res://scenes/models/obstacles/sphere.tscn" type="PackedScene" id=4]
 [ext_resource path="res://scenes/models/obstacles/cube.tscn" type="PackedScene" id=5]
-[ext_resource path="res://scripts/controller/foss_floor.gd" type="Script" id=6]
-
-[sub_resource type="CubeMesh" id=1]
-size = Vector3( 100, 1, 100 )
-
-[sub_resource type="SpatialMaterial" id=8]
-albedo_texture = ExtResource( 2 )
-normal_enabled = true
-normal_scale = 1.0
-uv1_triplanar = true
-
-[sub_resource type="ConcavePolygonShape" id=10]
-data = PoolVector3Array( -50, 0.5, 50, 50, 0.5, 50, -50, -0.5, 50, 50, 0.5, 50, 50, -0.5, 50, -50, -0.5, 50, 50, 0.5, -50, -50, 0.5, -50, 50, -0.5, -50, -50, 0.5, -50, -50, -0.5, -50, 50, -0.5, -50, 50, 0.5, 50, 50, 0.5, -50, 50, -0.5, 50, 50, 0.5, -50, 50, -0.5, -50, 50, -0.5, 50, -50, 0.5, -50, -50, 0.5, 50, -50, -0.5, -50, -50, 0.5, 50, -50, -0.5, 50, -50, -0.5, -50, 50, 0.5, 50, -50, 0.5, 50, 50, 0.5, -50, -50, 0.5, 50, -50, 0.5, -50, 50, 0.5, -50, -50, -0.5, 50, 50, -0.5, 50, -50, -0.5, -50, 50, -0.5, 50, 50, -0.5, -50, -50, -0.5, -50 )
-
-[sub_resource type="CubeMesh" id=23]
-size = Vector3( 2, 20, 100 )
-
-[sub_resource type="ConcavePolygonShape" id=24]
-data = PoolVector3Array( -1, 10, 50, 1, 10, 50, -1, -10, 50, 1, 10, 50, 1, -10, 50, -1, -10, 50, 1, 10, -50, -1, 10, -50, 1, -10, -50, -1, 10, -50, -1, -10, -50, 1, -10, -50, 1, 10, 50, 1, 10, -50, 1, -10, 50, 1, 10, -50, 1, -10, -50, 1, -10, 50, -1, 10, -50, -1, 10, 50, -1, -10, -50, -1, 10, 50, -1, -10, 50, -1, -10, -50, 1, 10, 50, -1, 10, 50, 1, 10, -50, -1, 10, 50, -1, 10, -50, 1, 10, -50, -1, -10, 50, 1, -10, 50, -1, -10, -50, 1, -10, 50, 1, -10, -50, -1, -10, -50 )
 
 [node name="Spatial" type="Spatial"]
 
 [node name="foss_handler" parent="." instance=ExtResource( 3 )]
 
 [node name="fossbot" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.66568, -2.03734, 6.25761 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -29.999, -2.03734, 47.4632 )
 
-[node name="Floor" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.473451, 0 )
-mesh = SubResource( 1 )
-material/0 = SubResource( 8 )
-script = ExtResource( 6 )
+[node name="fossbot2" parent="." instance=ExtResource( 1 )]
+transform = Transform( -0.00410155, 0, -0.999992, 0, 1, 0, 0.999992, 0, -0.00410155, -12.797, -2.03734, 5.60571 )
 
-[node name="Floor" type="StaticBody" parent="Floor"]
-
-[node name="CollisionShape" type="CollisionShape" parent="Floor/Floor"]
-shape = SubResource( 10 )
-
-[node name="Bound" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 49.4633, 8.57741, 0 )
-visible = false
-mesh = SubResource( 23 )
-
-[node name="StaticBody" type="StaticBody" parent="Bound"]
-
-[node name="CollisionShape" type="CollisionShape" parent="Bound/StaticBody"]
-shape = SubResource( 24 )
-
-[node name="Bound2" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -49.4622, 8.57741, 0 )
-visible = false
-mesh = SubResource( 23 )
-
-[node name="StaticBody" type="StaticBody" parent="Bound2"]
-
-[node name="CollisionShape" type="CollisionShape" parent="Bound2/StaticBody"]
-shape = SubResource( 24 )
-
-[node name="Bound3" type="MeshInstance" parent="."]
-transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 8.577, -49.9423 )
-visible = false
-mesh = SubResource( 23 )
-
-[node name="StaticBody" type="StaticBody" parent="Bound3"]
-
-[node name="CollisionShape" type="CollisionShape" parent="Bound3/StaticBody"]
-shape = SubResource( 24 )
-
-[node name="Bound4" type="MeshInstance" parent="."]
-transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 8.577, 49.3659 )
-visible = false
-mesh = SubResource( 23 )
-
-[node name="StaticBody" type="StaticBody" parent="Bound4"]
-
-[node name="CollisionShape" type="CollisionShape" parent="Bound4/StaticBody"]
-shape = SubResource( 24 )
+[node name="Floor" parent="." instance=ExtResource( 2 )]
 
 [node name="sphere" parent="." instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.257347, 2.43367, -3.91259 )
 
 [node name="cube" parent="." instance=ExtResource( 5 )]
 transform = Transform( -0.999637, 0, 0.0269446, 0, 1, 0, -0.0269446, 0, -0.999637, 19.875, 1.39658, -4.46327 )

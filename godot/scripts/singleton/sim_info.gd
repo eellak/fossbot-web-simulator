@@ -10,6 +10,8 @@ var foss_handler_node	# saves the current foss handler node.
 var obs_list = []	# a list with all the obstacles
 var pq = preload("res://scripts/data_struct/pq.gd")
 
+var horizontal_ground = true
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
@@ -30,6 +32,7 @@ func reset_info():
 	foss_handler_node = null
 	user_image = {}
 	user_index_img_part = {}
+	horizontal_ground = true
 
 func init_fossbot(fossbot_path):
 	var n = get_node(fossbot_path)

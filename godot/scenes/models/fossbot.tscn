@@ -122,24 +122,28 @@ shape = SubResource( 12 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00470281, 3.16964 )
 enabled = true
 cast_to = Vector3( 0, 0, -6.5 )
+collision_mask = 17
 collide_with_areas = true
 
 [node name="top_ray" type="RayCast" parent="ultrasonic"]
 transform = Transform( 1, 0, 0, 0, 0.89603, -0.443995, 0, 0.443994, 0.896031, 0, 0.148416, 3.16455 )
 enabled = true
 cast_to = Vector3( 0, 0, -6.5 )
+collision_mask = 17
 collide_with_areas = true
 
 [node name="right_ray" type="RayCast" parent="ultrasonic"]
 transform = Transform( 0.927186, 0, -0.374607, 0, 1, 0, 0.374607, 0, 0.927186, 0.133, -0.005, 3.13 )
 enabled = true
 cast_to = Vector3( 0, 0, -6.5 )
+collision_mask = 17
 collide_with_areas = true
 
 [node name="left_ray" type="RayCast" parent="ultrasonic"]
 transform = Transform( 0.927186, 0, 0.374607, 0, 1, 0, -0.374607, 0, 0.927186, -0.133, -0.005, 3.13 )
 enabled = true
 cast_to = Vector3( 0, 0, -6.5 )
+collision_mask = 17
 collide_with_areas = true
 
 [node name="LeftSensor" type="MeshInstance" parent="."]
