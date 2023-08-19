@@ -1,28 +1,14 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://scenes/models/fossbot.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scenes/models/Floor.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scenes/models/foss_handler.tscn" type="PackedScene" id=3]
-[ext_resource path="res://scenes/models/obstacles/sphere.tscn" type="PackedScene" id=4]
-[ext_resource path="res://scenes/models/obstacles/cube.tscn" type="PackedScene" id=5]
-[ext_resource path="res://scenes/models/obstacles/cone.tscn" type="PackedScene" id=6]
 
 [node name="Spatial" type="Spatial"]
 
 [node name="foss_handler" parent="." instance=ExtResource( 3 )]
 
-[node name="fossbot" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -29.999, -2.03734, 47.4632 )
-
-[node name="fossbot2" parent="." instance=ExtResource( 1 )]
-transform = Transform( -0.00410155, 0, -0.999992, 0, 1, 0, 0.999992, 0, -0.00410155, -12.797, -2.03734, 5.60571 )
-
 [node name="Floor" parent="." instance=ExtResource( 2 )]
 
-[node name="sphere" parent="." instance=ExtResource( 4 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.257347, 2.43367, -3.91259 )
-
-[node name="cube" parent="." instance=ExtResource( 5 )]
-transform = Transform( -0.999637, 0, 0.0269446, 0, 1, 0, -0.0269446, 0, -0.999637, 19.875, 1.39658, -4.46327 )
-
-[node name="cone" parent="." instance=ExtResource( 6 )]
+[node name="fossbot" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.037, 0 )

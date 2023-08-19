@@ -165,6 +165,15 @@ func data_received(pkt):
 			scale_x = float(d["scale_x"])
 		floor_node.global_scale(Vector3(scale_y, 1, scale_x))
 		return
+	elif d["func"] == "change_brightness":
+		$WorldEnvironment/BrightnessSlider.value = int(d["value"])
+		return
+	elif d["func"] == "connect_env":
+		print("Environment client connected successfully!")
+		return
+	elif d["func"] == "remove_all_objects":
+		sim_info.remove_all_extra_nodes()
+		return
 	# ============================================
 
 	if not "fossbot_name" in d:
