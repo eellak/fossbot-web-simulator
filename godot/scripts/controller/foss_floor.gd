@@ -66,6 +66,8 @@ var normals = PoolVector3Array()
 
 func reset_mesh():
 	# resets the properties of the floor (used when loading new terrain, so it can have more accurate represantation).
+	sim_info.remove_all_extra_nodes()
+	sim_info.horizontal_ground = true
 	mesh = init_mesh
 	#mesh = mesh.duplicate(true)
 	vertices = PoolVector3Array()

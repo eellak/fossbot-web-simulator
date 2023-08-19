@@ -6,7 +6,7 @@ var init_player_transform
 var init_player_rotation
 var respawn_y_pos = -25	# the y position to witch the respawn function is activated.
 
-var ultrasonic_tradeoff = 1.2	# change it according to the position of ultrasonic in comparison to the player
+var ultrasonic_tradeoff = 0	# change it according to the position of ultrasonic in comparison to the player
 # Tip for defining ultrasonic_tradeoff: put an object in front and make it so when it is diectly near it for the ultrasonic to be 0.
 onready var middle_sensor = $MiddleSensor/MiddleContainer/Viewport/MiddleSensor
 onready var left_sensor = $LeftSensor/LeftContainer/Viewport/LeftSensor

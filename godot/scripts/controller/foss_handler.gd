@@ -268,7 +268,6 @@ func image_terrain(image, d):
 	# Loads an image on the terrain. It also removes all objects of scene (so the terrain loads with no bugs).
 	# Param: image: the image to be loaded.
 	#		 d: other characteristics (for example floor_index). You can see the list of options in the docs of python client.
-	sim_info.remove_all_extra_nodes()
 	var floor_indx = "0"
 	if "floor_index" in d:
 		floor_indx = d["floor_index"]

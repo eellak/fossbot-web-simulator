@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://scripts/fossbot/left_motor.gd" type="Script" id=1]
 [ext_resource path="res://scripts/fossbot/fossbot.gd" type="Script" id=2]
@@ -31,11 +31,9 @@ points = PoolVector3Array( -2.80255, 3.36243, -0.844067, -0.166263, 3.41804, 2.9
 
 [sub_resource type="CubeMesh" id=22]
 
-[sub_resource type="BoxShape" id=31]
-extents = Vector3( 1.41145, 1, 0.966839 )
-
 [node name="fossbot" type="VehicleBody"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.03734, -0.719398 )
+collision_layer = 129
 mass = 100.0
 contacts_reported = 6
 contact_monitor = true
@@ -275,11 +273,3 @@ light_color = Color( 0, 0, 0, 1 )
 
 [node name="camera_target" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.91032, 0.525291 )
-
-[node name="foss_detect" type="Area" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.734, 0.701 )
-collision_layer = 129
-
-[node name="CollisionShape" type="CollisionShape" parent="foss_detect"]
-transform = Transform( 1, 0, 0, 0, 0.65, 0, 0, 0, 1.1, 0, 0.000169277, 0.0501069 )
-shape = SubResource( 31 )
