@@ -13,6 +13,7 @@ var data_callback = JavaScript.create_callback(self, "data_received")
 var fossbot_scene = preload("res://scenes/models/fossbot.tscn")
 var cube_model = preload("res://scenes/models/obstacles/cube.tscn")
 var sphere_model = preload("res://scenes/models/obstacles/sphere.tscn")
+var cone_model = preload("res://scenes/models/obstacles/cone.tscn")
 
 func _ready():
 	sim_info.init_foss_handler(get_node("."))
@@ -26,11 +27,14 @@ func spawn_obstacle(d, obs):
 	obs_inst.global_transform.origin.x = float(d["pos_y"])
 	obs_inst.global_transform.origin.z = float(d["pos_x"])
 	obs_inst.global_transform.origin.y = float(d.get("scale_z", 1)) + float(d["pos_z"])
+	set_obs_color(d, obs_inst)
+	if not "counterclockwise" in d:
+		return
 	if d["counterclockwise"]:
 		obs_inst.rotation_degrees.y = _calc_rot_pos(d.get("rotation", 0))
 	else:
 		obs_inst.rotation_degrees.y = - _calc_rot_pos(d.get("rotation", 0))
-	set_obs_color(d, obs_inst)
+
 
 func spawn_sphere(d):
 	if d.get("radius", 1) <= 0:
@@ -68,6 +72,19 @@ func set_obs_color(d, obs_inst):
 		return
 	obs_inst.get_child(0).get_child(0).material_override = obs_material
 
+func change_foss_opt(fossbot_inst, d):
+	if "color" in d and d["color"] in ["yellow", "cyan", "green", "violet", "red", "white", "black", "blue"]:
+		fossbot_inst.set_foss_material_color(d["color"])
+	fossbot_inst.global_transform.origin.x = float(d["pos_y"])
+	fossbot_inst.global_transform.origin.z = float(d["pos_x"])
+	fossbot_inst.global_transform.origin.y = 1 + float(d["pos_z"])
+	if d["counterclockwise"]:
+		fossbot_inst.rotation_degrees.y = _calc_rot_pos(d.get("rotation", 0))
+	else:
+		fossbot_inst.rotation_degrees.y = - _calc_rot_pos(d.get("rotation", 0))
+	fossbot_inst.horizontal_ground = sim_info.horizontal_ground
+	fossbot_inst.save_current_pos()
+	# fossbot_inst.stop()
 
 func data_received(pkt):
 	pkt = pkt[0]
@@ -94,18 +111,7 @@ func data_received(pkt):
 			return
 		var fossbot_inst = fossbot_scene.instance()
 		get_parent().add_child(fossbot_inst, true)
-		if "color" in d and d["color"] in ["yellow", "cyan", "green", "violet", "red", "white", "black"]:
-			fossbot_inst.set_foss_material_color(d["color"])
-		fossbot_inst.global_transform.origin.x = float(d["pos_y"])
-		fossbot_inst.global_transform.origin.z = float(d["pos_x"])
-		fossbot_inst.global_transform.origin.y = 1 + float(d["pos_z"])
-		if d["counterclockwise"]:
-			fossbot_inst.rotation_degrees.y = _calc_rot_pos(d.get("rotation", 0))
-		else:
-			fossbot_inst.rotation_degrees.y = - _calc_rot_pos(d.get("rotation", 0))
-		fossbot_inst.horizontal_ground = sim_info.horizontal_ground
-		fossbot_inst.save_current_pos()
-		# fossbot_inst.stop()
+		change_foss_opt(fossbot_inst, d)
 		return
 	elif d["func"] == "obs_spawn":
 		if not "pos_x" in d or not "pos_y" in d or not "type" in d:
@@ -114,6 +120,8 @@ func data_received(pkt):
 			spawn_obstacle(d, cube_model)
 		elif d["type"] == "sphere":
 			spawn_sphere(d)
+		elif d["type"] == "cone":
+			spawn_obstacle(d, cone_model)
 		return
 	elif d["func"] == "change_floor_skin":
 		var image = load_user_image(d, "Loading Image...")
@@ -133,6 +141,29 @@ func data_received(pkt):
 		if not image:
 			return
 		image_terrain(image, d)
+		return
+	elif d["func"] == "change_fossbot":
+		if not "fossbot_name" in d:
+			return
+		if not d["fossbot_name"] in foss_dict:
+			return
+		var foss_inst = get_node(foss_dict[d["fossbot_name"]])
+		change_foss_opt(foss_inst, d)
+		return
+	elif d["func"] == "change_floor":
+		if not "scale_y" in d and not "scale_x" in d:
+			return
+		var floor_indx = "0"
+		if "floor_index" in d:
+			floor_indx = d["floor_index"]
+		var floor_node = sim_info.floor_dict[floor_indx]
+		var scale_x = 1
+		var scale_y = 1
+		if "scale_y" in d:
+			scale_y = float(d["scale_y"])
+		if "scale_x" in d:
+			scale_x = float(d["scale_x"])
+		floor_node.global_scale(Vector3(scale_y, 1, scale_x))
 		return
 	# ============================================
 
@@ -204,7 +235,7 @@ func image_terrain(image, d):
 	if "floor_index" in d:
 		floor_indx = d["floor_index"]
 	var floor_node = sim_info.floor_dict[floor_indx]
-	floor_node.load_terrain(image, int(d.get("intensity", 3)))
+	floor_node.load_terrain(image, float(d.get("intensity", 3)))
 	sendMessageGodotEnv("Terrain loaded.", d["user_id"])
 
 

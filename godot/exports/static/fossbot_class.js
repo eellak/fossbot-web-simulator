@@ -5,25 +5,29 @@ class FossBot {
 
     constructor(session_id, kwargs) {
         /**
-         * @param {String} session_id: the session id.
-         * @param kwargs (optional):
-         * - fossbot_name (str): The name of the fossbot you want to control in the scene
-                (to change this name, you should also change the name of the fossbot in the scene).
-            - server_address (str): The address of the server. Defaults to 'http://localhost:8000'.
-            - namespace (str): The namespace of the socketio for fossbot sim (default is "/godot").
-            - motor_left_speed (float): The velocity of the left motor. Defaults to 100.
-            - motor_right_speed (float): The velocity of the right motor. Defaults to 100.
-            - default_step (float): The default step distance. Defaults to 15.
-            - rotate_90 (float): The degree value. Defaults to 90.
-            - light_sensor (float): The light value. Defaults to 700.
-            - line_sensor_center (float): The value of the center sensor for black line detection. Defaults to 50.
-            - line_sensor_right (float): The value of the right sensor for black line detection. Defaults to 50.
-            - line_sensor_left (float): The value of the left sensor for black line detection. Defaults to 50.
-            - sensor_distance (float): The max distance for detecting objects. Defaults to 15.
-            - left_motor_name (str): The name of the left motor in the scene.
-                Defaults to "left_motor" (to change it, you should also change it in the scene).
-            - right_motor_name (str): The name of the right motor in the scene.
-                Defaults to "right_motor" (to change it, you should also change it in the scene).
+         * Initializes a Godot FossBot Object with the provided session ID and optional parameters.
+         * 
+         * @param {string} session_id - The session ID of the Godot simulator in the browser.
+         * @param {Object} [kwargs] - Optional keyword arguments (dictionary).
+         * @param {string} [kwargs.fossbot_name] - The name of the fossbot you want to control in the scene
+         *      (to change this name, you should also change the name of the fossbot in the scene).
+         * @param {string} [kwargs.server_address] - The address of the server. Defaults to 'http://localhost:8000'.
+         * @param {string} [kwargs.namespace] - The namespace of the socketio for fossbot sim (default is "/godot").
+         * @param {number} [kwargs.motor_left_speed] - The velocity of the left motor. Defaults to 100.
+         * @param {number} [kwargs.motor_right_speed] - The velocity of the right motor. Defaults to 100.
+         * @param {number} [kwargs.default_step] - The default step distance. Defaults to 15.
+         * @param {number} [kwargs.rotate_90] - The degree value. Defaults to 90.
+         * @param {number} [kwargs.light_sensor] - The light value. Defaults to 700.
+         * @param {number} [kwargs.line_sensor_center] - The value of the center sensor for black line detection. Defaults to 50.
+         * @param {number} [kwargs.line_sensor_right] - The value of the right sensor for black line detection. Defaults to 50.
+         * @param {number} [kwargs.line_sensor_left] - The value of the left sensor for black line detection. Defaults to 50.
+         * @param {number} [kwargs.sensor_distance] - The max distance for detecting objects. Defaults to 15.
+         * @param {string} [kwargs.left_motor_name] - The name of the left motor in the scene.
+         *      Defaults to "left_motor" (to change it, you should also change it in the scene).
+         * @param {string} [kwargs.right_motor_name] - The name of the right motor in the scene.
+         *      Defaults to "right_motor" (to change it, you should also change it in the scene).
+         * @throws {Error} - If there is an error during connection to the socketio server (specifically when the
+         *      user tries to connect to already controlled fossbot or to fossbot that does not exist in the scene).
         */
         this.session_id = session_id;
         this.fossbot_name = kwargs.fossbot_name || "fossbot";
@@ -75,6 +79,12 @@ class FossBot {
     }
 
     async move_distance(dist, direction = "forward") {
+        /**
+         * Moves the robot in the specified direction (default is "forward") for the input distance (in cm).
+         * @async
+         * @param {number} dist - The distance (cm) to be moved by the robot.
+         * @param {string} [direction="forward"] - The direction to be moved towards. Possible values are "forward" and "reverse".
+         */
         if (dist < 0) {
             throw new Error("Negative Distance not allowed.");
         }
@@ -102,7 +112,7 @@ class FossBot {
     }
 
     reset_dir() {
-        // Resets all motors direction to default (forward).
+        /** Resets all motors direction to default (forward). */
         const param = {
           func: "reset_dir"
         };
@@ -110,7 +120,7 @@ class FossBot {
     }
 
     stop() {
-        // Stop moving.
+        /** Stop moving. */
         const param = {
             func: "stop"
         };
@@ -118,7 +128,11 @@ class FossBot {
     }
 
     async wait(time_s) {
-        // Waits (sleeps) for an amount of time.
+        /**
+         * Waits (sleeps) for an amount of time.
+         * @async
+         * @param {number} time_s - The time (seconds) to sleep.
+         */
         await new Promise((resolve) => {
             setTimeout(() => {
                 resolve();
@@ -128,42 +142,56 @@ class FossBot {
 
 
     async move_forward_distance(dist) {
-        // Moves robot forward input distance.
+        /**
+         * Moves the robot forward the input distance.
+         * @async
+         * @param {number} dist - The distance (cm) to be moved by the robot.
+         */
         await this.move_distance(dist);
     }
 
     async move_forward_default() {
-        // Moves robot forward default distance.
+        /** 
+         * Moves robot forward default distance.
+         * @async
+         */
         await this.move_distance(this.default_dist);
     }
 
     move_forward() {
-        // Moves robot forwards.
+        /** Moves robot forwards. */
         this.just_move();
     }
 
     async move_reverse_distance(dist) {
-        // Moves robot input distance in reverse.
+        /**
+         * Moves the robot input distance in reverse.
+         * @async
+         * @param {number} dist - The distance (cm) to be moved by the robot.
+         */
         await this.move_distance(dist, "reverse");
     }
     
     async move_reverse_default() {
-        // Moves robot default distance in reverse.
+        /** 
+         * Moves robot default distance in reverse.
+         * @async
+         */
         await this.move_distance(this.default_dist, "reverse");
     }
 
     move_reverse() {
-        // Moves robot in reverse.
+        /** Moves robot in reverse. */
         this.just_move("reverse");
     }
 
     just_rotate(dir_id) {
-        /*
-         * Rotates fossbot towards the specified dirId.
-         * Params:
-         *   - dir_id: the direction id to rotate to:
-         *            - counterclockwise: dirId == 0
-         *            - clockwise: dirId == 1
+        /**
+         * Rotates the Fossbot towards the specified dir_id.
+         * 
+         * @param {number} dir_id - The direction id to rotate to:
+         *                          - counterclockwise: dir_id == 0
+         *                          - clockwise: dir_id == 1
          */
         if (![0, 1].includes(dir_id)) {
           throw new Error("Unknown Direction!");
@@ -178,13 +206,13 @@ class FossBot {
     }
 
     async rotate_90(dir_id) {
-        /*
-        * Rotates fossbot 90 degrees towards the specified dirId.
-        * Params:
-        *   - dir_id: the direction id to rotate 90 degrees:
-        *            - counterclockwise: dirId == 0
-        *            - clockwise: dirId == 1
-        */
+        /**
+         * Rotates the Fossbot 90 degrees towards the specified dir_id.
+         * @async
+         * @param {number} dir_id - The direction id to rotate 90 degrees:
+         *                          - counterclockwise: dir_id == 0
+         *                          - clockwise: dir_id == 1
+         */
         if (![0, 1].includes(dir_id)) {
             throw new Error("Unknown Direction!");
         }
@@ -205,47 +233,57 @@ class FossBot {
     }
 
     rotate_clockwise() {
-        /*
+        /**
          * Rotates robot clockwise.
          */
         this.just_rotate(1);
     }
     
     rotate_counterclockwise() {
-        /*
+        /**
          * Rotates robot counterclockwise.
          */
         this.just_rotate(0);
     }
 
     async rotate_clockwise_90() {
-        /*
+        /**
          * Rotates robot 90 degrees clockwise.
+         * @async
          */
         await this.rotate_90(1);
     }
 
     async rotate_counterclockwise_90() {
-        /*
+        /**
          * Rotates robot 90 degrees counterclockwise.
+         * @async
          */
         await this.rotate_90(0);
     }
 
-
     async get_distance() {
-        // Returns the distance from the closest obstacle.
+        /** 
+         * Returns the distance from the nearest obstacle in cm.
+         * @async
+         */
         return await this.__get_godot({ func: "get_distance" });
     }
 
     async check_for_obstacle() {
-        // Checks if there is an obstacle nearby.
+        /**
+         * Returns True if an obstacle was detected.
+         * @async
+         */
         const i = await this.__get_godot({ func: "get_distance" });
         return i <= this.sensor_distance;
     }
 
     play_sound(audio_path) {
-        // plays a sound (stored in simulator).
+        /**
+         * Plays an MP3 file specified by the input audio_path.
+         * @param {string} audio_path - The path to the wanted MP3 file in Godot.
+         */
         const param = {
             func: "play_sound",
             sound_path: audio_path,
@@ -254,7 +292,12 @@ class FossBot {
     }
 
     async get_floor_sensor(sensor_id) {
-        // Returns the reading value of a floor sensor.
+        /**
+         * Gets the reading of a floor-line sensor specified by sensor_id.
+         * @async
+         * @param {number} sensor_id - The ID of the wanted floor-line sensor.
+         * @returns {number} - The reading of the specified floor-line sensor.
+         */
         if (![1, 2, 3].includes(sensor_id)) {
             console.log(`Sensor id ${sensor_id} is out of bounds.`);
             return 0.0;
@@ -263,7 +306,12 @@ class FossBot {
     }
 
     async check_on_line(sensor_id) {
-        // Checks if the requested sensor is on line.
+        /**
+         * Checks if the line sensor (specified by sensor_id) is on the black line.
+         * @async
+         * @param {number} sensor_id - The ID of the wanted floor-line sensor.
+         * @returns {boolean} - True if the sensor is on the line, else False.
+         */
         if (![1, 2, 3].includes(sensor_id)) {
           console.log(`Sensor id ${sensor_id} is out of bounds.`);
           return false;
@@ -287,11 +335,11 @@ class FossBot {
         return false;
     }
 
-
     // accelerometer
     async get_acceleration(axis) {
         /**
          * Gets acceleration of specified axis.
+         * @aync
          * @param {string} axis - The axis to get the acceleration from.
          * @returns {number} - The acceleration of specified axis.
          */
@@ -314,6 +362,7 @@ class FossBot {
     async get_gyroscope(axis) {
         /**
          * Gets gyroscope of specified axis.
+         * @async
          * @param {string} axis - The axis to get the gyroscope from.
          * @returns {number} - The gyroscope of specified axis.
          */
@@ -354,6 +403,7 @@ class FossBot {
     async get_light_sensor() {
         /**
          * Returns the reading of the light sensor.
+         * @async
          * @returns {number} - The reading of the light sensor.
          */
         return await this.__get_godot({func: "get_light_sensor"});
@@ -362,6 +412,7 @@ class FossBot {
     async check_for_dark() {
         /**
          * Returns true only if light sensor detects dark.
+         * @async
          * @returns {boolean} - True if light sensor detects dark, else false.
          */
         const value = await this.__get_godot({func: "get_light_sensor"});
@@ -373,6 +424,7 @@ class FossBot {
     async get_noise_detection() {
         /**
          * Returns true only if noise is detected.
+         * @async
          * @returns {boolean} - True if noise is detected, else false.
          */
         const state = await this.__get_godot({func: "get_noise_detection"});
@@ -384,6 +436,7 @@ class FossBot {
     async exit() {
         /**
          * Exits.
+         * @async
          */
         await this.wait(0.1);
         if (this.sio.connected) {
@@ -416,6 +469,7 @@ class FossBot {
     async get_elapsed() {
         /**
          * Returns the time from start in seconds.
+         * @async
          * @returns {number} - The elapsed time in seconds.
          */
         const value = await this.__get_godot({func: "get_elapsed"});
@@ -433,6 +487,12 @@ class FossBot {
     }
 
     async __get_godot(data) {
+        /**
+         * Retrieves data from Godot using SocketIO.
+         * @param {Object} data - The data to be sent to Godot.
+         * @returns {Promise} - A promise that resolves to the result received from Godot.
+         */
+
         // const result = await this.__asyncEmit(data);
         // return result;
         try {
@@ -446,6 +506,13 @@ class FossBot {
 
 
     async __asyncEmit(data) {
+        /**
+         * Asynchronously emits a client message to Godot using SocketIO and waits for a response.
+         * 
+         * @param {Object} data - The data to be sent to Godot.
+         * @returns {Promise} - A promise that resolves to the result received from Godot.
+         * @throws {Error} - If the function times out and no response is received from Godot within 5 seconds.
+         */
         return new Promise((resolve, reject) => {
             data.fossbot_name = this.fossbot_name
             this.sio.emit("clientMessage", data);

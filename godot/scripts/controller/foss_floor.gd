@@ -81,7 +81,7 @@ func load_terrain(heightmap: Image, intensity):
 	width = heightmap.get_width()
 	height = heightmap.get_height()
 
-	if int(intensity) < 3:
+	if float(intensity) < 3:
 		sim_info.horizontal_ground = true
 	else:
 		sim_info.horizontal_ground = false
@@ -90,7 +90,7 @@ func load_terrain(heightmap: Image, intensity):
 	heightmap.lock()
 	for x in range(0,width):
 		for y in range(0,height):
-			heightData[Vector2(x - (size_x / 2),y - (size_y / 2))] = heightmap.get_pixel(x,y).r*int(intensity)
+			heightData[Vector2(x - (size_x / 2),y - (size_y / 2))] = heightmap.get_pixel(x,y).r*float(intensity)
 	heightmap.unlock()
 
 	# generate terrain

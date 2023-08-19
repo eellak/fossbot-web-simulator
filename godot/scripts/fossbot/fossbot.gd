@@ -363,6 +363,8 @@ func set_foss_material_color(color):
 		foss_material.albedo_color = Color(1, 1, 1)
 	elif color == 'black':
 		foss_material.albedo_color = Color(0, 0, 0)
+	elif color == "blue":
+		foss_material.albedo_color = Color(0, 0, 1)
 	else:
 		return
 	$car_body.mesh = $car_body.mesh.duplicate(true)
