@@ -16,11 +16,16 @@ var sphere_model = preload("res://scenes/models/obstacles/sphere.tscn")
 var cone_model = preload("res://scenes/models/obstacles/cone.tscn")
 
 func _ready():
+	# Initializes foss_handler by saving this instance to a dict in sim_info.
+	# Also, here the connection to socketio happens (and the callback for sending data from socketio back to godot is initialized).
 	sim_info.init_foss_handler(get_node("."))
 	window.initGodotSocket()
 	window.initCallBack(data_callback)
 
 func spawn_obstacle(d, obs):
+	# Spawns an obstacle that can be scaled in all axis (not like sphere which only has radius).
+	# Param: d: Its location and other characteristics of the obstacle.
+	#		 obs: the obstacle instance.
 	var obs_inst = obs.instance()
 	get_parent().add_child(obs_inst, true)
 	obs_inst.get_child(0).global_scale(Vector3(float(d.get("scale_y", 1)), float(d.get("scale_z", 1)), float(d.get("scale_x", 1))))
@@ -37,6 +42,7 @@ func spawn_obstacle(d, obs):
 
 
 func spawn_sphere(d):
+	# Spawns a sphere. Its location and other characteristics are specified in d.
 	if d.get("radius", 1) <= 0:
 		return
 	var obs_inst = sphere_model.instance()
@@ -48,6 +54,9 @@ func spawn_sphere(d):
 	set_obs_color(d, obs_inst)
 
 func set_obs_color(d, obs_inst):
+	# Sets a color for an obstacle.
+	# Param: d: the dictionary with the requested color.
+	#		 obs_inst: the instance of the object to be changed.
 	if not "color" in d or not d["color"] in ["yellow", "cyan", "green", "violet", "red", "white", "black", "blue"]:
 		return
 	var color = d["color"]
@@ -73,6 +82,9 @@ func set_obs_color(d, obs_inst):
 	obs_inst.get_child(0).get_child(0).material_override = obs_material
 
 func change_foss_opt(fossbot_inst, d):
+	# Changes characteristics of fossbot.
+	# Param: fossbot_inst: the fossbot instance to be  changed.
+	#		 d: the dictionary with the options.
 	if "color" in d and d["color"] in ["yellow", "cyan", "green", "violet", "red", "white", "black", "blue"]:
 		fossbot_inst.set_foss_material_color(d["color"])
 	fossbot_inst.global_transform.origin.x = float(d["pos_y"])
@@ -87,6 +99,10 @@ func change_foss_opt(fossbot_inst, d):
 	# fossbot_inst.stop()
 
 func data_received(pkt):
+	# This method is used to handle the package sent from socketio.
+	# It also executes the correct method (specified in the pkt) and sends the data to the correct fossbot,
+	# so it can execute it.
+	# Param: pkt: the package sent from socketio.
 	pkt = pkt[0]
 	var tmp_d = str(pkt)
 	var d = JSON.parse(tmp_d)
@@ -174,6 +190,14 @@ func data_received(pkt):
 	elif d["func"] == "remove_all_objects":
 		sim_info.remove_all_extra_nodes()
 		return
+	elif d["func"] == "reset_terrain":
+		var floor_indx = "0"
+		if "floor_index" in d:
+			floor_indx = d["floor_index"]
+		var floor_node = sim_info.floor_dict[floor_indx]
+		floor_node.reset_mesh()
+		sendMessageGodotEnv("Terrain Reset.", d["user_id"])
+		return
 	# ============================================
 
 	if not "fossbot_name" in d:
@@ -236,9 +260,14 @@ func data_received(pkt):
 				get_node(foss_dict[d["fossbot_name"]]).data_received(null)
 
 func _calc_rot_pos(initial_rot):
+	# Calculates the final rotation position (in godot it is in the range [-180, 180].
+	# Param: initial_rot: the rotation in range [0, 360, 361 ... infinity) -> (more convenient for user).
 	return fmod((initial_rot + 180), 360) - 180
 
 func image_terrain(image, d):
+	# Loads an image on the terrain. It also removes all objects of scene (so the terrain loads with no bugs).
+	# Param: image: the image to be loaded.
+	#		 d: other characteristics (for example floor_index). You can see the list of options in the docs of python client.
 	sim_info.remove_all_extra_nodes()
 	var floor_indx = "0"
 	if "floor_index" in d:
@@ -249,6 +278,10 @@ func image_terrain(image, d):
 
 
 func load_user_image(d, img_label_text):
+	# Loads a user image specified in d. 
+	# Param: img_lable_text: the text that will be put to a label when loading the image.
+	#		 d: the image options.
+
 	#if not "img_num" in d:
 	#	return
 	if not "image_size" in d:
@@ -276,13 +309,16 @@ func update_timer(delta):
 
 
 func send_null_all_fossbots():
+	# sends null to all fossbots (used when no data arrives).
 	for foss_name in foss_dict.keys():
 		get_node(foss_dict[foss_name]).data_received(null)
 
 func sendGodotError(msg, fossbot_name, user_id):
+	# Sends a godot error to specified user_id (uses method in js).
 	window.sendErrorFromGodot(msg, fossbot_name, user_id)
 
 func sendMessageGodotEnv(msg, user_id):
+	# Sends a godot environment message to specified user_id (uses method in js).
 	window.sendEnvMessageFromGodot(msg, user_id)
 
 
@@ -301,6 +337,7 @@ func _process(delta):
 
 
 func update_dropdown():
+	# Updates the dropdown list to match the fossbots in foss_dict of sim_info.
 	var keys1 = foss_dict.keys()
 	var keys2 = sim_info.foss_dict.keys()
 	var diff = []
@@ -312,6 +349,7 @@ func update_dropdown():
 		$foss_dropdown.add_item(str(key))
 
 func reset_dropdown():
+	# Resets the dropdown list (with the foss_dict and user_dict). Used when we want to delete all fossbots from scene.
 	foss_dict = {}
 	user_dict = {}
 	$foss_dropdown.clear()

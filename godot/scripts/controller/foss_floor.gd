@@ -3,26 +3,29 @@ extends MeshInstance
 var init_mesh
 var init_col_shape
 func _ready():
-	sim_info.set_foss_floor(get_node("."))
-	init_mesh = mesh.duplicate(true).duplicate(true)
+	sim_info.set_foss_floor(get_node("."))	# puts floor in foss_floor dict (located in sim_info).
+	init_mesh = mesh.duplicate(true).duplicate(true)	# duplicates floor mesh and collision shape.
 	init_col_shape = get_child(0).get_child(0).shape.duplicate(true).duplicate(true)
 
 func set_material_skin(mat_skin, d):
+	# sets an image to floor.
+	# Param: mat_skin: the image to be set on the floor.
+	#		 d: other image options (dictionary).
 	var material = get_surface_material(0)
 	# material.normal_texture = mat_skin
 	material.albedo_texture = mat_skin
 	if "color" in d and d["color"] in ["yellow", "cyan", "green", "violet", "red", "white", "black", "blue"]:
 		material.albedo_color = get_color_from_string(d["color"])
 	if "type" in d:
-		if d["type"] == "full":
+		if d["type"] == "full":	# resizes image automatically to match the floor.
 			material.uv1_triplanar = false
 			material.uv1_scale = Vector3(3, 2, 1)
-		elif d["type"] == "tripl":
+		elif d["type"] == "tripl":	# uses triplanar (many images) to put the image on the floor.
 			material.uv1_triplanar = true
 			var scale_x = float(d.get("scale_x", 1))
 			var scale_y = float(d.get("scale_y", 1))
 			material.uv1_scale = Vector3(scale_y, 1, scale_x)
-		elif d["type"] == "manual":
+		elif d["type"] == "manual":	# resizes the image by scecified parameters.
 			material.uv1_triplanar = false
 			var scale_x = float(d.get("scale_x", 1))
 			var scale_y = float(d.get("scale_y", 1))
@@ -33,6 +36,7 @@ func set_material_skin(mat_skin, d):
 	set_surface_material(0, material)
 
 func get_color_from_string(color):
+	# Takes as input a color string and returns the color for the fossbot floor.
 	if color == 'red':
 		return Color(1, 0, 0)
 	elif color == 'green':
@@ -61,6 +65,7 @@ var UVs = PoolVector2Array()
 var normals = PoolVector3Array()
 
 func reset_mesh():
+	# resets the properties of the floor (used when loading new terrain, so it can have more accurate represantation).
 	mesh = init_mesh
 	#mesh = mesh.duplicate(true)
 	vertices = PoolVector3Array()
@@ -73,6 +78,9 @@ func reset_mesh():
 var tmpMesh = Mesh.new()
 
 func load_terrain(heightmap: Image, intensity):
+	# Loads terrain on floor
+	# Param: heightmap: the image to create the terrain from.
+	# 		 intensity: how high the heightmap will be.
 	reset_mesh()
 	var size_x = mesh.size.x
 	var size_y = mesh.size.z

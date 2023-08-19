@@ -17,16 +17,19 @@ func _process(delta):
 		enable_stage_cam()
 
 func enable_player_cam():
+	# enables camera gimball, while also disabling all other cameras.
 	$cameraOrth.disable_orth_cam()
 	$cameraStage.current = false
 	$CameraGimbal/InnerGimbal/Camera.current = true
 
 func disable_player_cam():
+	# enables orthogonal camera, while also disabling all other cameras.
 	$cameraOrth.enable_orth_cam()
 	$cameraStage.current = false
 	$CameraGimbal/InnerGimbal/Camera.current = false
 
 func enable_stage_cam():
+	# enables stage camera, while also disabling all other cameras.
 	if stage:
 		# sets the size of the orth stage camera, to stage size.
 		var stage_size = get_node(stage).mesh.get_aabb().size
@@ -36,5 +39,7 @@ func enable_stage_cam():
 	$cameraStage.current = true
 
 func set_target(fossbot_path):
+	# Sets the cameras to point to specified fossbot.
+	# Param: fossbot_path: the path to the specified fossbot to point at.
 	$cameraOrth.set_target(fossbot_path)
 	$CameraGimbal.set_target(fossbot_path)

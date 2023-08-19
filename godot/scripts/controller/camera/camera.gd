@@ -1,5 +1,7 @@
 extends Spatial
 
+# This script is for the gimball camera (press 1 to view).
+
 var target
 export var camera_target = "camera_target"
 
@@ -73,5 +75,8 @@ func enable_mouse_control():
 
 
 func set_target(foss_target):
+	# Sets the target to point at.
+	# Param: foss_target: the fossbot path to point at. The fossbot should also have a child node named
+	# 					  the same as the string specified in camera target variable of this script.
 	target = NodePath(str(foss_target) + "/" + camera_target)
 

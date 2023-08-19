@@ -1,5 +1,7 @@
 extends Camera
 
+# This script is for the orthogonal camera (press 2 to view).
+
 var target
 export var zoom_speed = 0.5
 export var move_speed = 0.5
@@ -63,6 +65,8 @@ func disable_orth_cam():
 	#translate_offset_z = 0
 
 func set_target(foss_target):
+	# Sets the fossbot target to point at.
+	# Param: foss_target: the fossbot path to point at.
 	target = foss_target
 
 

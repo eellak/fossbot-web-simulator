@@ -26,4 +26,4 @@ All the files necessary for deployment are in the exports folder (just download 
 * In every scene there should always be a foss_handler node.
 * If you upload an image, to check if upload is happening, see label "Loading Image..." in simulator. If you dont see that, reduce the chunk size in client method.
 * Horizontal ground (for better rotation accuracy) is stored in sim_info.gd - it is set in foss_floor (if terrain r is < 3) and used in fossbot.gd
-* Just_move and just_rotate work with sim time (if need increase, multiply the "wait" time in godot by user specified value).
+* Just_move and just_rotate work with sim time (if need increase, multiply the "wait" time in godot by user specified value - and specifically the wait_until_next_just_do variable specified in fossbot.gd).

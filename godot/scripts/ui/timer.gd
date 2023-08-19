@@ -5,9 +5,11 @@ func _ready():
 	pass # Replace with function body.
 
 func _process(delta):
+	# Checks repeatedly sim_info for any changes in timer (so it can update the label).
 	_on_foss_handler_timer()
 
 func _on_foss_handler_timer():
+	# Updates the timer label by getting it from the sim_info.
 	var time = sim_info.time
 	var mils = fmod(time,1)*1000
 	var secs = fmod(time,60)

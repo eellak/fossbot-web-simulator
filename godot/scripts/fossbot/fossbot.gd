@@ -85,6 +85,7 @@ var horizontal_ground = true
 var window = JavaScript.get_interface("window")
 
 func _ready():
+	# Initializes a fossbot by saving it to foss_dict in sim_info, and by saving its initial position.
 	sim_info.init_fossbot(get_node(".").get_path())
 	init_player_transform = global_transform.origin
 	init_player_transform.y += 0.5
@@ -93,12 +94,17 @@ func _ready():
 
 
 func check_last_just_do_time(last_do_time):
+	# Checks if a certain time limit has passed since the last execution of just_move or just_rotate.
+	# If it has (and no other packets arrive), it stops the vehicle. Like so, the just_move and just_rotate are executed for a little bit.
+	# Param: last_do_time: the last time an just_move or just_rotate function has happened (this time is save in vars last_just_move_time_func
+	#		 and last_just_rot_time_func respectively.
 	if abs(Time.get_ticks_msec() - last_do_time) >= wait_until_next_just_do * 1000:
 		prev_func = "stop"
 		stop()
 
 func data_received(pkt):
-
+	# Method called by foss_handler (if this fossbot has to execute something).
+	# Param: pkt: the package from the handler (with all the functions and execution details for this fossbot).
 	if pkt == null or str(pkt) == 'nan':
 		if prev_func == "just_move":
 			check_last_just_do_time(last_just_move_time_func)
@@ -253,12 +259,16 @@ func data_received(pkt):
 		prev_func = req_func
 
 func move_motor(direction, vel):
+	# Makes the velocity match the motors direction.
+	# Param: direction (str): the direction of the motor.
+	#		 vel: the target velocity for this motor.
 	if direction == "forward":
 		return abs(vel)
 	elif direction == "reverse":
 		return -abs(vel)
 
 func send(msg):
+	# Sends message to client from this fossbot.
 	window.sendMessageFromGodot(msg, fossbot_name, user_id)
 
 # =======================================================================
@@ -348,6 +358,7 @@ func move(right_vel, left_vel):
 	motor_left_node.engine_force = -(left_vel/100) * torque * (1 - rpm / mx_rpm)
 
 func set_foss_material_color(color):
+	# Sets the color of a fossbot (specified by the color parameter).
 	var foss_material = SpatialMaterial.new()
 	if color == 'red':
 		foss_material.albedo_color = Color(1, 0, 0)
@@ -372,6 +383,7 @@ func set_foss_material_color(color):
 
 
 func calc_steps_revolutions_degrees(delta):
+	# Calculates the steps, revolutions and rotated degrees for each motor (odometers).
 	var rotation_angle = abs(sign(rotation.y) * delta * angular_velocity.y)
 	total_sum_rot += rotation_angle
 	# print(total_sum_rot)
@@ -471,6 +483,7 @@ func get_ultrasonic(calc_distance):
 	return max(min_d, 0)
 
 func _find_smallest_ultra_raycast(raycast, min_d, player_position, ultra_tradeoff):
+	# Finds the collition point of specified raycast, and calculates the distance from player.
 	var res = raycast.get_collision_point()
 	var obj = raycast.get_collider()
 	var dist = min_d + 2
@@ -655,10 +668,13 @@ func rotate_90(dr_id: int, d):
 		vel_left = -abs(d["vel_left"])
 
 func save_current_pos():
+	# Saves the current position of player (used for respawn)
 	init_player_transform = global_transform.origin
 	init_player_rotation = global_rotation
 
 func respawn():
+	# Respawn player back to saved position.
+
 	# stop()
 	global_transform.origin = init_player_transform
 	global_rotation = init_player_rotation
@@ -720,6 +736,7 @@ func just_move(d, direction="forward"):
 		vel_left = -abs(d["vel_left"])
 
 func just_rotate(d):
+	# Function to set the velocities for rotation.
 	if move_func:
 		stop()
 	move_func = true
@@ -733,12 +750,15 @@ func just_rotate(d):
 		vel_left = abs(d["vel_left"])
 
 func set_right_motor(motor_name, motor_path):
+	# Sets the right motor.
 	motor_right_name = motor_name
 	motor_right_node = get_node(motor_path)
 
 func set_left_motor(motor_name, motor_path):
+	# sets the left motor.
 	motor_left_name = motor_name
 	motor_left_node = get_node(motor_path)
 
 func set_user_id(new_user):
+	# sets the user id for this fossbot.
 	user_id = new_user
