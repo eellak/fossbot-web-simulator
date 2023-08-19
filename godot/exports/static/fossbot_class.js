@@ -33,7 +33,7 @@ class FossBot {
         this.sio = io.connect(conn_url);
 
         this.sio.on("connect", () => {
-            this.sio.emit("pythonConnect", {"session_id": this.session_id, "user_id": this.sio.id});
+            this.sio.emit("pythonConnect", {"session_id": this.session_id, "user_id": this.sio.id, "fossbot_name": this.fossbot_name, "func":"connect"});
             console.log("Connected to socketio server on " + conn_url);
         });
 
@@ -381,10 +381,11 @@ class FossBot {
     }
 
     // exit
-    exit() {
+    async exit() {
         /**
          * Exits.
          */
+        await this.wait(0.1);
         if (this.sio.connected) {
             this.__post_godot({"func": "exit"});
             this.sio.disconnect();

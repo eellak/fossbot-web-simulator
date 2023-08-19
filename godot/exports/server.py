@@ -46,6 +46,8 @@ def pythonConnect(data):
     session["env_user"] = bool(data.get("env_user", False))
     join_room(session_id)
     print(f"Client joined room {session_id}")
+    emit("clientMessage", data, to=session_id)
+
 
 @socketio.on('browserConnect', namespace=socketio_namespace)
 def browserConnect():
@@ -81,7 +83,7 @@ def godotError(data):
 def disconnect():
     session_id = session.get("session_id")
     exit_func = "exit"
-    if session["env_user"]:
+    if session.get("env_user", False):
         exit_func = "exit_env"
     if "user_id" in session:
         emit("clientMessage", {"func":exit_func, "user_id":session["user_id"]}, to=session_id)

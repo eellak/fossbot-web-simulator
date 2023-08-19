@@ -151,6 +151,11 @@ func data_received(pkt):
 			sendGodotError(d["fossbot_name"] + " is already controlled by another user!", d["fossbot_name"], d["user_id"])
 			return
 
+	# here, all the connection tests have been successful - if now user function is "connect" -> returns.
+	if d["func"] == "connect":
+		print("Client connected successfully!")
+		return
+
 	if "vel_right" in d:
 		d["vel_right"] = float(d["vel_right"])
 	if "vel_left" in d:

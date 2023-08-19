@@ -3,7 +3,7 @@
 <head>
 	<meta charset='utf-8' />
 	<meta name='viewport' content='width=device-width, user-scalable=no' />
-	<title>Fossbot_Car2</title>
+	<title>Fossbot-Simulator</title>
 	<style type='text/css'>
 
 		body {
@@ -126,13 +126,18 @@
 			bottom: 50px; /* Adjust this value to leave space for the footer */
 			background-color: rgb(0, 0, 0); /* Optional: Set the background color of the canvas container */
 		}
+		textarea#jsCode {
+			width: 90%; /* Set the width to a fixed pixel value */
+			height: 23vh; /* Set the height to a fixed pixel value */
+			resize: none; /* Disable the textarea resizing handle */
+		}
 
 		.footer {
 			position: fixed;
 			bottom: 0;
 			left: 0;
 			right: 0;
-			height: 50px; /* Set the height of the footer */
+			height: 33vh; /* Set the height of the footer */
 			background-color: rgb(255, 255, 255); /* Optional: Set the background color of the footer */
 			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 		}
@@ -172,7 +177,19 @@ window.addEventListener('DOMContentLoaded', () => {
 		<strong>Session ID: </strong>
 		<span id="session-id">{{ session_id }}</span>
 		<button onclick="copySessionId()">Copy</button>
-		<button onclick="test()">Test</button>
+		<br>
+		<textarea id="jsCode" placeholder="Write your JavaScript code here...">const session_id = "{{ session_id }}";
+const kwargs = {fossbot_name: "fossbot",};
+const fossbot = new FossBot(session_id, kwargs);
+
+// YOUR JS CODE HERE (example):
+// await fossbot.move_forward_default();
+
+await fossbot.exit(); // always use exit when execution finished.
+</textarea>
+		<br>
+		<button id="executeBtn">Execute</button>
+		<br>
 	</div>
 
 	<script>
@@ -207,53 +224,19 @@ window.addEventListener('DOMContentLoaded', () => {
 	<script type='text/javascript' src="{{url_for('static', filename='fossbot_class.js')}}"></script>
 
 	<script>
-		async function test() {
-			// Assuming you have a valid session_id and kwargs object
-			const session_id = "{{ session_id }}";
-			const kwargs = {
-				fossbot_name: "fossbot",
-			};
-			// Create a new instance of FossBot
-			const robot = new FossBot(session_id, kwargs);
-			// ultimate test:
-			await robot.move_distance(15, "reverse");
-			while (true) {
-				robot.just_move();
-				if (await robot.get_distance() < 3) {
-					robot.stop();
-					break;
-				}
+		function executeAsyncCode() {
+			try {
+				const jsCode = document.getElementById('jsCode').value;
+				eval(`(async () => { ${jsCode} })();`);
+			} catch (error) {
+				console.error(error);
 			}
-			for (let i = 0; i < 5; i++) {
-				robot.just_rotate(0);
-			}
-			robot.just_rotate(1);
-			for (let i = 0; i < 5; i++) {
-				robot.just_move("reverse");
-			}
-			await robot.rotate_90(0);
-			console.log("rotated.");
-			console.log(await robot.check_for_dark());
-			robot.play_sound("res://soundfx/startup.mp3");
-			await robot.move_distance(3, "reverse");
-			console.log("distance travelled");
-			await robot.rotate_90(1);
-			console.log("rotated.");
-			console.log(await robot.get_distance());
-			console.log(await robot.check_for_obstacle());
-			console.log(await robot.get_acceleration('x'));
-			console.log(await robot.get_gyroscope('z'));
-			robot.rgb_set_color("red");
-			await robot.move_distance(4);
-			await robot.wait(1);
-			await robot.rotate_clockwise_90();
-			await robot.rotate_counterclockwise_90();
-			await robot.wait(1);
-			robot.exit();
-
 		}
-	</script>
 
+		document.getElementById('executeBtn').addEventListener('click', () => {
+			executeAsyncCode();
+		});
+	</script>
 
 	<script type='text/javascript'>//<![CDATA[
 
