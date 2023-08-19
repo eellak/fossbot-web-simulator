@@ -37,10 +37,10 @@ func spawn_sphere(d):
 		return
 	var obs_inst = sphere_model.instance()
 	get_parent().add_child(obs_inst, true)
+	obs_inst.get_child(0).global_scale(Vector3(float(d.get("radius", 1)), float(d.get("radius", 1)), float(d.get("radius", 1))))
 	obs_inst.global_transform.origin.x = float(d["pos_y"])
 	obs_inst.global_transform.origin.z = float(d["pos_x"])
 	obs_inst.global_transform.origin.y = 1.8 * float(d.get("radius", 1)) + float(d["pos_z"])
-	obs_inst.get_child(0).global_scale(Vector3(float(d.get("radius", 1)), float(d.get("radius", 1)), float(d.get("radius", 1))))
 	set_obs_color(d, obs_inst)
 
 func set_obs_color(d, obs_inst):

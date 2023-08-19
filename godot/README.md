@@ -4,7 +4,7 @@ To run the server and connect to the simulator, run from exports directory:
 python3 server.py
 ```
 
-This should run a socketio-flask server. Go to http://localhost:8000/godot and try the simulator!
+This should run a socketio-flask server. Go to http://localhost:8000/godot or http://localhost:8000/godotcode and try the simulator!
 
 All the files necessary for deployment are in the exports folder (just download it, run the server as shown above, and then you can test the simulator).
 
@@ -24,4 +24,5 @@ All the files necessary for deployment are in the exports folder (just download 
 * If you implement any GET methods in godot, it is recommended to add them to the list PARALLEL_METHODS (in godot).
 * Sliding when fossbots collide (with each other or with obstacles) is reduced in method _integrate_forces of godot (if you increase mass, it is recommended to change the linear and angular damp on collision).
 * In every scene there should always be a foss_handler node.
-* If you upload an image, to check if upload is happening, see label "Loading Image..." in simulator. If you dont see that, reduce the chunk size in 
+* If you upload an image, to check if upload is happening, see label "Loading Image..." in simulator. If you dont see that, reduce the chunk size in client method.
+* Horizontal ground (for better rotation accuracy) is stored in sim_info.gd - it is set in foss_floor (if terrain r is < 3) and used in fossbot.gd

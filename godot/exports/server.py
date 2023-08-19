@@ -7,6 +7,7 @@ server_ip = os.getenv("SOCKETIO_IP", "localhost")
 server_port = int(os.getenv("SOCKETIO_PORT", "8000"))
 socketio_namespace = os.getenv("SOCKETIO_NAMESPACE", "/godot")
 fossbot_simapp_route = os.getenv("FOSSBOT_APP_ROUTE", "/godot")
+fossbot_simcode_route = os.getenv("FOSSBOT_APP_ROUTE", "/godotcode")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "this_is_a_secret")
@@ -22,6 +23,15 @@ def index():
     session_id = generate_session_id()
     session["session_id"] = session_id
     return render_template('index.html', session_id=session_id, ws_ip=server_ip, ws_port=server_port, sio_namespace=socketio_namespace)
+
+@app.route(fossbot_simcode_route)
+def code_index():
+    session.clear()
+    # generates session id for each tab:
+    session_id = generate_session_id()
+    session["session_id"] = session_id
+    return render_template('code_index.html', session_id=session_id, ws_ip=server_ip, ws_port=server_port, sio_namespace=socketio_namespace)
+
 
 @app.route('/<path:path>')
 def serve_static(path):
@@ -79,6 +89,7 @@ def disconnect():
     print(f"Client from room {session_id} was removed.")
 
 if __name__ == '__main__':
-    print(f"Godot server running on http://{server_ip}:{server_port}{fossbot_simapp_route}.")
+    print(f"Godot simulator running on http://{server_ip}:{server_port}{fossbot_simapp_route}.")
+    print(f"Godot code simulator running on http://{server_ip}:{server_port}{fossbot_simcode_route}.")
     socketio.run(app=app, host=server_ip, port=server_port)
     # socketio.run(app=app, host=server_ip, port=server_port, debug=True)
