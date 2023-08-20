@@ -697,6 +697,7 @@ func actual_rotate_90(delta, target_rot):
 		# init_player_pos
 		print("Final rot pos: " + str(self.rotation_degrees.y))
 		print(self.global_transform.origin)
+		send("Final rot pos: " + str(self.rotation_degrees.y))	# sends back to user to end rotation.
 
 func move_distance(d, direction="forward"):
 	# Sets the necessaruy variables for moving a specific distance.
