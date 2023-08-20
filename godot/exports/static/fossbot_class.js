@@ -223,13 +223,7 @@ class FossBot {
             vel_right: this.vel_right,
             vel_left: this.vel_left,
         };
-        await this.__post_godot(param);
-        let result = await this.__get_godot({ func: "deg_rotated" });
-        while (result < this.degree) {
-            result = await this.__get_godot({ func: "deg_rotated" });
-        }
-        //console.log("ROTATED DEGREES!");
-        this.stop();
+        await this.__get_godot(param);
     }
 
     rotate_clockwise() {
