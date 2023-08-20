@@ -505,7 +505,7 @@ class FossBot {
          * 
          * @param {Object} data - The data to be sent to Godot.
          * @returns {Promise} - A promise that resolves to the result received from Godot.
-         * @throws {Error} - If the function times out and no response is received from Godot within 5 seconds.
+         * @throws {Error} - If the function times out and no response is received from Godot within 30 seconds.
          */
         return new Promise((resolve, reject) => {
             data.fossbot_name = this.fossbot_name
@@ -514,7 +514,7 @@ class FossBot {
                 this.sio.off("godotMessage");
                 resolve(result["data"]);
             });
-            setTimeout(() => reject(new Error("Timeout")), 5000);
+            setTimeout(() => reject(new Error("Timeout")), 30000);
         });
     }
 
