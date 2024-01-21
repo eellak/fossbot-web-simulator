@@ -19,6 +19,7 @@ func _ready():
 	# Initializes foss_handler by saving this instance to a dict in sim_info.
 	# Also, here the connection to socketio happens (and the callback for sending data from socketio back to godot is initialized).
 	sim_info.init_foss_handler(get_node("."))
+	# When debugging comment out the following two lines
 	window.initGodotSocket()
 	window.initCallBack(data_callback)
 

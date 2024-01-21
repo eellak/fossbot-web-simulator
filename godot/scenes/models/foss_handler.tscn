@@ -13,6 +13,7 @@
 [sub_resource type="Environment" id=26]
 background_mode = 2
 background_sky = SubResource( 25 )
+ambient_light_sky_contribution = 0.11
 glow_enabled = true
 adjustment_enabled = true
 
@@ -20,10 +21,10 @@ adjustment_enabled = true
 script = ExtResource( 4 )
 
 [node name="foss_dropdown" type="OptionButton" parent="."]
-margin_left = 182.0
-margin_top = 25.0
-margin_right = 211.0
-margin_bottom = 45.0
+margin_left = 217.0
+margin_top = -41.0
+margin_right = 246.0
+margin_bottom = -21.0
 
 [node name="camera_handler" type="Spatial" parent="."]
 script = ExtResource( 7 )
@@ -60,10 +61,10 @@ icon_align = 1
 script = ExtResource( 1 )
 
 [node name="timer_label" type="Label" parent="."]
-margin_left = 898.0
-margin_top = 17.0
-margin_right = 1006.0
-margin_bottom = 38.0
+margin_left = 859.0
+margin_top = -38.0
+margin_right = 967.0
+margin_bottom = -17.0
 custom_colors/font_color = Color( 0, 0, 0, 1 )
 custom_colors/font_outline_modulate = Color( 1, 1, 1, 1 )
 text = "00 : 00 : 00 : 000"
@@ -84,11 +85,15 @@ environment = SubResource( 26 )
 script = ExtResource( 5 )
 
 [node name="BrightnessSlider" type="HSlider" parent="WorldEnvironment"]
-margin_left = 352.0
-margin_top = 13.0
-margin_right = 707.0
-margin_bottom = 29.0
+margin_left = 232.0
+margin_top = 24.0
+margin_right = 792.0
+margin_bottom = 40.0
 value = 50.0
+
+[node name="DirectionalLight" type="DirectionalLight" parent="WorldEnvironment"]
+transform = Transform( 1, 0, 0, 0, -0.69145, 0.722424, 0, -0.722424, -0.69145, 0, 9.05016, -6.80534 )
+shadow_enabled = true
 
 [node name="camera_null" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.7823, 0 )

@@ -80,6 +80,8 @@ var rot_deg_func_end = false	# same here but with rotation degree.
 # VARS FOR WEBSOCKET CONNECTION ====================================
 var user_id
 
+var req_func
+
 var horizontal_ground = true
 
 var window = JavaScript.get_interface("window")
@@ -101,19 +103,20 @@ func check_last_just_do_time(last_do_time):
 	if abs(Time.get_ticks_msec() - last_do_time) >= wait_until_next_just_do * 1000:
 		prev_func = "stop"
 		stop()
+		send('done')
 
 func data_received(pkt):
 	# Method called by foss_handler (if this fossbot has to execute something).
 	# Param: pkt: the package from the handler (with all the functions and execution details for this fossbot).
 	if pkt == null or str(pkt) == 'nan':
-		if prev_func == "just_move":
-			check_last_just_do_time(last_just_move_time_func)
-		elif prev_func == "just_rotate":
-			check_last_just_do_time(last_just_rot_time_func)
+		#if prev_func == "just_move":
+			#check_last_just_do_time(last_just_move_time_func)
+		#elif prev_func == "just_rotate":
+			#check_last_just_do_time(last_just_rot_time_func)
 		return
 
 	var d = pkt
-	var req_func = d["func"]
+	req_func = d["func"]
 
 	if not req_func in PARALLEL_METHODS:
 		sum_distance = 0
@@ -134,26 +137,34 @@ func data_received(pkt):
 			return
 		if prev_func != "just_move":
 			just_move(d, tmp_move_dir)
+			send('done')
 	elif req_func == "move_distance":
 		var tmp_move_dir = d["direction"]
 		if tmp_move_dir != "forward" and tmp_move_dir != "reverse":
 			print("Motor accepts only forward and reverse values.")
 			return
 		move_distance(d, tmp_move_dir)
+		
 	elif req_func == "move_forward_distance":
 		move_distance(d, "forward")
+		
 	elif req_func == "move_reverse_distance":
 		move_distance(d, "reverse")
+		
 	elif req_func == "move_forward_default":
 		d["tar_dist"] = d["def_dist"]
 		move_distance(d, "forward")
+		
 	elif req_func == "move_reverse_default":
 		d["tar_dist"] = d["def_dist"]
 		move_distance(d, "reverse")
+		
 	elif req_func == "rotate_clockwise_90":
 		rotate_90(1, d)
+		
 	elif req_func == "rotate_counterclockwise_90":
 		rotate_90(0, d)
+		
 	elif req_func == "just_rotate":
 		last_just_rot_time_func = Time.get_ticks_msec()
 		var tmp_dir_id = d["dir_id"]
@@ -162,12 +173,17 @@ func data_received(pkt):
 			return
 		if prev_func != "just_rotate":
 			just_rotate(d)
+			send("done")
+			
 	elif req_func == "rotate_90":
 		var tmp_dir_id = d["dir_id"]
 		if tmp_dir_id != 0 and tmp_dir_id != 1:
 			print('Requested direction is out of bounds.')
 			return
 		rotate_90(tmp_dir_id, d)
+	elif req_func == "stop":
+		 stop()
+		 send("done")
 	elif req_func == "check_for_obstacle":
 		send(get_ultrasonic(false))
 	elif req_func == "get_distance":
@@ -188,6 +204,7 @@ func data_received(pkt):
 		stop()
 		wait_time = d["wait_time"]
 		print("Waiting for %d seconds." % wait_time)
+		send('done')
 		# send(message)
 	elif req_func == "play_sound":
 		if music == null:
@@ -201,8 +218,10 @@ func data_received(pkt):
 			music.stream = music_file
 			add_child(music)
 			music.play()
+			
 	elif req_func == "rgb_set_color":
 		change_rgb(d["color"])
+		send('done')
 	elif req_func == "get_acceleration":
 		send_axis_vector(accelerometer, d["axis"])
 	elif req_func == "get_gyroscope":
@@ -218,7 +237,8 @@ func data_received(pkt):
 		exit()
 	elif req_func == "dist_travelled":
 		if move_dist_func_end:
-			send(sum_distance)
+			#send(sum_distance)
+			send('done')
 		elif d["motor_name"] == motor_left_name:
 			send(total_left_dist)
 		elif d["motor_name"] == motor_right_name:
@@ -269,7 +289,7 @@ func move_motor(direction, vel):
 
 func send(msg):
 	# Sends message to client from this fossbot.
-	window.sendMessageFromGodot(msg, fossbot_name, user_id)
+	window.sendMessageFromGodot(msg,req_func, fossbot_name, user_id)
 
 # =======================================================================
 
@@ -326,7 +346,8 @@ func _physics_process(delta):
 			music = null
 			prev_music_pos = -1
 			curr_music_pos = 0
-			print("Sound ended.")
+			#print("Sound ended.")
+			send('done')
 		prev_music_pos = curr_music_pos
 
 	move(vel_right, vel_left)
@@ -634,9 +655,10 @@ func count_distance():
 	if sum_distance < target_distance:
 		sum_distance += init_player_pos.distance_to(self.global_transform.origin)
 		init_player_pos = self.global_transform.origin
-		print(sum_distance)
+		#print(sum_distance)
 	else:
 		move_dist_func_end = true
+		send('done')
 		stop()
 
 func exit():
@@ -654,7 +676,7 @@ func rotate_90(dr_id: int, d):
 	resume()	# ALWAYS add resume() when function is movement related!
 	move_func = true
 	dir_id = dr_id
-	print(self.global_transform.origin)
+	#print(self.global_transform.origin)
 	var init_rot = rotation_degrees.y
 	time_curr_ros = 0
 	time_target_ros = -1
@@ -686,7 +708,7 @@ func actual_rotate_90(delta, target_rot):
 	#		 target_rot: the target degrees to be rotated.
 	var rotation_angle = abs(sign(rotation.y) * delta * angular_velocity.y)
 	sum_rot += rotation_angle
-	print(rad2deg(sum_rot))
+	#print(rad2deg(sum_rot))
 	if rad2deg(sum_rot) >= target_rot:
 		rot_deg_func_end = true
 		stop()
@@ -695,9 +717,10 @@ func actual_rotate_90(delta, target_rot):
 		if horizontal_ground and not collision_occured:
 			rotation_degrees.y = final_rot_pos
 		# init_player_pos
-		print("Final rot pos: " + str(self.rotation_degrees.y))
-		print(self.global_transform.origin)
-		send("Final rot pos: " + str(self.rotation_degrees.y))	# sends back to user to end rotation.
+		#print("Final rot pos: " + str(self.rotation_degrees.y))
+		#print(self.global_transform.origin)
+		send("done")
+		#send("Final rot pos: " + str(self.rotation_degrees.y))	# sends back to user to end rotation.
 
 func move_distance(d, direction="forward"):
 	# Sets the necessaruy variables for moving a specific distance.
@@ -718,6 +741,8 @@ func move_distance(d, direction="forward"):
 	elif direction == "reverse":
 		vel_right = -abs(d["vel_right"])
 		vel_left = -abs(d["vel_left"])
+
+		
 
 func just_move(d, direction="forward"):
 	# Sets the necessaruy variables for moving forever towards input direction.
